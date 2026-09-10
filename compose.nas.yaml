@@ -16,13 +16,58 @@ services:
       HELIOS_DATA_DIR: /data/db
       HELIOS_MEDIA_DIR: /data/media
     volumes:
-      - /vol1/1000/HeliosGen/data:/data
+      - /vol1/1000/HeliosGen/data/db:/data/db
+      - /vol1/@team/AIGC 创作/创作资产:/data/media
     mem_limit: 2g
     cpus: 2.0
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  asset-bridge:
+    build:
+      context: ./bridge
+    image: heliosgen-asset-bridge:nas
+    container_name: heliosgen-asset-bridge
+    restart: unless-stopped
+    init: true
+    network_mode: host
+    depends_on:
+      heliosgen:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Shanghai
+      MEDIA_ROOT: /media
+      HELIOS_BASE_URL: http://127.0.0.1:17860
+      SEEK_BASE_URL: http://127.0.0.1:5666/seek
+      SEEK_PROJECT_GUID: ${SEEK_PROJECT_GUID:-}
+      SEEK_FOLDER_GUID: ${SEEK_FOLDER_GUID:-}
+      SEEK_ROOT_RELATED_PATH: ${SEEK_ROOT_RELATED_PATH:-/创作资产}
+      SEEK_TOKEN_FILE: /run/secrets/seek_token
+      SEEK_CATEGORY_TAGS: ${SEEK_CATEGORY_TAGS:-{}}
+      SEEK_DEFAULT_TAGS: ${SEEK_DEFAULT_TAGS:-}
+      SEEK_IMAGE_TAG_GUID: ${SEEK_IMAGE_TAG_GUID:-}
+      SEEK_VIDEO_TAG_GUID: ${SEEK_VIDEO_TAG_GUID:-}
+    volumes:
+      - /vol1/@team/AIGC 创作/创作资产:/media:ro
+      - /vol1/1000/HeliosGen/data/bridge:/state
+      - /home/wyai/heliosgen/secrets/seek-token:/run/secrets/seek_token:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
+      - DAC_READ_SEARCH
     logging:
       driver: json-file
       options:

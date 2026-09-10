@@ -102,6 +102,20 @@ export const api = {
     return request(`/api/gallery?${q}`);
   },
 
+  assets: ({ category, collection, query } = {}) => {
+    const q = new URLSearchParams();
+    if (category) q.set("category", category);
+    if (collection) q.set("collection", collection);
+    if (query) q.set("q", query);
+    return request(`/api/assets?${q}`);
+  },
+  assetImport: (payload) => request("/api/assets/import", { method: "POST", json: payload }),
+  assetUpdate: (id, payload) => request(`/api/assets/${encodeURIComponent(id)}`, { method: "PATCH", json: payload }),
+  assetReconcile: () => request("/api/assets/reconcile", { method: "POST", timeoutMs: 300_000 }),
+  assetCollections: () => request("/api/assets/collections"),
+  assetCollectionCreate: (payload) => request("/api/assets/collections", { method: "POST", json: payload }),
+  assetCollectionMembership: (payload) => request("/api/assets/collections", { method: "PATCH", json: payload }),
+
   generateImage: (payload) => request("/api/generate", { method: "POST", json: payload, timeoutMs: 300_000 }),
   generateVideo: (payload) => request("/api/generate-video", { method: "POST", json: payload, timeoutMs: 300_000 }),
 

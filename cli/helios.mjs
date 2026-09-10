@@ -178,6 +178,49 @@ const commands = {
     out(await api.gallery({ type: opt.type ?? "image", source: opt.source, page: num(opt.page, 0) }));
   },
 
+  async asset({ pos, opt }) {
+    const sub = pos[0] ?? "list";
+    if (sub === "list") return out(await api.assets({ category: opt.category, collection: opt.collection, query: opt.query }));
+    if (sub === "reconcile") return out(await api.assetReconcile());
+    if (sub === "import") {
+      const value = req(pos[1], "asset import <NAS-relative-path|/generated/url> [--category ...]");
+      const locator = value.startsWith("/generated/") ? { url: value } : { relativePath: value };
+      return out(await api.assetImport({ ...locator, category: opt.category, name: opt.name, description: opt.description, prompt: opt.prompt, model: opt.model, seekGuid: opt["seek-guid"], source: opt.source }));
+    }
+    if (sub === "add") {
+      const file = req(pos[1], "asset add <local-file> [--category ...]");
+      const url = await uploadFile(file);
+      return out(await api.assetImport({ url, category: opt.category, name: opt.name, description: opt.description, prompt: opt.prompt, model: opt.model, source: "agent_upload" }));
+    }
+    if (sub === "update") {
+      const id = req(pos[1], "asset update <id> [--category ...]");
+      const payload = {};
+      for (const key of ["name", "category", "description", "prompt", "model"]) if (opt[key] !== undefined) payload[key] = opt[key];
+      if (opt["seek-guid"] !== undefined) payload.seekGuid = opt["seek-guid"];
+      return out(await api.assetUpdate(id, payload));
+    }
+    if (sub === "collection") {
+      const action = pos[1] ?? "list";
+      if (action === "list") return out(await api.assetCollections());
+      if (action === "create") {
+        const name = req(pos[2], "asset collection create <name> [--smart --category ...]");
+        const kind = opt.smart ? "smart" : "manual";
+        const rule = kind === "smart" ? {
+          ...(opt.category ? { category: opt.category } : {}),
+          ...(opt.source ? { source: opt.source } : {}),
+          ...(opt.mime ? { mimeType: opt.mime } : {}),
+          ...(opt.query ? { query: opt.query } : {}),
+        } : null;
+        return out(await api.assetCollectionCreate({ name, kind, rule, seekTagGuid: opt["seek-tag-guid"] }));
+      }
+      if (action === "add" || action === "remove") {
+        return out(await api.assetCollectionMembership({ collectionId: req(pos[2], `asset collection ${action} <collection-id> <asset-id>`), assetId: req(pos[3], `asset collection ${action} <collection-id> <asset-id>`), included: action === "add" }));
+      }
+      throw new HeliosError(`Unknown asset collection action: ${action}`);
+    }
+    throw new HeliosError(`Unknown asset subcommand: ${sub} (list|add|import|update|reconcile|collection)`);
+  },
+
   async download({ pos, opt }) {
     if (!pos[0]) throw new HeliosError("Usage: helios download <url> [--out <dir>] [--name <file>]");
     const dest = await downloadAsset(pos[0], opt.out ?? ".", opt.name);
@@ -356,6 +399,13 @@ const HELP = [
   "",
   "Library:",
   "  helios gallery [--type image|video] [--source generation|upload] [--page N]",
+  "  helios asset list [--category Characters|Props|Environments|Styles|Scenes] [--collection ID]",
+  "  helios asset add <local-file> [--category C] [--prompt P] [--model M]",
+  "  helios asset import <NAS-relative-path|/generated/url> [--category C] [--seek-guid ID]",
+  "  helios asset update <id> [--category C] [--description D] [--prompt P] [--model M]",
+  "  helios asset reconcile",
+  "  helios asset collection list | create <name> [--smart --category C|--query Q]",
+  "  helios asset collection add|remove <collection-id> <asset-id>",
   "  helios download <url> [--out DIR] [--name FILE]",
   "",
   "Workflows (canvas):",

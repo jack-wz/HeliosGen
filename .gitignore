@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+__pycache__/
+*.pyc
 
 # debug
 npm-debug.log*
@@ -56,6 +58,7 @@ next-env.d.ts
 /deployment/*.png
 /deployment/*.jpg
 /deployment/*.mp4
+/output/playwright/
 
 # Tauri desktop build artifacts
 /src-tauri/target/

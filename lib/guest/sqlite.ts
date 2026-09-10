@@ -56,6 +56,47 @@ function createSchema(d: DatabaseSync): void {
       hash TEXT PRIMARY KEY, cdn_url TEXT, mime_type TEXT, byte_size INTEGER
     );
 
+    CREATE TABLE IF NOT EXISTS creative_assets (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      relative_path TEXT NOT NULL UNIQUE,
+      url TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      category TEXT,
+      mime_type TEXT NOT NULL,
+      source TEXT NOT NULL,
+      description TEXT,
+      prompt TEXT,
+      model TEXT,
+      seek_guid TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_creative_assets_category
+      ON creative_assets (user_id, category, updated_at DESC);
+
+    CREATE TABLE IF NOT EXISTS asset_collections (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      kind TEXT NOT NULL DEFAULT 'manual',
+      rule TEXT,
+      seek_tag_guid TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_asset_collections_name
+      ON asset_collections (user_id, name);
+
+    CREATE TABLE IF NOT EXISTS asset_collection_items (
+      collection_id TEXT NOT NULL,
+      asset_id TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      PRIMARY KEY (collection_id, asset_id),
+      FOREIGN KEY (collection_id) REFERENCES asset_collections(id) ON DELETE CASCADE,
+      FOREIGN KEY (asset_id) REFERENCES creative_assets(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
 
     CREATE TABLE IF NOT EXISTS folders (

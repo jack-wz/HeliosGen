@@ -175,6 +175,90 @@ server.registerTool(
   wrap(async ({ url, destDir }) => ({ path: await downloadAsset(url, destDir ?? ".") })),
 );
 
+const categorySchema = z.enum(["Characters", "Props", "Environments", "Styles", "Scenes"]);
+
+server.registerTool(
+  "helios_asset_list",
+  {
+    description: "List creative assets shared by HeliosGen and Seek, including prompt/model provenance, category counts and collections.",
+    inputSchema: {
+      category: categorySchema.optional(),
+      collection: z.string().optional().describe("Collection id"),
+      query: z.string().optional(),
+    },
+  },
+  wrap(async ({ category, collection, query }) => api.assets({ category, collection, query })),
+);
+
+server.registerTool(
+  "helios_asset_add",
+  {
+    description: "Upload a local media file once to the NAS and register it as a creative asset usable by gallery and workflow pickers.",
+    inputSchema: {
+      path: z.string().describe("Absolute local file path"),
+      category: categorySchema.optional(),
+      name: z.string().optional(), description: z.string().optional(),
+      prompt: z.string().optional(), model: z.string().optional(),
+    },
+  },
+  wrap(async ({ path, ...metadata }) => {
+    const url = await uploadFile(path);
+    return api.assetImport({ url, source: "agent_upload", ...metadata });
+  }),
+);
+
+server.registerTool(
+  "helios_asset_import",
+  {
+    description: "Register an existing file already inside the NAS shared media directory without copying it. Use relativePath for Seek-to-Helios imports.",
+    inputSchema: {
+      relativePath: z.string().optional().describe("Path relative to HELIOS_MEDIA_DIR, for example assets/Characters/hero.png"),
+      url: z.string().optional().describe("Existing /generated/... URL"),
+      category: categorySchema.optional(), name: z.string().optional(),
+      description: z.string().optional(), prompt: z.string().optional(), model: z.string().optional(),
+      seekGuid: z.string().optional(), source: z.string().optional(),
+    },
+  },
+  wrap(async (input) => api.assetImport(input)),
+);
+
+server.registerTool(
+  "helios_asset_update",
+  {
+    description: "Update creative asset metadata or classification; the shared media file remains unchanged.",
+    inputSchema: {
+      id: z.string(), category: categorySchema.nullable().optional(), name: z.string().optional(),
+      description: z.string().nullable().optional(), prompt: z.string().nullable().optional(),
+      model: z.string().nullable().optional(), seekGuid: z.string().nullable().optional(),
+    },
+  },
+  wrap(async ({ id, ...updates }) => api.assetUpdate(id, updates)),
+);
+
+server.registerTool(
+  "helios_asset_reconcile",
+  {
+    description: "Scan the shared media directory and idempotently register every supported file. Does not copy or modify media bytes.",
+    inputSchema: {},
+  },
+  wrap(async () => api.assetReconcile()),
+);
+
+server.registerTool(
+  "helios_asset_collection_create",
+  {
+    description: "Create a manual collection or a smart rule collection over shared creative assets.",
+    inputSchema: {
+      name: z.string(), kind: z.enum(["manual", "smart"]).optional(),
+      category: categorySchema.optional(), source: z.string().optional(),
+      mimeType: z.string().optional(), query: z.string().optional(), seekTagGuid: z.string().optional(),
+    },
+  },
+  wrap(async ({ name, kind, seekTagGuid, ...rule }) => api.assetCollectionCreate({
+    name, kind: kind ?? "manual", rule: (kind === "smart") ? rule : null, seekTagGuid,
+  })),
+);
+
 server.registerTool(
   "helios_workflow_list",
   {

@@ -56,6 +56,35 @@ interface FolderItemRecord {
   created_at: string;
 }
 
+export interface CreativeAsset {
+  id: string;
+  user_id: string;
+  relative_path: string;
+  url: string;
+  name: string;
+  category: string | null;
+  mime_type: string;
+  source: string;
+  description: string | null;
+  prompt: string | null;
+  model: string | null;
+  seek_guid: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssetCollection {
+  id: string;
+  user_id: string;
+  name: string;
+  kind: "manual" | "smart";
+  rule: Record<string, string> | null;
+  seek_tag_guid: string | null;
+  created_at: string;
+  updated_at: string;
+  asset_count?: number;
+}
+
 const now = (): string => new Date().toISOString();
 const parseArr = (v: unknown): string[] | undefined =>
   typeof v === "string" && v ? (JSON.parse(v) as string[]) : undefined;
@@ -182,6 +211,175 @@ export function getUploads(userId: string, mimeTypePrefix: string): Upload[] {
 
 export function deleteUpload(id: string, userId: string): void {
   db().prepare("DELETE FROM uploads WHERE id = ? AND user_id = ?").run(id, userId);
+}
+
+export function ensureUploadForAsset(url: string, mimeType: string, source = "asset_import"): void {
+  const exists = db().prepare("SELECT 1 FROM uploads WHERE r2_url = ? LIMIT 1").get(url);
+  if (exists) return;
+  insertUpload({ user_id: "guest", r2_url: url, mime_type: mimeType, source });
+}
+
+export function findGenerationByMediaUrl(url: string): Pick<Generation, "prompt" | "model" | "created_at"> | null {
+  const rows = db().prepare(`
+    SELECT * FROM generations
+    WHERE status = 'done' AND (
+      image_url = ? OR video_url = ? OR image_urls LIKE ?
+    )
+    ORDER BY created_at DESC LIMIT 20
+  `).all(url, url, `%${url.replace(/[\\%_]/g, "\\$&")}%`) as GenRow[];
+  for (const row of rows) {
+    const generation = rowToGeneration(row);
+    if (generation.image_url === url || generation.video_url === url || generation.image_urls?.includes(url)) {
+      return { prompt: generation.prompt, model: generation.model, created_at: generation.created_at };
+    }
+  }
+  return null;
+}
+
+// ── Creative Assets ────────────────────────────────────────────────────────
+
+function rowToCreativeAsset(r: Record<string, unknown>): CreativeAsset {
+  return {
+    id: r.id as string,
+    user_id: r.user_id as string,
+    relative_path: r.relative_path as string,
+    url: r.url as string,
+    name: r.name as string,
+    category: (r.category as string) ?? null,
+    mime_type: r.mime_type as string,
+    source: r.source as string,
+    description: (r.description as string) ?? null,
+    prompt: (r.prompt as string) ?? null,
+    model: (r.model as string) ?? null,
+    seek_guid: (r.seek_guid as string) ?? null,
+    created_at: r.created_at as string,
+    updated_at: r.updated_at as string,
+  };
+}
+
+export function upsertCreativeAsset(data: Omit<CreativeAsset, "id" | "created_at" | "updated_at">): CreativeAsset {
+  const ts = now();
+  const current = db().prepare("SELECT id, created_at FROM creative_assets WHERE relative_path = ?")
+    .get(data.relative_path) as { id: string; created_at: string } | undefined;
+  const id = current?.id ?? randomUUID();
+  db().prepare(`
+    INSERT INTO creative_assets
+      (id, user_id, relative_path, url, name, category, mime_type, source,
+       description, prompt, model, seek_guid, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(relative_path) DO UPDATE SET
+      url = excluded.url, name = excluded.name, category = COALESCE(excluded.category, creative_assets.category),
+      mime_type = excluded.mime_type, source = excluded.source,
+      description = COALESCE(excluded.description, creative_assets.description),
+      prompt = COALESCE(excluded.prompt, creative_assets.prompt),
+      model = COALESCE(excluded.model, creative_assets.model),
+      seek_guid = COALESCE(excluded.seek_guid, creative_assets.seek_guid),
+      updated_at = excluded.updated_at
+  `).run(
+    id, data.user_id, data.relative_path, data.url, data.name, data.category,
+    data.mime_type, data.source, data.description, data.prompt, data.model,
+    data.seek_guid, current?.created_at ?? ts, ts,
+  );
+  return rowToCreativeAsset(db().prepare("SELECT * FROM creative_assets WHERE id = ?").get(id) as Record<string, unknown>);
+}
+
+export function getCreativeAssets(userId: string): CreativeAsset[] {
+  return (db().prepare("SELECT * FROM creative_assets WHERE user_id = ? ORDER BY updated_at DESC")
+    .all(userId) as Record<string, unknown>[]).map(rowToCreativeAsset);
+}
+
+export function deleteCreativeAssetsMissingFromDisk(userId: string, existingPaths: Set<string>): number {
+  const stale = getCreativeAssets(userId).filter((asset) => !existingPaths.has(asset.relative_path));
+  const database = db();
+  for (const asset of stale) {
+    database.prepare("DELETE FROM creative_assets WHERE id = ? AND user_id = ?").run(asset.id, userId);
+    database.prepare("DELETE FROM uploads WHERE r2_url = ? AND source IN ('seek_import', 'asset_import')").run(asset.url);
+  }
+  return stale.length;
+}
+
+export function getCreativeAsset(id: string, userId: string): CreativeAsset | null {
+  const row = db().prepare("SELECT * FROM creative_assets WHERE id = ? AND user_id = ?")
+    .get(id, userId) as Record<string, unknown> | undefined;
+  return row ? rowToCreativeAsset(row) : null;
+}
+
+export function updateCreativeAsset(
+  id: string,
+  userId: string,
+  updates: Partial<Pick<CreativeAsset, "name" | "category" | "description" | "prompt" | "model" | "seek_guid">>,
+): CreativeAsset | null {
+  const sets = ["updated_at = ?"];
+  const values: unknown[] = [now()];
+  for (const key of ["name", "category", "description", "prompt", "model", "seek_guid"] as const) {
+    if (key in updates) { sets.push(`${key} = ?`); values.push(updates[key] ?? null); }
+  }
+  values.push(id, userId);
+  db().prepare(`UPDATE creative_assets SET ${sets.join(", ")} WHERE id = ? AND user_id = ?`)
+    .run(...(values as never[]));
+  return getCreativeAsset(id, userId);
+}
+
+function collectionMatches(asset: CreativeAsset, rule: Record<string, string> | null): boolean {
+  if (!rule) return true;
+  if (rule.category && asset.category !== rule.category) return false;
+  if (rule.source && asset.source !== rule.source) return false;
+  if (rule.mimeType && !asset.mime_type.startsWith(rule.mimeType)) return false;
+  if (rule.query) {
+    const haystack = [asset.name, asset.description, asset.prompt, asset.model].filter(Boolean).join(" ").toLowerCase();
+    if (!haystack.includes(rule.query.toLowerCase())) return false;
+  }
+  return true;
+}
+
+export function getAssetCollections(userId: string): AssetCollection[] {
+  const rows = db().prepare("SELECT * FROM asset_collections WHERE user_id = ? ORDER BY created_at")
+    .all(userId) as Record<string, unknown>[];
+  const assets = getCreativeAssets(userId);
+  return rows.map((r) => {
+    const kind = r.kind === "smart" ? "smart" : "manual";
+    const rule = r.rule ? JSON.parse(r.rule as string) as Record<string, string> : null;
+    const asset_count = kind === "smart"
+      ? assets.filter((asset) => collectionMatches(asset, rule)).length
+      : Number((db().prepare("SELECT COUNT(*) AS count FROM asset_collection_items WHERE collection_id = ?")
+          .get(r.id as string) as { count: number }).count);
+    return { ...r, kind, rule, asset_count } as AssetCollection;
+  });
+}
+
+export function createAssetCollection(
+  userId: string,
+  name: string,
+  kind: "manual" | "smart",
+  rule: Record<string, string> | null,
+  seekTagGuid: string | null,
+): AssetCollection {
+  const id = randomUUID();
+  const ts = now();
+  db().prepare(`
+    INSERT INTO asset_collections (id, user_id, name, kind, rule, seek_tag_guid, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, userId, name, kind, rule ? JSON.stringify(rule) : null, seekTagGuid, ts, ts);
+  return getAssetCollections(userId).find((c) => c.id === id)!;
+}
+
+export function setAssetCollectionMembership(collectionId: string, assetId: string, included: boolean): void {
+  if (included) {
+    db().prepare("INSERT INTO asset_collection_items (collection_id, asset_id, created_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING")
+      .run(collectionId, assetId, now());
+  } else {
+    db().prepare("DELETE FROM asset_collection_items WHERE collection_id = ? AND asset_id = ?")
+      .run(collectionId, assetId);
+  }
+}
+
+export function getCollectionAssetIds(collection: AssetCollection): Set<string> {
+  if (collection.kind === "smart") {
+    return new Set(getCreativeAssets(collection.user_id).filter((asset) => collectionMatches(asset, collection.rule)).map((asset) => asset.id));
+  }
+  const rows = db().prepare("SELECT asset_id FROM asset_collection_items WHERE collection_id = ?")
+    .all(collection.id) as { asset_id: string }[];
+  return new Set(rows.map((row) => row.asset_id));
 }
 
 // ── Asset Cache ────────────────────────────────────────────────────────────
