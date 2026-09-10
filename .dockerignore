@@ -1,0 +1,13 @@
+.git
+node_modules
+.next
+.env*
+!.env.example
+data
+public/generated
+src-tauri
+*.tsbuildinfo
+.DS_Store
+deployment
+*.tar.gz
+*.log

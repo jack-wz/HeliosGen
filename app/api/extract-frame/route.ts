@@ -6,6 +6,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { uploadBuffer } from "@/lib/storage";
+import { readLocalMedia } from "@/lib/guest/readLocalMedia";
 import { writeFile, readFile, unlink, mkdtemp } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
@@ -23,15 +24,21 @@ export async function POST(req: NextRequest) {
   try {
     const { videoUrl, timeSeconds = 0, lastFrame = false } = await req.json();
 
-    if (!videoUrl) {
+    if (typeof videoUrl !== "string" || !videoUrl) {
       return NextResponse.json({ error: "videoUrl is required" }, { status: 400 });
     }
 
-    const res = await fetch(videoUrl);
-    if (!res.ok) {
-      return NextResponse.json({ error: `Failed to fetch video: ${res.status}` }, { status: 400 });
+    const localVideo = await readLocalMedia(videoUrl);
+    let videoBuffer: Buffer;
+    if (localVideo) {
+      videoBuffer = localVideo.buffer;
+    } else {
+      const res = await fetch(videoUrl);
+      if (!res.ok) {
+        return NextResponse.json({ error: `Failed to fetch video: ${res.status}` }, { status: 400 });
+      }
+      videoBuffer = Buffer.from(await res.arrayBuffer());
     }
-    const videoBuffer = Buffer.from(await res.arrayBuffer());
 
     const tmpDir  = await mkdtemp(join(tmpdir(), "frame-"));
     inputPath  = join(tmpDir, "input.mp4");

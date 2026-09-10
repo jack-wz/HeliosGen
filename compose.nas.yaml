@@ -1,0 +1,30 @@
+name: heliosgen
+services:
+  heliosgen:
+    build:
+      context: .
+      dockerfile: Dockerfile.nas
+    image: heliosgen:nas-f4aae3f
+    container_name: heliosgen
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:17860:3000"
+    environment:
+      TZ: Asia/Shanghai
+      HELIOS_WEB: "1"
+      HELIOS_DATA_DIR: /data/db
+      HELIOS_MEDIA_DIR: /data/media
+    volumes:
+      - /vol1/1000/HeliosGen/data:/data
+    mem_limit: 2g
+    cpus: 2.0
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

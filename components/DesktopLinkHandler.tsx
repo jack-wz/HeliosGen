@@ -8,6 +8,9 @@ import { useEffect } from "react";
  */
 export default function DesktopLinkHandler() {
   useEffect(() => {
+    // Browser deployments open links on the client, not on the server host.
+    if (process.env.NEXT_PUBLIC_HELIOS_WEB === "1") return;
+
     const isExternal = (raw: string | null | undefined): boolean => {
       if (!raw) return false;
       try {

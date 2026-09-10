@@ -6,6 +6,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { uploadBuffer } from "@/lib/storage";
+import { readLocalMedia } from "@/lib/guest/readLocalMedia";
 import { writeFile, readFile, unlink, mkdtemp } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
@@ -23,20 +24,27 @@ export async function POST(req: NextRequest) {
   try {
     const { videoUrl, startTime, endTime } = await req.json();
 
-    if (!videoUrl || startTime === undefined || endTime === undefined) {
+    if (typeof videoUrl !== "string" || !videoUrl || startTime === undefined || endTime === undefined) {
       return NextResponse.json({ error: "videoUrl, startTime and endTime are required" }, { status: 400 });
     }
     if (endTime <= startTime) {
       return NextResponse.json({ error: "endTime must be greater than startTime" }, { status: 400 });
     }
 
-    // Download the video
-    const res = await fetch(videoUrl);
-    if (!res.ok) {
-      return NextResponse.json({ error: `Failed to fetch video: ${res.status}` }, { status: 400 });
+    const localVideo = await readLocalMedia(videoUrl);
+    let videoBuffer: Buffer;
+    let contentType: string;
+    if (localVideo) {
+      videoBuffer = localVideo.buffer;
+      contentType = localVideo.contentType;
+    } else {
+      const res = await fetch(videoUrl);
+      if (!res.ok) {
+        return NextResponse.json({ error: `Failed to fetch video: ${res.status}` }, { status: 400 });
+      }
+      videoBuffer = Buffer.from(await res.arrayBuffer());
+      contentType = res.headers.get("content-type") ?? "video/mp4";
     }
-    const videoBuffer = Buffer.from(await res.arrayBuffer());
-    const contentType = res.headers.get("content-type") ?? "video/mp4";
 
     // Write to temp files
     const tmpDir  = await mkdtemp(join(tmpdir(), "trim-"));

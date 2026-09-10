@@ -1,0 +1,78 @@
+{
+  "base_url": "https://fn-evo4-8cad.tail071480.ts.net:9443",
+  "api": {
+    "/": {
+      "status": 200,
+      "bytes": 38007
+    },
+    "/workflow": {
+      "status": 200,
+      "bytes": 63739
+    },
+    "/gallery": {
+      "status": 200,
+      "bytes": 37938
+    },
+    "/chat": {
+      "status": 200,
+      "bytes": 38076
+    },
+    "/api/workflows": {
+      "spaces": []
+    },
+    "/api/folders": {
+      "folders": [],
+      "folderItems": []
+    },
+    "/api/gallery": {
+      "items": [],
+      "hasMore": false,
+      "total": 0
+    },
+    "/api/settings/kie-key": {
+      "hasToken": false
+    },
+    "/api/settings/codex-status": {
+      "installed": false,
+      "authFound": false,
+      "ready": false
+    },
+    "/api/job-status?taskId=heliosgen-nas-smoke-missing": {
+      "status": "not_found"
+    }
+  },
+  "assets": [
+    {
+      "url": "/generated/uploads/9d2076ac-6df5-42a8-8734-50f65128b468.png",
+      "mime": "image/png",
+      "sha256": "1199d1e03f54068cc496da433ccf6157fdfe3e363c6fc1b6669a5029d3b5b3ed",
+      "bytes": 18996
+    },
+    {
+      "url": "/generated/references/fa90ee5d-1d6b-4854-85e5-82cbebe30953.mp4",
+      "mime": "video/mp4",
+      "sha256": "cf2bc1e9600964d2742ca110028f3f71fa3190706f71896ad20a755dd2d46573",
+      "bytes": 89823
+    }
+  ],
+  "outputs": [
+    {
+      "name": "frame",
+      "url": "/generated/references/901fa885-1d28-49ec-b1da-34ab11397598.jpg",
+      "bytes": 6944,
+      "sha256": "8915ea4a2bfbc850943afc6ed29027ba16c576fb467fa21071408df972946b8f"
+    },
+    {
+      "name": "trim",
+      "url": "/generated/references/5ee16b13-af40-4d8c-8e80-5986173e9295.mp4",
+      "bytes": 23035,
+      "sha256": "9141d89e3f534b3ad0b352ee4930ceabd2e28bdc35341a74b4c06dd183d3cfbf"
+    }
+  ],
+  "billable_generation": "not_run_no_key",
+  "desktop_opener_disabled": true,
+  "traversal_rejected": true,
+  "restart_persistence": "passed",
+  "test_gallery_records_removed": true,
+  "final_media_access_after_cleanup": "passed"
+}

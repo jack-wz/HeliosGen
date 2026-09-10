@@ -1,0 +1,40 @@
+{
+  "base_url": "https://fn-evo4-8cad.tail071480.ts.net:9443",
+  "cli": "~/.local/bin/helios",
+  "mcp_server": "cli/mcp/server.mjs (registered as mcp_servers.heliosgen in ~/.codex/config.toml)",
+  "skill": "~/.codex/skills/heliosgen/SKILL.md",
+  "server_additions": [
+    "GET /api/models",
+    "GET/PUT/DELETE /api/workflows/<id>",
+    "fix /api/download local media 502"
+  ],
+  "verified": {
+    "doctor": "ok (11 image models, 17 video models, key configured)",
+    "image_generation": {
+      "taskId": "53f040c9e6521919fb888edebd3e9b2f",
+      "model": "nano-banana-2-lite 1k 1:1",
+      "credits": 3,
+      "output": "/generated/images/7afad1ce-81ae-4430-bd8f-c4336bee4589.png (1024x1024)"
+    },
+    "video_generation": {
+      "taskId": "6ba1afa0e4946cd8d2ec732079988162",
+      "model": "seedance-2-fast i2v 5s 9:16",
+      "credits": 124,
+      "output": "/generated/videos/ca7f7085-7604-4ea4-912e-a1e95c917c4f.mp4 (720x1280 h264, 5.04s, decode-verified)"
+    },
+    "workflow_create": {
+      "id": "wf-mtv53cih6cdq",
+      "name": "agent-smoke-t2i2v",
+      "nodes": 4,
+      "other_spaces_untouched": true
+    },
+    "download_fix": "cli + /api/download both serve stored media after redeploy",
+    "mcp_tools_call": "helios_credit via MCP stdio returned balance",
+    "job_recovery": "old taskId resolves done after container recreations"
+  },
+  "credits": {
+    "before": 3886.83,
+    "after": 3759.83,
+    "spent": 127.0
+  }
+}

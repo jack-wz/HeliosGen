@@ -1,0 +1,10 @@
+{
+  "name": "helios-cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CLI and agent client for a self-hosted HeliosGen NAS deployment",
+  "bin": {
+    "helios": "./helios.mjs"
+  }
+}

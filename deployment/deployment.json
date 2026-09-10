@@ -1,0 +1,25 @@
+{
+  "upstream": "https://github.com/SegFault42/HeliosGen",
+  "revision": "f4aae3f154474fc73e4e019deabad68fa686552a",
+  "version": "1.2.1",
+  "nas": "100.112.104.77",
+  "compose_dir": "/home/wyai/heliosgen",
+  "persistent_data": "/vol1/1000/HeliosGen/data",
+  "url": "https://fn-evo4-8cad.tail071480.ts.net:9443/",
+  "image": "heliosgen:nas-f4aae3f",
+  "status": "deployed_verified",
+  "container": "heliosgen",
+  "image_arch": "amd64",
+  "backend": "127.0.0.1:17860",
+  "https": "https://fn-evo4-8cad.tail071480.ts.net:9443/",
+  "health": "healthy",
+  "persistence": "verified_after_container_recreation",
+  "smoke": "passed",
+  "billable_generation": "not_run_no_api_key",
+  "release": "https://github.com/SegFault42/HeliosGen/releases/tag/1.2.1",
+  "release_note": "tag 1.2.1 == deployed commit f4aae3f; code unchanged since initial deploy; baked version string corrected 1.2.0 -> 1.2.1",
+  "update_check": {
+    "updateAvailable": false,
+    "currentVersion": "1.2.1"
+  }
+}

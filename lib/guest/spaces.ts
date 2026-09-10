@@ -30,6 +30,38 @@ export function getSpaces(): GuestSpace[] {
     .filter((s): s is GuestSpace => s !== null);
 }
 
+export function getSpace(id: string): GuestSpace | null {
+  const row = db().prepare("SELECT data FROM spaces WHERE id = ?").get(id) as
+    | { data: string }
+    | undefined;
+  if (!row) return null;
+  try {
+    return JSON.parse(row.data) as GuestSpace;
+  } catch {
+    return null;
+  }
+}
+
+/** Upsert a single space without touching any others (unlike saveSpaces). */
+export function saveSpace(space: GuestSpace): void {
+  db()
+    .prepare(
+      `INSERT INTO spaces (id, name, data, updated_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET name = excluded.name, data = excluded.data, updated_at = excluded.updated_at`,
+    )
+    .run(
+      space.id,
+      space.name ?? "Untitled",
+      JSON.stringify(space),
+      Number(space.updatedAt ?? space.createdAt ?? Date.now()),
+    );
+}
+
+export function deleteSpace(id: string): boolean {
+  const res = db().prepare("DELETE FROM spaces WHERE id = ?").run(id);
+  return Number(res.changes) > 0;
+}
+
 export function saveSpaces(spaces: GuestSpace[]): void {
   const d = db();
   d.exec("BEGIN");

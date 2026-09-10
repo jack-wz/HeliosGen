@@ -51,6 +51,12 @@ next-env.d.ts
 /public/generated/**
 !/public/generated/.gitkeep
 
+# Agent CLI / MCP dependencies and NAS deployment test artifacts
+/cli/mcp/node_modules/
+/deployment/*.png
+/deployment/*.jpg
+/deployment/*.mp4
+
 # Tauri desktop build artifacts
 /src-tauri/target/
 /src-tauri/loader/target/

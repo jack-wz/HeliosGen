@@ -17,6 +17,10 @@ function opener(): { cmd: string; args: string[] } {
 }
 
 export async function POST(req: NextRequest) {
+  if (process.env.HELIOS_WEB === "1") {
+    return NextResponse.json({ error: "Desktop URL opener is unavailable" }, { status: 404 });
+  }
+
   let url: string;
   try {
     url = (await req.json()).url;
@@ -30,8 +34,14 @@ export async function POST(req: NextRequest) {
 
   const { cmd, args } = opener();
   try {
-    const child = spawn(cmd, [...args, url], { detached: true, stdio: "ignore" });
-    child.unref();
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(cmd, [...args, url], { detached: true, stdio: "ignore" });
+      child.once("error", reject);
+      child.once("spawn", () => {
+        child.unref();
+        resolve();
+      });
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
