@@ -51,6 +51,23 @@ Seek 当前通过 `AIGC 创作/创作资产` 索引同一个媒体根目录，�
 
 Seek token 只保存在 NAS 的 `/home/wyai/heliosgen/secrets/seek-token`（`0600`），不进入 Compose、Git 或日志。`.env.sync` 保存项目/目录 GUID 与标签映射，不保存 token。
 
+### token 自愈
+
+fnOS 重启后可能把 bind mount 源文件重建为 root 所有的空目录，导致 `asset-bridge` 启动时报 `Seek token file not found`。启动容器前先运行 `scripts/prestart-token.sh` 自愈：
+
+```sh
+sh /home/wyai/heliosgen/scripts/prestart-token.sh
+docker compose --env-file .env.sync -f compose.nas.yaml up -d
+```
+
+脚本行为：
+
+- token 路径是目录：删除该目录（需要 `wyai` 能通过 Docker helper 容器执行，因为目录归 root 所有）。
+- token 文件不存在或为空：从 `/home/wyai/heliosgen/.seek-token.bak`（`0600` 备份）恢复。
+- 两者都不可用：报错退出，此时需要重新从浏览器 Cookie 或 `loginByPassword` 获取 token。
+
+token 备份在 NAS 本地 `/home/wyai/heliosgen/.seek-token.bak` 和本地机器 `~/.config/heliosgen/seek-token` 两处，均为 `0600` 权限，不进入 Git。
+
 ## NAS 适配
 
 - Node 24，按上游 pnpm 锁文件安装；容器内提供 FFmpeg/FFprobe。

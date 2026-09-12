@@ -31,6 +31,15 @@ CATEGORY_TAGS = json.loads(os.environ.get("SEEK_CATEGORY_TAGS", "{}"))
 DEFAULT_TAGS = [item for item in os.environ.get("SEEK_DEFAULT_TAGS", "").split(",") if item]
 IMAGE_TAG = os.environ.get("SEEK_IMAGE_TAG_GUID", "")
 VIDEO_TAG = os.environ.get("SEEK_VIDEO_TAG_GUID", "")
+SEEK_DESCRIPTION_LIMIT = int(os.environ.get("SEEK_DESCRIPTION_LIMIT", "2000"))
+SEEK_DESCRIPTION_TARGET = int(os.environ.get("SEEK_DESCRIPTION_TARGET", "1900"))
+# 与 Helios lib/guest/creativeAssets.ts 的 MIME_BY_EXT 保持一致；其余文件
+# （如 bgremoval 模型分块）不是创作资产，Helios 会拒绝导入。
+MEDIA_EXTENSIONS = {
+    ".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic",
+    ".mp4", ".webm", ".mov",
+    ".mp3", ".wav", ".m4a",
+}
 
 
 def load_state() -> dict[str, str]:
@@ -87,20 +96,52 @@ def seek_files(folder_guid: str, base_relative=""):
     else:
         current = base_relative
     for item in payload.get("files") or []:
-        yield (f"{current}/{item['name']}".strip("/"), item)
+        relative = f"{current}/{item['name']}".strip("/")
+        if Path(relative).suffix.lower() in MEDIA_EXTENSIONS:
+            yield (relative, item)
     for folder in payload.get("folders") or []:
         yield from seek_files(folder["guid"], f"{current}/{folder['name']}".strip("/"))
 
 
 def metadata_description(asset: dict) -> str:
-    lines = ["HeliosGen 创作资产", f"路径: {asset['relative_path']}"]
+    header = ["HeliosGen 创作资产", f"路径: {asset['relative_path']}"]
     if asset.get("model"):
-        lines.append(f"模型: {asset['model']}")
-    if asset.get("prompt"):
-        lines.append(f"提示词: {asset['prompt']}")
-    if asset.get("description"):
-        lines.append(f"说明: {asset['description']}")
-    return "\n".join(lines)
+        header.append(f"模型: {asset['model']}")
+    prompt = asset.get("prompt") or ""
+    description = asset.get("description") or ""
+
+    def assemble(prompt_text: str, description_text: str) -> str:
+        lines = list(header)
+        if prompt_text:
+            lines.append(f"提示词: {prompt_text}")
+        if description_text:
+            lines.append(f"说明: {description_text}")
+        return "\n".join(lines)
+
+    def fit(text: str, budget: int) -> str:
+        marker = "…（已截断，完整内容见 HeliosGen）"
+        if len(text) <= budget:
+            return text
+        if budget <= len(marker):
+            return ""
+        return text[: budget - len(marker)] + marker
+
+    text = assemble(prompt, description)
+    if len(text) <= SEEK_DESCRIPTION_TARGET:
+        return text
+    # 先压缩说明字段，再压缩提示词，保证不超过 Seek 2000 字符限制。
+    description_budget = SEEK_DESCRIPTION_TARGET - len(assemble(prompt, ""))
+    if description:
+        description = fit(description, description_budget)
+    text = assemble(prompt, description)
+    if len(text) <= SEEK_DESCRIPTION_TARGET:
+        return text
+    prompt_budget = SEEK_DESCRIPTION_TARGET - len(assemble("", description))
+    prompt = fit(prompt, prompt_budget)
+    text = assemble(prompt, description)
+    if len(text) <= SEEK_DESCRIPTION_LIMIT:
+        return text
+    return text[: SEEK_DESCRIPTION_LIMIT - 1] + "…"
 
 
 def asset_tags(asset: dict) -> list[str]:
