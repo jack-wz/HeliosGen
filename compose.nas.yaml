@@ -15,6 +15,12 @@ services:
       HELIOS_WEB: "1"
       HELIOS_DATA_DIR: /data/db
       HELIOS_MEDIA_DIR: /data/media
+    dns:
+      - 223.5.5.5
+      - 119.29.29.29
+    dns_opt:
+      - attempts:3
+      - timeout:2
     volumes:
       - /vol1/1000/HeliosGen/data/db:/data/db
       - /vol1/@team/AIGC 创作/创作资产:/data/media
