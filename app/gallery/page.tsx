@@ -256,6 +256,25 @@ function releaseImageSlot() {
   if (next) { _imgActive++; next(); }
 }
 
+// Concurrency limiter: at most 3 gallery videos decode/play simultaneously.
+// Without this, every video card that scrolls into view starts decoding at
+// once, which overloads the video decoder and shows up as page-wide jitter
+// (stutter in scrolling, hover transitions, everything) — worse the more
+// video thumbnails are on screen at a given zoom level.
+const _videoQueue: Array<() => void> = [];
+let _videoActive = 0;
+const VIDEO_CONCURRENCY = 3;
+function requestVideoSlot(fn: () => void): () => void {
+  if (_videoActive < VIDEO_CONCURRENCY) { _videoActive++; fn(); return () => {}; }
+  _videoQueue.push(fn);
+  return () => { const i = _videoQueue.indexOf(fn); if (i !== -1) _videoQueue.splice(i, 1); };
+}
+function releaseVideoSlot() {
+  _videoActive = Math.max(0, _videoActive - 1);
+  const next = _videoQueue.shift();
+  if (next) { _videoActive++; next(); }
+}
+
 // Module-level store for gallery drag — avoids dataTransfer.getData() browser quirks
 let _galleryDragItem: { url: string; mediaType: string } | null = null;
 let _reorderDragItem: { id: string; listTarget: "refImage" | "resource" | "referenceVideo" | "audioRef" } | null = null;
@@ -5821,21 +5840,35 @@ function GalleryCard({
     if (!isVideo) return;
     const el = cardRef.current;
     if (!el) return;
+    let hasVideoSlot = false;
+    let cancelVideoSlot: (() => void) | null = null;
+    const releaseVideoSlotIfHeld = () => {
+      cancelVideoSlot?.();
+      cancelVideoSlot = null;
+      if (hasVideoSlot) { hasVideoSlot = false; releaseVideoSlot(); }
+    };
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          videoRef.current?.play().then(() => setPlaying(true)).catch(() => {});
-        } else {
+        if (entry.isIntersecting && shouldLoad) {
+          if (!hasVideoSlot && !cancelVideoSlot) {
+            cancelVideoSlot = requestVideoSlot(() => {
+              hasVideoSlot = true;
+              cancelVideoSlot = null;
+              videoRef.current?.play().then(() => setPlaying(true)).catch(() => {});
+            });
+          }
+        } else if (!entry.isIntersecting) {
           videoRef.current?.pause();
           setPlaying(false);
+          releaseVideoSlotIfHeld();
         }
       },
       { root: scrollContainer?.current ?? null, rootMargin: "0px", threshold: 0.1 },
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); releaseVideoSlotIfHeld(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isVideo]);
+  }, [isVideo, shouldLoad]);
 
   const storedRatio = (() => {
     const ar = item.aspect_ratio;
@@ -5933,7 +5966,6 @@ function GalleryCard({
             ref={videoRef}
             src={shouldLoad ? item.url : undefined}
             muted={videoMuted || !isHovered}
-            autoPlay
             loop
             playsInline
             preload="metadata"
