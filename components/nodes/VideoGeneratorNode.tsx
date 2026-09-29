@@ -1220,7 +1220,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
         const color = SOURCE_HANDLE_COLORS[def.type];
         return (
           <div
-            className="absolute pointer-events-none z-[1001] text-[10px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
+            className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
             style={{
               top: `calc(50% + ${sourceHandleCenterOffset(idx)}px)`,
               right: 0,
@@ -1279,7 +1279,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
             : HANDLE_COLORS[hoveredDef.id] ?? "#888";
         return (
           <div
-            className="absolute pointer-events-none z-[1001] text-[10px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
+            className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
             style={{
               top: `calc(50% + ${centerOffset}px)`,
               left: 0,
@@ -1330,12 +1330,12 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                         <circle cx="12" cy="16" r="1" fill="#c04040" />
                       </svg>
                       {(entry.error === "moderation_blocked" || entry.error?.includes?.("moderation_blocked") || entry.error?.includes?.("flagged as sensitive")) ? (
-                        <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#f87171]">
+                        <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#f87171]">
                           <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
                           <span>{t("nsfwDetected")}</span>
                         </div>
                       ) : (
-                        <p className="text-[10px] text-[#f87171] leading-snug break-words w-full">{entry.error}</p>
+                        <p className="text-[11px] text-[#f87171] leading-snug break-words w-full">{entry.error}</p>
                       )}
                       <button
                         onMouseDown={(e) => e.stopPropagation()}
@@ -1349,7 +1349,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                           <path d="M10 11v6M14 11v6" />
                           <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
                         </svg>
-                        <span className="text-[11px] font-medium text-red-400">{tGeneric("delete")}</span>
+                        <span className="text-[12px] font-medium text-red-400">{tGeneric("delete")}</span>
                       </button>
                     </div>
                   ) : (
@@ -1386,7 +1386,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   <path d="M12 7v5" stroke="#c04040" strokeWidth="2" strokeLinecap="round" />
                   <circle cx="12" cy="16" r="1" fill="#c04040" />
                 </svg>
-                <span className="text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80", background: "rgba(74,222,128,0.07)" }}>
+                <span className="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80", background: "rgba(74,222,128,0.07)" }}>
                   Credits refunded
                 </span>
               </div>
@@ -1395,12 +1395,12 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 const msg = (data.errorMsg as string) ?? t("generationFailed");
                 const isNsfw = msg === "moderation_blocked" || msg.includes("moderation_blocked") || msg.includes("flagged as sensitive");
                 return isNsfw ? (
-                  <div className="flex items-center gap-1.5 text-[#f87171] text-[10px]">
+                  <div className="flex items-center gap-1.5 text-[#f87171] text-[11px]">
                     <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
                     <span>{t("nsfwDetected")}</span>
                   </div>
                 ) : (
-                  <p className="text-[#f87171] text-[10px] leading-[1.5] break-words">{msg}</p>
+                  <p className="text-[#f87171] text-[11px] leading-[1.5] break-words">{msg}</p>
                 );
               })()}
             </div>
@@ -1409,7 +1409,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               {textNode && (
                 <div className="absolute bottom-12 left-4 flex items-center gap-1.5 z-10">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                  <span className="text-[11px] text-[#555]">{textNode.data.label as string}</span>
+                  <span className="text-[12px] text-[#555]">{textNode.data.label as string}</span>
                 </div>
               )}
             </div>
@@ -1523,10 +1523,10 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
             {/* Scrubber + time */}
             <div className="mt-auto px-3 pb-3 flex flex-col gap-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-white font-mono tabular-nums">{fmtTime(currentSec)}</span>
+                <span className="text-[12px] text-white font-mono tabular-nums">{fmtTime(currentSec)}</span>
                 {captureErr
-                  ? <span className="text-[10px] text-red-400">{captureErr}</span>
-                  : <span className="text-[10px] text-white/40">drag to seek</span>
+                  ? <span className="text-[11px] text-red-400">{captureErr}</span>
+                  : <span className="text-[11px] text-white/40">drag to seek</span>
                 }
               </div>
               <input
@@ -1548,7 +1548,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); captureFrame(); }}
                   disabled={capturing}
-                  className="nodrag flex-1 h-7 rounded-full bg-white/90 text-black text-[11px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                  className="nodrag flex-1 h-7 rounded-full bg-white/90 text-black text-[12px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                 >
                   {capturing ? (
                     <>
@@ -1577,7 +1577,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     setPickerOpen(false);
                     lastEdgeIdRef.current = null;
                   }}
-                  className="nodrag h-7 px-3 rounded-full bg-white/10 text-white text-[11px] flex items-center justify-center cursor-pointer"
+                  className="nodrag h-7 px-3 rounded-full bg-white/10 text-white text-[12px] flex items-center justify-center cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1596,7 +1596,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3 3" />
             </svg>
-            <span className="text-[11px] font-medium" style={{ color: "rgba(148,163,184,0.8)" }}>{t("queued")}</span>
+            <span className="text-[12px] font-medium" style={{ color: "rgba(148,163,184,0.8)" }}>{t("queued")}</span>
           </div>
         )}
 
@@ -1618,7 +1618,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   <path d="M5 1 A4 4 0 0 1 9 5" stroke="#2DD4BF" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               )}
-              <span className="text-[11px] font-medium" style={{ color: isPending ? "#888" : "#2DD4BF" }}>
+              <span className="text-[12px] font-medium" style={{ color: isPending ? "#888" : "#2DD4BF" }}>
                 {isPending ? t("pending") : t("generating")}
               </span>
             </div>
@@ -1633,7 +1633,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   <circle cx="12" cy="12" r="9" />
                   <path d="m6 6 12 12" />
                 </svg>
-                <span className="text-[11px] text-[#ccc] font-medium">{tGeneric("cancel")}</span>
+                <span className="text-[12px] text-[#ccc] font-medium">{tGeneric("cancel")}</span>
               </button>
             )}
           </div>
@@ -1669,7 +1669,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
             className="absolute bottom-0 left-0 right-0 flex items-center gap-2 px-2.5 h-9 opacity-0 group-hover/player:opacity-100 transition-opacity z-20"
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <span className="text-[10px] text-white/60 font-mono tabular-nums shrink-0">{fmtTime(currentSec)}</span>
+            <span className="text-[11px] text-white/60 font-mono tabular-nums shrink-0">{fmtTime(currentSec)}</span>
             <div
               className="flex-1 h-[2px] bg-white/15 rounded-full cursor-pointer"
               onClick={(e) => {
@@ -1716,7 +1716,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   onClick={() => { setModeOpen((o) => !o); setModelOpen(false); setRatioOpen(false); setDurOpen(false); setGrokResOpen(false); }}
                   className="flex items-center gap-1.5 pl-2 pr-1.5 py-1 hover:brightness-125 transition-all whitespace-nowrap"
                 >
-                  <span className="text-[11px] text-white/70">{cfg.modes.find((m) => m.value === mode)?.label ?? mode}</span>
+                  <span className="text-[12px] text-white/70">{cfg.modes.find((m) => m.value === mode)?.label ?? mode}</span>
                   <ChevronIcon open={modeOpen} />
                 </button>
                 {cfg.apiInput.useMotionControl && (
@@ -1724,9 +1724,9 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     <span className="w-px h-3 bg-white/10 shrink-0" />
                     <div className="relative group/orient-info flex items-center px-1.5 py-1">
                       <div className="w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center text-white/40 hover:text-white/70 hover:border-white/40 transition-colors cursor-default select-none">
-                        <span className="text-[8px] font-semibold leading-none">i</span>
+                        <span className="text-[9px] font-semibold leading-none">i</span>
                       </div>
-                      <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 rounded-lg text-[10px] leading-[1.6] text-[#AAA] opacity-0 group-hover/orient-info:opacity-100 transition-opacity z-50 node-slide-reveal" style={{ background: "#111317", border: "1px solid #2A2A2A" }}>
+                      <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 rounded-lg text-[11px] leading-[1.6] text-[#AAA] opacity-0 group-hover/orient-info:opacity-100 transition-opacity z-50 node-slide-reveal" style={{ background: "#111317", border: "1px solid #2A2A2A" }}>
                         {t("orientationHint")}
                       </div>
                     </div>
@@ -1746,7 +1746,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
           const resPicker = cfg.resolutions ? (
             <div className="relative shrink-0">
               <Pill onClick={() => { setGrokResOpen((o) => !o); setModelOpen(false); setRatioOpen(false); setDurOpen(false); setModeOpen(false); }}>
-                <span className="text-[11px] text-white/70">{resolution}</span>
+                <span className="text-[12px] text-white/70">{resolution}</span>
                 <ChevronIcon open={grokResOpen} />
               </Pill>
               <FloatMenu open={grokResOpen}>
@@ -1775,7 +1775,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     <span className="shrink-0 text-white/60" style={{ lineHeight: 0 }}>
                       <NodeProviderIcon provider={cfg.provider} />
                     </span>
-                    <span className="text-[11px] text-white/70">{cfg.name}</span>
+                    <span className="text-[12px] text-white/70">{cfg.name}</span>
                     <ChevronIcon open={modelOpen} />
                   </Pill>
                   <FloatMenu open={modelOpen}>
@@ -1816,7 +1816,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                               if (removedHandles.length) killEdgesForHandles(id, removedHandles);
                               setModelOpen(false);
                             }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 text-[11px] hover:bg-[#141C28] transition-colors ${videoModelId === m.id ? "text-white font-medium" : "text-muted-foreground"}`}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-[12px] hover:bg-[#141C28] transition-colors ${videoModelId === m.id ? "text-white font-medium" : "text-muted-foreground"}`}
                           >
                             <span className="shrink-0 text-white/50" style={{ lineHeight: 0 }}>
                               <NodeProviderIcon provider={m.provider} />
@@ -1844,7 +1844,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                       style={{ backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}
                     >−</button>
                     <Pill onClick={() => { setDurOpen((o) => !o); setModelOpen(false); setRatioOpen(false); setModeOpen(false); setGrokResOpen(false); }}>
-                      <span className="text-[11px] text-white/70 tabular-nums">{duration}s</span>
+                      <span className="text-[12px] text-white/70 tabular-nums">{duration}s</span>
                       <ChevronIcon open={durOpen} />
                     </Pill>
                     <button
@@ -1867,7 +1867,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                           onMouseDown={(e) => e.stopPropagation()}
                           onPointerDown={(e) => e.stopPropagation()}
                         >
-                          <span className="text-[11px] text-[#AAA] tabular-nums shrink-0 w-6">{duration}s</span>
+                          <span className="text-[12px] text-[#AAA] tabular-nums shrink-0 w-6">{duration}s</span>
                           <div className="w-px h-3.5 shrink-0" style={{ background: "#2A2A2A" }} />
                           <input
                             type="range"
@@ -1892,7 +1892,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   <div className="relative">
                     <Pill onClick={() => { setRatioOpen((o) => !o); setModelOpen(false); setDurOpen(false); setModeOpen(false); setGrokResOpen(false); }}>
                       <AspectIcon ratio={aspectRatio} />
-                      <span className="text-[11px] text-white/70">{aspectRatio}</span>
+                      <span className="text-[12px] text-white/70">{aspectRatio}</span>
                       <ChevronIcon open={ratioOpen} />
                     </Pill>
                     <FloatMenu open={ratioOpen}>
@@ -1917,7 +1917,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                   >
                     <ToggleSwitch on={sound} activeColor="#2dd4bf" />
-                    <span className="text-[11px] text-white/70">{t("sound")}</span>
+                    <span className="text-[12px] text-white/70">{t("sound")}</span>
                   </button>
                 )}
 
@@ -1937,7 +1937,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     className="flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors"
                     style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                   >                  <ToggleSwitch on={veoMode === "references"} activeColor="#fb923c" />
-                    <span className="text-[11px] text-white/70">{veoMode === "references" ? t("references") : t("frames")}</span>
+                    <span className="text-[12px] text-white/70">{veoMode === "references" ? t("references") : t("frames")}</span>
                   </button>
                 )}
                 {/* Seed input */}
@@ -1947,7 +1947,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                     onMouseDown={(e) => e.stopPropagation()}
                   >
-                    <span className="text-[11px] text-white/70 shrink-0 select-none">{t("seed")}</span>
+                    <span className="text-[12px] text-white/70 shrink-0 select-none">{t("seed")}</span>
                     <input
                       type="number"
                       min={0}
@@ -1959,7 +1959,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                         const v = e.target.value === "" ? 0 : Math.max(0, Math.min(2147483647, parseInt(e.target.value, 10)));
                         updateNodeData(id, { seed: isNaN(v) ? 0 : v });
                       }}
-                      className="nodrag w-12 bg-transparent border-none outline-none text-[11px] text-white/90 text-right tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      className="nodrag w-12 bg-transparent border-none outline-none text-[12px] text-white/90 text-right tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     />
                   </div>
                 )}
@@ -1968,7 +1968,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 {activeHandles.has("resource") && hasResource && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded-full" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     <span className="w-1.5 h-1.5 rounded-full bg-[#fb923c] shrink-0" />
-                    <span className="text-[10px] text-white/60">{t("imgRef")}</span>
+                    <span className="text-[11px] text-white/60">{t("imgRef")}</span>
                   </div>
                 )}
 
@@ -2026,7 +2026,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               className={`rounded-full transition-all ${i === currentGenIdx ? "w-3 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40 hover:bg-white/70"}`}
             />
           )) : (
-            <span className="text-[10px] text-white/60 font-mono tabular-nums">
+            <span className="text-[11px] text-white/60 font-mono tabular-nums">
               {currentGenIdx + 1} / {generations.length}
             </span>
           )}
@@ -2108,7 +2108,7 @@ function FloatItem({ children, active, onClick }: { children: React.ReactNode; a
     <button
       onMouseDown={(e) => e.stopPropagation()}
       onClick={onClick}
-      className={`w-full px-3 py-2 text-left text-[11px] hover:bg-[#141C28] transition-colors ${active ? "text-white font-medium" : "text-muted-foreground"}`}
+      className={`w-full px-3 py-2 text-left text-[12px] hover:bg-[#141C28] transition-colors ${active ? "text-white font-medium" : "text-muted-foreground"}`}
     >
       {children}
     </button>

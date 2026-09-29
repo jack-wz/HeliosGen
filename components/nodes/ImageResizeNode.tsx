@@ -71,9 +71,9 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
   };
 
   const tabCls = (active: boolean) =>
-    "flex-1 px-1.5 py-1 rounded text-[10px] font-medium transition-colors " +
+    "flex-1 px-1.5 py-1 rounded text-[11px] font-medium transition-colors " +
     (active ? "bg-blue-600 text-white" : "bg-neutral-800 text-neutral-400 hover:text-neutral-200");
-  const inputCls = "nodrag flex-1 min-w-0 px-1.5 py-0.5 bg-neutral-800 rounded text-neutral-200 text-[10px]";
+  const inputCls = "nodrag flex-1 min-w-0 px-1.5 py-0.5 bg-neutral-800 rounded text-neutral-200 text-[11px]";
 
   return (
     <div
@@ -109,11 +109,11 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
             // eslint-disable-next-line @next/next/no-img-element -- runtime workflow media
             <img src={preview} alt="Resize preview" className="max-w-full max-h-full object-contain" />
           ) : (
-            <span className="text-[10px] text-neutral-500">{t("connectImage")}</span>
+            <span className="text-[11px] text-neutral-500">{t("connectImage")}</span>
           )}
           {running && (
             <div className="absolute inset-0 bg-neutral-900/70 flex items-center justify-center">
-              <span className="text-[10px] text-white">{t("resizing")}</span>
+              <span className="text-[11px] text-white">{t("resizing")}</span>
             </div>
           )}
         </div>
@@ -125,7 +125,7 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
         </div>
 
         {mode === "exact" && (
-          <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
+          <div className="flex items-center gap-1 text-[11px] text-neutral-400 nodrag">
             <span>W</span>
             <input type="number" min={1} id={`${id}-width`} name="width" aria-label={t("ariaWidth")} className={inputCls} value={data.resizeWidth ?? 1024}
               onChange={(e) => updateNodeData(id, { resizeWidth: Number(e.target.value) || 1 })} />
@@ -135,7 +135,7 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
           </div>
         )}
         {mode === "maxEdge" && (
-          <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
+          <div className="flex items-center gap-1 text-[11px] text-neutral-400 nodrag">
             <span>{t("modeMaxEdge")}</span>
             <input type="number" min={1} id={`${id}-max-edge`} name="maxEdge" aria-label={t("ariaMaxEdge")} className={inputCls} value={data.resizeMaxEdge ?? 1024}
               onChange={(e) => updateNodeData(id, { resizeMaxEdge: Number(e.target.value) || 1 })} />
@@ -143,7 +143,7 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
           </div>
         )}
         {mode === "scale" && (
-          <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
+          <div className="flex items-center gap-1 text-[11px] text-neutral-400 nodrag">
             <span>{t("scale")}</span>
             <input type="number" min={1} max={400} id={`${id}-scale`} name="scalePct" aria-label={t("ariaScalePercent")} className={inputCls} value={data.resizeScalePct ?? 50}
               onChange={(e) => updateNodeData(id, { resizeScalePct: Math.min(400, Math.max(1, Number(e.target.value) || 1)) })} />
@@ -159,7 +159,7 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
           </div>
         )}
 
-        <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
+        <div className="flex items-center gap-1 text-[11px] text-neutral-400 nodrag">
           <select
             className="px-1.5 py-0.5 bg-neutral-800 rounded text-neutral-200"
             value={format}
@@ -181,7 +181,7 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] text-neutral-500">
+          <span className="text-[11px] text-neutral-500">
             {data.outputWidth ? data.outputWidth + "×" + data.outputHeight + " · " + formatBytes(data.outputBytes) : ""}
           </span>
           <button
@@ -195,12 +195,12 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
 
         {data.status === "error" && data.errorMsg && (
           <div className="px-2 py-1.5 bg-red-900/30 border border-red-700/50 rounded">
-            <p className="text-[10px] text-red-400 break-words">{data.errorMsg}</p>
+            <p className="text-[11px] text-red-400 break-words">{data.errorMsg}</p>
           </div>
         )}
         {data.persistWarning && (
           <div className="px-2 py-1.5 bg-amber-900/30 border border-amber-700/50 rounded">
-            <p className="text-[10px] text-amber-400 break-words">{data.persistWarning}</p>
+            <p className="text-[11px] text-amber-400 break-words">{data.persistWarning}</p>
           </div>
         )}
       </div>

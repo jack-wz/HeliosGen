@@ -98,7 +98,7 @@ export default function RemoveBackgroundNode({ id, data, selected }: NodeProps<R
             <img src={data.imageUrl} alt="Background removed" className="absolute inset-0 w-full h-full object-contain" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center border border-dashed border-neutral-600 rounded">
-              <span className="text-[10px] text-neutral-400 text-center px-4">
+              <span className="text-[11px] text-neutral-400 text-center px-4">
                 {upstreamImage ? t("removeBgRun") : t("removeBgConnect")}
               </span>
             </div>
@@ -125,7 +125,7 @@ export default function RemoveBackgroundNode({ id, data, selected }: NodeProps<R
         </div>
 
         {data.imageUrl && !running && (
-          <div className="text-[10px] text-neutral-500">
+          <div className="text-[11px] text-neutral-500">
             {t("removeBgOutputNote", { model: formatModelLabel(data.bgModel ?? "isnet_fp16", t) })}
           </div>
         )}
@@ -142,12 +142,12 @@ export default function RemoveBackgroundNode({ id, data, selected }: NodeProps<R
 
         {data.status === "error" && data.errorMsg && (
           <div className="px-2 py-1.5 bg-red-900/30 border border-red-700/50 rounded">
-            <p className="text-[10px] text-red-400 break-words">{data.errorMsg}</p>
+            <p className="text-[11px] text-red-400 break-words">{data.errorMsg}</p>
           </div>
         )}
         {data.persistWarning && (
           <div className="px-2 py-1.5 bg-amber-900/30 border border-amber-700/50 rounded">
-            <p className="text-[10px] text-amber-400 break-words">{data.persistWarning}</p>
+            <p className="text-[11px] text-amber-400 break-words">{data.persistWarning}</p>
           </div>
         )}
       </div>

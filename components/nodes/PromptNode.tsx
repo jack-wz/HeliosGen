@@ -900,7 +900,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
             onMouseDown={(e) => e.preventDefault()}
           >
             <div className="px-2.5 py-1.5 border-b border-[#1E1E1E]">
-              <p className="text-[9px] text-[#4A4A45] uppercase tracking-widest">
+              <p className="text-[10px] text-[#4A4A45] uppercase tracking-widest">
                 {t("connectedNodes")}
               </p>
             </div>
@@ -941,11 +941,11 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                       <EmptyThumb />
                     )}
                   </div>
-                  <span className={`text-[11px] font-medium truncate ${active ? "text-primary" : "text-[#CCCCCC]"}`}>
+                  <span className={`text-[12px] font-medium truncate ${active ? "text-primary" : "text-[#CCCCCC]"}`}>
                     @{label}
                   </span>
                   {active && (
-                    <span className="ml-auto text-[9px] text-[#4A4A45] shrink-0">↵</span>
+                    <span className="ml-auto text-[10px] text-[#4A4A45] shrink-0">↵</span>
                   )}
                 </button>
               );
@@ -971,7 +971,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] shrink-0">
-              <span className="text-[11px] text-[#555] uppercase tracking-widest font-medium">{data.label as string}</span>
+              <span className="text-[12px] text-[#555] uppercase tracking-widest font-medium">{data.label as string}</span>
               <button
                 onClick={() => { setExpandOpen(false); setExpandMentionQuery(null); }}
                 className="w-6 h-6 flex items-center justify-center rounded text-[#555] hover:text-white hover:bg-white/10 transition-colors"
@@ -1049,7 +1049,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                 onMouseDown={(e) => e.preventDefault()}
               >
                 <div className="px-3 py-1.5 border-b border-[#1A1A1A]">
-                  <p className="text-[9px] text-[#4A4A45] uppercase tracking-widest">{t("connectedNodes")}</p>
+                  <p className="text-[10px] text-[#4A4A45] uppercase tracking-widest">{t("connectedNodes")}</p>
                 </div>
                 {expandFilteredMentions.map((n, idx) => {
                   const label = n.data.label as string;
@@ -1069,8 +1069,8 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                           videoUrl ? <video src={videoUrl} autoPlay loop muted playsInline className="w-full h-full" style={{ objectFit: "cover" }} /> :
                             <EmptyThumb />}
                       </div>
-                      <span className={`text-[11px] font-medium truncate ${active ? "text-primary" : "text-[#CCC]"}`}>@{label}</span>
-                      {active && <span className="ml-auto text-[9px] text-[#4A4A45] shrink-0">↵</span>}
+                      <span className={`text-[12px] font-medium truncate ${active ? "text-primary" : "text-[#CCC]"}`}>@{label}</span>
+                      {active && <span className="ml-auto text-[10px] text-[#4A4A45] shrink-0">↵</span>}
                     </button>
                   );
                 })}

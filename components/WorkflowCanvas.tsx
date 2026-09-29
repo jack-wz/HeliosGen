@@ -1906,7 +1906,7 @@ export default function WorkflowCanvas() {
               </motion.div>
 
               <motion.p
-                className="text-[11px] tracking-wide pointer-events-none select-none"
+                className="text-[12px] tracking-wide pointer-events-none select-none"
                 style={{ color: "rgba(255,255,255,0.15)" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -1921,7 +1921,7 @@ export default function WorkflowCanvas() {
         {log.length > 0 && (
           <div className="h-24 bg-background border-t border-input overflow-y-auto px-4 py-2 shrink-0">
             {log.map((l, i) => (
-              <p key={i} className={`text-[11px] font-mono leading-5 ${l.ok ? "text-muted-foreground" : "text-red-500"}`}>
+              <p key={i} className={`text-[12px] font-mono leading-5 ${l.ok ? "text-muted-foreground" : "text-red-500"}`}>
                 {l.text}
               </p>
             ))}

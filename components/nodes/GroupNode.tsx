@@ -60,7 +60,7 @@ function Btn({
       }`}
     >
       {children}
-      {label && <span className="text-[11px] font-medium leading-none tracking-wide">{label}</span>}
+      {label && <span className="text-[12px] font-medium leading-none tracking-wide">{label}</span>}
     </button>
   );
 }
@@ -697,10 +697,10 @@ export default function GroupNode({ id, data, selected }: NodeProps<GroupNodeTyp
                       <path d="M2 1.5 L9 5 L2 8.5 Z" />
                     </svg>
                   )}
-                  <span className="text-[11px] font-medium leading-none tracking-wide">Run</span>
+                  <span className="text-[12px] font-medium leading-none tracking-wide">Run</span>
                   {readyJobCount > 0 && (
                     <span
-                      className="text-[10px] font-semibold leading-none rounded-full px-1.5 py-0.5"
+                      className="text-[11px] font-semibold leading-none rounded-full px-1.5 py-0.5"
                       style={{ background: "rgba(45,212,191,0.2)" }}
                     >
                       {readyJobCount}
@@ -757,14 +757,14 @@ export default function GroupNode({ id, data, selected }: NodeProps<GroupNodeTyp
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   <div className="px-3 py-1.5 border-b border-white/[0.06]">
-                    <span className="text-[10px] font-medium text-white/30 uppercase tracking-widest">
+                    <span className="text-[11px] font-medium text-white/30 uppercase tracking-widest">
                       Generate jobs
                     </span>
                   </div>
                   {jobs.map((job, i) => (
                     <div
                       key={job.genNodeId}
-                      className="flex items-center gap-2 px-3 py-2 text-[11px] transition-colors duration-100"
+                      className="flex items-center gap-2 px-3 py-2 text-[12px] transition-colors duration-100"
                       style={{
                         borderBottom: i < jobs.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                         cursor: "pointer",

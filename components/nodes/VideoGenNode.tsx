@@ -97,7 +97,7 @@ export default function VideoGenNode({ id, data }: NodeProps<VideoGenNodeType>) 
           </div>
         </div>
 
-        <div className="text-gray-600 text-[10px] flex gap-3">
+        <div className="text-gray-600 text-[11px] flex gap-3">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-indigo-400 inline-block" />
             Prompt in

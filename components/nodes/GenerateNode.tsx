@@ -862,7 +862,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
       {/* ── Handle tooltip ────────────────────────────────────────────── */}
       {hoveredHandle && (
         <div
-          className="absolute pointer-events-none z-[1001] text-[10px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
+          className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
           style={{
             top: hoveredHandle === "prompt"
               ? (caps.supportsImages ? "calc(50% - 16px)" : "50%")
@@ -915,7 +915,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 <circle cx="12" cy="12" r="9" />
                 <path d="M12 7v5l3 3" />
               </svg>
-              <span className="text-[11px] font-medium" style={{ color: "rgba(148,163,184,0.8)" }}>{t("queued")}</span>
+              <span className="text-[12px] font-medium" style={{ color: "rgba(148,163,184,0.8)" }}>{t("queued")}</span>
             </div>
           )}
           {busy && generations[currentGenIdx] === null && (
@@ -935,7 +935,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                     <path d="M5 1 A4 4 0 0 1 9 5" stroke="#2DD4BF" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                 )}
-                <span className="text-[11px] font-medium" style={{ color: isPending ? "#888" : "#2DD4BF" }}>
+                <span className="text-[12px] font-medium" style={{ color: isPending ? "#888" : "#2DD4BF" }}>
                   {isPending ? t("pending") : t("generating")}
                 </span>
               </div>
@@ -950,7 +950,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                     <circle cx="12" cy="12" r="9" />
                     <path d="m6 6 12 12" />
                   </svg>
-                  <span className="text-[11px] text-[#ccc] font-medium">{tGeneric("cancel")}</span>
+                  <span className="text-[12px] text-[#ccc] font-medium">{tGeneric("cancel")}</span>
                 </button>
               )}
             </div>
@@ -977,12 +977,12 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                         <circle cx="12" cy="16" r="1" fill="#c04040" />
                       </svg>
                       {(entry.error === "moderation_blocked" || entry.error?.includes?.("moderation_blocked") || entry.error?.includes?.("flagged as sensitive")) ? (
-                        <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#f87171]">
+                        <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#f87171]">
                           <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
                           <span>{t("nsfwDetected")}</span>
                         </div>
                       ) : (
-                        <p className="text-[10px] text-[#f87171] leading-snug break-words w-full">{entry.error}</p>
+                        <p className="text-[11px] text-[#f87171] leading-snug break-words w-full">{entry.error}</p>
                       )}
                       <button
                         onMouseDown={(e) => e.stopPropagation()}
@@ -996,7 +996,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                           <path d="M10 11v6M14 11v6" />
                           <path d="M9 6V4h6v2" />
                         </svg>
-                        <span className="text-[11px] font-medium text-red-400">{tGeneric("delete")}</span>
+                        <span className="text-[12px] font-medium text-red-400">{tGeneric("delete")}</span>
                       </button>
                     </div>
                   ) : (
@@ -1029,7 +1029,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                   <path d="M12 7v5" stroke="#c04040" strokeWidth="2" strokeLinecap="round" />
                   <circle cx="12" cy="16" r="1" fill="#c04040" />
                 </svg>
-                <span className="text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80", background: "rgba(74,222,128,0.07)" }}>
+                <span className="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80", background: "rgba(74,222,128,0.07)" }}>
                   Credits refunded
                 </span>
               </div>
@@ -1040,12 +1040,12 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 const msg = (data.errorMsg as string) ?? t("generationFailed");
                 const isNsfw = msg === "moderation_blocked" || msg.includes("moderation_blocked") || msg.includes("flagged as sensitive");
                 return isNsfw ? (
-                  <div className="flex items-center gap-1.5 text-[#f87171] text-[10px]">
+                  <div className="flex items-center gap-1.5 text-[#f87171] text-[11px]">
                     <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
                     <span>{t("nsfwDetected")}</span>
                   </div>
                 ) : (
-                  <p className="text-[#f87171] text-[10px] leading-[1.5] break-words">{msg}</p>
+                  <p className="text-[#f87171] text-[11px] leading-[1.5] break-words">{msg}</p>
                 );
               })()}
             </div>
@@ -1088,7 +1088,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               <span className="shrink-0 text-white/60" style={{ lineHeight: 0 }}>
                 <NodeProviderIcon provider={modelInfo.meta} />
               </span>
-              <span className={`text-[11px] transition-colors ${data.imageUrl ? "text-white/30" : "text-white/70"}`}>
+              <span className={`text-[12px] transition-colors ${data.imageUrl ? "text-white/30" : "text-white/70"}`}>
                 {modelInfo.name}
               </span>
               {!data.imageUrl && <ChevronIcon open={modelOpen} />}
@@ -1112,7 +1112,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                           if (!newCaps.supportsImages) removeEdgesForHandle(id, "image");
                           setModelOpen(false);
                         }}
-                        className={`w-full flex items-center gap-2 px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${model === m.id ? "text-white" : "text-muted-foreground"}`}
+                        className={`w-full flex items-center gap-2 px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${model === m.id ? "text-white" : "text-muted-foreground"}`}
                       >
                         <span className="shrink-0 text-white/50" style={{ lineHeight: 0 }}>
                           <NodeProviderIcon provider={m.meta} />
@@ -1137,7 +1137,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                 title={t("provider")}
               >
-                <span className="flex items-center gap-1.5 text-[11px] text-white/70">
+                <span className="flex items-center gap-1.5 text-[12px] text-white/70">
                   <ProviderBrandIcon id={currentProvider} />
                   {PROVIDERS.find((p) => p.id === currentProvider)?.label ?? "Kie.ai"}
                 </span>
@@ -1150,7 +1150,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                       key={p.id}
                       onMouseDown={(e) => e.stopPropagation()}
                       onClick={() => { setModelProvider(model, p.id); setProviderOpen(false); }}
-                      className={`w-full flex items-center gap-1.5 px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${currentProvider === p.id ? "text-white" : "text-muted-foreground"}`}
+                      className={`w-full flex items-center gap-1.5 px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${currentProvider === p.id ? "text-white" : "text-muted-foreground"}`}
                     >
                       <ProviderBrandIcon id={p.id} />
                       {p.label}
@@ -1169,7 +1169,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               className="flex items-center gap-1 px-2.5 py-1 rounded-full hover:brightness-125 transition-all"
               style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
             >
-              <span className="text-[11px] text-white/70 tabular-nums">
+              <span className="text-[12px] text-white/70 tabular-nums">
                 {aspectRatio === "custom"
                   ? `${(data.azureCustomWidth as number | undefined) ?? 1024}×${(data.azureCustomHeight as number | undefined) ?? 1024}`
                   : aspectRatio}
@@ -1188,7 +1188,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                           key={r}
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={() => { updateNodeData(id, { aspectRatio: r }); setRatioOpen(false); }}
-                          className={`w-full flex items-center gap-2.5 px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${active ? "text-white" : "text-muted-foreground"}`}
+                          className={`w-full flex items-center gap-2.5 px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${active ? "text-white" : "text-muted-foreground"}`}
                         >
                           <svg width="20" height="14" viewBox="0 0 20 14" className="shrink-0">
                             <rect x={x} y={y} width={iw} height={ih} rx="1" fill={active ? "#FFFFFF" : "none"} stroke={active ? "#FFFFFF" : "#5A5A55"} strokeWidth="1" />
@@ -1208,7 +1208,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                             setCustomSizeError(null);
                             setAzureCustomSizeOpen(true);
                           }}
-                          className={`w-full flex items-center gap-2.5 px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${aspectRatio === "custom" ? "text-white" : "text-muted-foreground"}`}
+                          className={`w-full flex items-center gap-2.5 px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${aspectRatio === "custom" ? "text-white" : "text-muted-foreground"}`}
                         >
                           <svg width="20" height="14" viewBox="0 0 20 14" className="shrink-0">
                             <rect x="2" y="1" width="16" height="12" rx="1" fill="none" stroke={aspectRatio === "custom" ? "#FFFFFF" : "#5A5A55"} strokeWidth="1" strokeDasharray="2 1.5" />
@@ -1223,11 +1223,11 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                     <div className="flex items-center justify-between mb-2">
                       <button
                         onClick={() => setAzureCustomSizeOpen(false)}
-                        className="flex items-center gap-1 text-[10px] text-[#4A4A45] hover:text-white transition-colors"
+                        className="flex items-center gap-1 text-[11px] text-[#4A4A45] hover:text-white transition-colors"
                       >
                         <span aria-hidden>‹</span> Back
                       </button>
-                      <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("customSize")}</span>
+                      <span className="text-[10px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("customSize")}</span>
                     </div>
                     <div className="flex items-center gap-1.5 mb-2">
                       <input
@@ -1235,15 +1235,15 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                         value={customWidthDraft}
                         onChange={(e) => setCustomWidthDraft(Number(e.target.value))}
                         placeholder={t("width")}
-                        className="w-full min-w-0 bg-[#0B0F17] border border-[#1E2840] rounded px-2 py-1 text-[11px] text-white tabular-nums focus:outline-none focus:border-[#3A4A6A]"
+                        className="w-full min-w-0 bg-[#0B0F17] border border-[#1E2840] rounded px-2 py-1 text-[12px] text-white tabular-nums focus:outline-none focus:border-[#3A4A6A]"
                       />
-                      <span className="text-[#4A4A45] text-[11px] shrink-0">×</span>
+                      <span className="text-[#4A4A45] text-[12px] shrink-0">×</span>
                       <input
                         type="number"
                         value={customHeightDraft}
                         onChange={(e) => setCustomHeightDraft(Number(e.target.value))}
                         placeholder={t("height")}
-                        className="w-full min-w-0 bg-[#0B0F17] border border-[#1E2840] rounded px-2 py-1 text-[11px] text-white tabular-nums focus:outline-none focus:border-[#3A4A6A]"
+                        className="w-full min-w-0 bg-[#0B0F17] border border-[#1E2840] rounded px-2 py-1 text-[12px] text-white tabular-nums focus:outline-none focus:border-[#3A4A6A]"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-1 mb-2">
@@ -1252,14 +1252,14 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                           key={p.label}
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={() => { setCustomWidthDraft(p.width); setCustomHeightDraft(p.height); setCustomSizeError(null); }}
-                          className="text-[10px] text-muted-foreground hover:text-white bg-[#0B0F17] hover:bg-[#141C28] rounded px-1.5 py-1 text-left transition-colors"
+                          className="text-[11px] text-muted-foreground hover:text-white bg-[#0B0F17] hover:bg-[#141C28] rounded px-1.5 py-1 text-left transition-colors"
                         >
                           {p.label}
                         </button>
                       ))}
                     </div>
                     {customSizeError && (
-                      <div className="text-[10px] text-red-400 mb-2 leading-tight">{customSizeError}</div>
+                      <div className="text-[11px] text-red-400 mb-2 leading-tight">{customSizeError}</div>
                     )}
                     <button
                       onMouseDown={(e) => e.stopPropagation()}
@@ -1270,7 +1270,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                         setAzureCustomSizeOpen(false);
                         setRatioOpen(false);
                       }}
-                      className="w-full text-center text-[11px] font-medium text-white bg-[#1E2840] hover:bg-[#26324A] rounded py-1.5 transition-colors"
+                      className="w-full text-center text-[12px] font-medium text-white bg-[#1E2840] hover:bg-[#26324A] rounded py-1.5 transition-colors"
                     >
                       Apply
                     </button>
@@ -1289,15 +1289,15 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 className="flex items-center gap-1 px-2.5 py-1 rounded-full hover:brightness-125 transition-all"
                 style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
               >
-                {caps.qualityKey === "resolution" && <span className="text-[11px] text-white/30">{t("res")}</span>}
-                <span className="text-[11px] text-white/70 uppercase">{quality}</span>
+                {caps.qualityKey === "resolution" && <span className="text-[12px] text-white/30">{t("res")}</span>}
+                <span className="text-[12px] text-white/70 uppercase">{quality}</span>
                 <ChevronIcon open={qualityOpen} />
               </button>
               {qualityPopup.visible && (
                 <div className={`absolute bottom-full left-0 mb-2 w-36 bg-[#111622] border border-[#1E2840] rounded-md overflow-hidden z-[1002] shadow-2xl ${qualityPopup.className}`}>
                   {caps.qualityKey === "resolution" && (
                     <div className="px-3 py-1.5 border-b border-border">
-                      <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("resolution")}</span>
+                      <span className="text-[10px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("resolution")}</span>
                     </div>
                   )}
                   {[
@@ -1309,7 +1309,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                       key={q.id}
                       onMouseDown={(e) => e.stopPropagation()}
                       onClick={() => { updateNodeData(id, { quality: q.id }); setQualityOpen(false); }}
-                      className={`w-full flex items-center justify-between px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${quality === q.id ? "text-white" : "text-muted-foreground"}`}
+                      className={`w-full flex items-center justify-between px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${quality === q.id ? "text-white" : "text-muted-foreground"}`}
                     >
                       <span className="uppercase font-medium">{q.label}</span>
                       <span className="text-[#4A4A45]">{q.meta}</span>
@@ -1330,7 +1330,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                 title={t("qualityAzureFoundry")}
               >
-                <span className="text-[11px] text-white/70 capitalize">
+                <span className="text-[12px] text-white/70 capitalize">
                   {(data.azureQuality as string | undefined) ?? "auto"}
                 </span>
                 <ChevronIcon open={azureQualityOpen} />
@@ -1338,7 +1338,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               {azureQualityPopup.visible && (
                 <div className={`absolute bottom-full left-0 mb-2 w-36 bg-[#111622] border border-[#1E2840] rounded-md overflow-hidden z-[1002] shadow-2xl ${azureQualityPopup.className}`}>
                   <div className="px-3 py-1.5 border-b border-border">
-                    <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("azureQuality")}</span>
+                    <span className="text-[10px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("azureQuality")}</span>
                   </div>
                   {[
                     { id: "auto", meta: t("modelDefault") },
@@ -1352,7 +1352,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                         key={q.id}
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={() => { updateNodeData(id, { azureQuality: q.id }); setAzureQualityOpen(false); }}
-                        className={`w-full flex items-center justify-between px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${active ? "text-white" : "text-muted-foreground"}`}
+                        className={`w-full flex items-center justify-between px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${active ? "text-white" : "text-muted-foreground"}`}
                       >
                         <span className="capitalize font-medium">{q.id}</span>
                         <span className="text-[#4A4A45]">{q.meta}</span>
@@ -1374,8 +1374,8 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                 title={t("resolutionAzure")}
               >
-                <span className="text-[11px] text-white/30">{t("res")}</span>
-                <span className="text-[11px] text-white/70 uppercase">
+                <span className="text-[12px] text-white/30">{t("res")}</span>
+                <span className="text-[12px] text-white/70 uppercase">
                   {(data.azureResolution as string | undefined) ?? "1k"}
                 </span>
                 <ChevronIcon open={azureResolutionOpen} />
@@ -1383,7 +1383,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               {azureResolutionPopup.visible && (
                 <div className={`absolute bottom-full left-0 mb-2 w-36 bg-[#111622] border border-[#1E2840] rounded-md overflow-hidden z-[1002] shadow-2xl ${azureResolutionPopup.className}`}>
                   <div className="px-3 py-1.5 border-b border-border">
-                    <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("resolution")}</span>
+                    <span className="text-[10px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("resolution")}</span>
                   </div>
                   {[
                     { id: "1k", label: "1K", meta: t("tierStandard") },
@@ -1396,7 +1396,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                         key={r.id}
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={() => { updateNodeData(id, { azureResolution: r.id }); setAzureResolutionOpen(false); }}
-                        className={`w-full flex items-center justify-between px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${active ? "text-white" : "text-muted-foreground"}`}
+                        className={`w-full flex items-center justify-between px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${active ? "text-white" : "text-muted-foreground"}`}
                       >
                         <span className="uppercase font-medium">{r.label}</span>
                         <span className="text-[#4A4A45]">{r.meta}</span>
@@ -1461,7 +1461,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               className={`rounded-full transition-all ${i === currentGenIdx ? "w-3 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/30 hover:bg-white/60"}`}
             />
           )) : (
-            <span className="text-[10px] text-white/50 font-mono tabular-nums">
+            <span className="text-[11px] text-white/50 font-mono tabular-nums">
               {currentGenIdx + 1} / {generations.length}
             </span>
           )}

@@ -707,7 +707,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
           const color = VIDEO_SRC_COLORS[def.type];
           return (
             <div
-              className="absolute pointer-events-none z-[1001] text-[10px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
+              className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
               style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "#1A1A1A", border: `1px solid ${color}33`, color: "#CCCCCC" }}
             >
               <span style={{ color }} className="mr-1.5">●</span>{t(def.labelKey)}
@@ -883,7 +883,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
               {/* Timer badge — only in video mode */}
               {viewMode === "video" && (
                 <div className="absolute bottom-2 left-2 h-7 px-2 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/player:opacity-100 transition-opacity z-10 pointer-events-none node-slide-reveal">
-                  <span className="text-[11px] text-white font-mono tabular-nums">{fmtTime(currentSec)}</span>
+                  <span className="text-[12px] text-white font-mono tabular-nums">{fmtTime(currentSec)}</span>
                 </div>
               )}
 
@@ -972,7 +972,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={() => { fileRef.current?.click(); }}
-                    className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors pointer-events-auto"
+                    className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors pointer-events-auto"
                   >replace</button>
                 </div>
               )}
@@ -1001,7 +1001,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   onClick={(e) => { e.stopPropagation(); openPicker(); }}
                   className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/player:opacity-100 transition-opacity pointer-events-auto z-10"
                 >
-                  <span className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-black/50 backdrop-blur-sm text-[11px] text-white font-medium">
+                  <span className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-black/50 backdrop-blur-sm text-[12px] text-white font-medium">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
                       <circle cx="12" cy="12" r="9" /><path d="M12 8v4l3 3" />
                     </svg>
@@ -1021,7 +1021,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                     if (v) { v.pause(); setScrubPos(v.currentTime / (v.duration || 1)); }
                     setPickerOpen(true);
                   }}
-                  className="absolute bottom-2 left-1/2 -translate-x-1/2 h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors opacity-0 group-hover/player:opacity-100 pointer-events-auto z-10 node-slide-reveal"
+                  className="absolute bottom-2 left-1/2 -translate-x-1/2 h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors opacity-0 group-hover/player:opacity-100 pointer-events-auto z-10 node-slide-reveal"
                   title={t("retakeFrame")}
                 >
                   <span className="flex items-center gap-1">
@@ -1112,27 +1112,27 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
 
               {/* Row: times + action buttons */}
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-amber-400 font-mono">{fmtTime(localTrimStart)} – {fmtTime(localTrimEnd)}</span>
+                <span className="text-[11px] text-amber-400 font-mono">{fmtTime(localTrimStart)} – {fmtTime(localTrimEnd)}</span>
                 <div className="flex gap-1.5">
                   {data.trimStart !== undefined && (
                     <button
                       onMouseDown={(e) => e.stopPropagation()}
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={(e) => { e.stopPropagation(); resetTrim(); }}
-                      className="nodrag h-5 px-2 rounded-full bg-white/10 text-white text-[10px] flex items-center cursor-pointer"
+                      className="nodrag h-5 px-2 rounded-full bg-white/10 text-white text-[11px] flex items-center cursor-pointer"
                     >{tGeneric("reset")}</button>
                   )}
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => { e.stopPropagation(); cancelTrim(); }}
-                    className="nodrag h-5 px-2 rounded-full bg-white/10 text-white text-[10px] flex items-center cursor-pointer"
+                    className="nodrag h-5 px-2 rounded-full bg-white/10 text-white text-[11px] flex items-center cursor-pointer"
                   >{tGeneric("cancel")}</button>
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => { e.stopPropagation(); applyTrim(); }}
-                    className="nodrag h-5 px-2 rounded-full text-black text-[10px] font-semibold flex items-center cursor-pointer"
+                    className="nodrag h-5 px-2 rounded-full text-black text-[11px] font-semibold flex items-center cursor-pointer"
                     style={{ background: "#FBBF24" }}
                   >{tGeneric("apply")}</button>
                 </div>
@@ -1204,7 +1204,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   if (v) { v.pause(); setScrubPos(v.currentTime / (v.duration || 1)); }
                   setPickerOpen(true);
                 }}
-                className="absolute bottom-3 left-1/2 -translate-x-1/2 h-7 px-4 rounded-full bg-white/90 text-black text-[11px] font-semibold flex items-center gap-1.5 pointer-events-auto z-10"
+                className="absolute bottom-3 left-1/2 -translate-x-1/2 h-7 px-4 rounded-full bg-white/90 text-black text-[12px] font-semibold flex items-center gap-1.5 pointer-events-auto z-10"
               >
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="3" /><path d="M20 7h-3.2L15 5H9L7.2 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
@@ -1225,10 +1225,10 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
               {/* Scrubber + time */}
               <div className="mt-auto px-3 pb-3 flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-white font-mono tabular-nums">{fmtTime(currentSec)}</span>
+                  <span className="text-[12px] text-white font-mono tabular-nums">{fmtTime(currentSec)}</span>
                   {captureErr
-                    ? <span className="text-[10px] text-red-400">{captureErr}</span>
-                    : <span className="text-[10px] text-white/40">drag to seek</span>
+                    ? <span className="text-[11px] text-red-400">{captureErr}</span>
+                    : <span className="text-[11px] text-white/40">drag to seek</span>
                   }
                 </div>
                 <input
@@ -1250,7 +1250,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => { e.stopPropagation(); captureFrame(); }}
                     disabled={capturing}
-                    className="nodrag flex-1 h-7 rounded-full bg-white/90 text-black text-[11px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                    className="nodrag flex-1 h-7 rounded-full bg-white/90 text-black text-[12px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
                     {capturing ? (
                       <>
@@ -1279,7 +1279,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                       else setPickerOpen(false);
                       lastEdgeIdRef.current = null;
                     }}
-                    className="nodrag h-7 px-3 rounded-full bg-white/10 text-white text-[11px] flex items-center justify-center cursor-pointer"
+                    className="nodrag h-7 px-3 rounded-full bg-white/10 text-white text-[12px] flex items-center justify-center cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1295,7 +1295,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                 <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
                 <path d="M11 3A8 8 0 0 1 19 11" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
-              <span className="text-[10px] text-[#22d3ee]">{tGeneric("uploading")}</span>
+              <span className="text-[11px] text-[#22d3ee]">{tGeneric("uploading")}</span>
             </div>
           )}
 
@@ -1307,13 +1307,13 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
                   <path d="M11 3A8 8 0 0 1 19 11" stroke="#2DD4BF" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
-                <span className="text-[10px] text-primary">{t("extractingFrame")}</span>
+                <span className="text-[11px] text-primary">{t("extractingFrame")}</span>
               </div>
             </div>
           )}
 
           {uploadErr && !uploading && (
-            <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 text-[10px] text-red-400 text-center">
+            <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 text-[11px] text-red-400 text-center">
               {uploadErr}
             </div>
           )}
@@ -1383,7 +1383,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
         const color = VIDEO_SRC_COLORS[def.type];
         return (
           <div
-            className="absolute pointer-events-none z-[1001] text-[10px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
+            className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
             style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "#1A1A1A", border: `1px solid ${color}33`, color: "#CCCCCC" }}
           >
             <span style={{ color }} className="mr-1.5">●</span>{t(def.labelKey)}
@@ -1402,10 +1402,10 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
             <rect width="18" height="14" x="3" y="5" rx="2" />
             <path d="m16 10-4-2.5v5L16 10z" fill="#22d3ee" stroke="none" />
           </svg>
-          <p className="text-[11px] text-muted-foreground">{t("dropVideoPrefix")}{" "}<span className="underline underline-offset-2 text-white">{t("browse")}</span></p>
-          <p className="text-[10px] text-[#4A4A45] mt-1">{t("max100mb")}</p>
+          <p className="text-[12px] text-muted-foreground">{t("dropVideoPrefix")}{" "}<span className="underline underline-offset-2 text-white">{t("browse")}</span></p>
+          <p className="text-[11px] text-[#4A4A45] mt-1">{t("max100mb")}</p>
         </div>
-        {uploadErr && <p className="text-[10px] text-red-400 mt-1.5 text-center">{uploadErr}</p>}
+        {uploadErr && <p className="text-[11px] text-red-400 mt-1.5 text-center">{uploadErr}</p>}
       </div>
 
       <input ref={fileRef} type="file" accept="video/*" className="hidden"

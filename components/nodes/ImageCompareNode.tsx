@@ -38,7 +38,7 @@ export default function ImageCompareNode({ id, selected }: NodeProps<CompareNode
       <div className="flex items-center gap-1.5 px-3 py-2 border-b border-neutral-800 text-xs font-semibold">
         <ArrowLeftRight size={13} className="text-sky-400" />
         Compare
-        <span className="ml-auto text-[10px] font-normal text-neutral-500">connect two images</span>
+        <span className="ml-auto text-[11px] font-normal text-neutral-500">connect two images</span>
       </div>
 
       <div className="p-2">
@@ -52,7 +52,7 @@ export default function ImageCompareNode({ id, selected }: NodeProps<CompareNode
           </div>
         ) : (
           <div className="h-40 bg-neutral-950/60 rounded flex items-center justify-center">
-            <span className="text-[10px] text-neutral-500 text-center px-4">
+            <span className="text-[11px] text-neutral-500 text-center px-4">
               {imageA ? t("compareConnectSecond") : t("compareConnectBoth")}
             </span>
           </div>

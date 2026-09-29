@@ -353,7 +353,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
           {/* Error */}
           {status === "error" && (
             <div className="absolute inset-x-0 bottom-12 flex justify-center pointer-events-none">
-              <span className="text-[10px] text-red-400 px-2 py-0.5 rounded bg-red-900/30">
+              <span className="text-[11px] text-red-400 px-2 py-0.5 rounded bg-red-900/30">
                 {(data.errorMsg as string) ?? "Generation failed"}
               </span>
             </div>
@@ -372,7 +372,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
                 onClick={(e) => { e.stopPropagation(); if (!busy) setModelOpen((o) => !o); }}
                 className="flex items-center gap-1"
               >
-                <span className="text-[11px] text-muted-foreground hover:text-white transition-colors">
+                <span className="text-[12px] text-muted-foreground hover:text-white transition-colors">
                   {MODELS.find((m) => m.id === model)?.label ?? model}
                 </span>
                 <ChevronIcon open={modelOpen} />
@@ -385,7 +385,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
                       key={m.id}
                       onMouseDown={(e) => e.stopPropagation()}
                       onClick={(e) => { e.stopPropagation(); updateNodeData(id, { model: m.id }); setModelOpen(false); }}
-                      className={`w-full text-left px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${model === m.id ? "text-white" : "text-muted-foreground"}`}
+                      className={`w-full text-left px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${model === m.id ? "text-white" : "text-muted-foreground"}`}
                     >
                       {m.label}
                     </button>
@@ -398,7 +398,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
             {!readOnly && (busy ? (
               <button
                 onClick={(e) => { e.stopPropagation(); handleCancel(); }}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium hover:bg-white/5 transition-colors"
+                className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium hover:bg-white/5 transition-colors"
                 style={{ border: "1px solid #333", color: "#888", background: "rgba(255,255,255,0.04)" }}
               >
                 <svg width="7" height="7" viewBox="0 0 8 8" fill="currentColor"><rect width="8" height="8" rx="1.5" /></svg>

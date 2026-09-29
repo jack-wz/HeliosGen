@@ -55,7 +55,7 @@ export default function GenerateButton({ onClick, busy, disabled, extracting, wa
               <circle cx="5" cy="5" r="4" stroke="rgba(251,146,60,0.25)" strokeWidth="1.5" />
               <path d="M5 1 A4 4 0 0 1 9 5" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-            <span className="text-[11px] font-medium" style={{ color: "#fb923c" }}>Extracting…</span>
+            <span className="text-[12px] font-medium" style={{ color: "#fb923c" }}>Extracting…</span>
           </>
         ) : (
           <>
@@ -63,7 +63,7 @@ export default function GenerateButton({ onClick, busy, disabled, extracting, wa
               <line x1="22" y1="2" x2="11" y2="13" />
               <polygon points="22 2 15 22 11 13 2 9 22 2" />
             </svg>
-            <span className="text-[11px] font-medium" style={{ color: hasWarning ? "#ef4444" : "rgba(255,255,255,0.9)" }}>Generate</span>
+            <span className="text-[12px] font-medium" style={{ color: hasWarning ? "#ef4444" : "rgba(255,255,255,0.9)" }}>Generate</span>
           </>
         )}
       </button>
