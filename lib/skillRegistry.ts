@@ -15,6 +15,13 @@ const SKILLS: SkillDefinition[] = [
   { id: "seek-sync", name: "Seek Sync", description: "Seek 与 HeliosGen 资产同步", version: "1.0.0", enabled: true, scope: "asset", instructions: "同步前保留来源和 seekGuid，操作必须幂等。" },
 ];
 
-export function listSkills() { return SKILLS.map(({ instructions: _instructions, ...s }) => s); }
+/** Public listing — omits the internal prompt instructions. */
+export function listSkills() {
+  return SKILLS.map((s) => {
+    const pub: Partial<SkillDefinition> = { ...s };
+    delete pub.instructions;
+    return pub;
+  });
+}
 export function getSkill(id: string) { return SKILLS.find((s) => s.id === id) ?? null; }
 export function resolveSkills(ids: string[], scope?: SkillScope) { return ids.map(getSkill).filter((s): s is SkillDefinition => !!s && s.enabled && (!scope || s.scope === scope || s.scope === "all")); }

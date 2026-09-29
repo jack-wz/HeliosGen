@@ -70,11 +70,9 @@ export async function GET(req: NextRequest) {
   const local = localDownload(url, filename);
   if (local) return local;
 
-  let fetchUrl = url;
-
   let upstream: Response;
   try {
-    upstream = await fetch(fetchUrl);
+    upstream = await fetch(url);
   } catch {
     return new NextResponse("Fetch failed", { status: 502 });
   }

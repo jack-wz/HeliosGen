@@ -103,14 +103,13 @@ export default function AssetsPage() {
   const title = useMemo(() => {
     if (collection) return data.collections.find((item) => item.id === collection)?.name ?? "Collection";
     return category ?? t("title");
-  }, [category, collection, data.collections]);
+  }, [category, collection, data.collections, t]);
 
   async function updateCategory(asset: Asset, next: string) {
     const catId = Object.entries(CATEGORY_ID_TO_LABEL).find(([, label]) => label === next)?.[0] ?? null;
     await fetch(`/api/assets/${asset.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: next || null, manualCategoryId: catId }) });
   }
 
-  const CATEGORY_KEYS = ["characters", "props", "environments", "styles", "scenes"] as const;
   async function batchCategory(next: string) {
     const catId = Object.entries(CATEGORY_ID_TO_LABEL).find(([, label]) => label === next)?.[0] ?? null;
     await Promise.all([...selectedIds].map(id =>

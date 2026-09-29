@@ -59,18 +59,21 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   if (!existing) return NextResponse.json({ error: "not found" }, { status: 404 });
   const body = await req.json().catch(() => null) as { action?: string; patch?: Array<{ op: string; path: string; value?: unknown }> } | null;
   if (!body?.action) return NextResponse.json({ error: "action required" }, { status: 400 });
-  if (body.action === "summary") return NextResponse.json({ id, name: existing.name, version: existing.updatedAt ?? existing.createdAt, nodeCount: existing.nodes.length, edgeCount: existing.edges.length, nodeTypes: [...new Set(existing.nodes.map((n: any) => n.type).filter(Boolean))] });
+  if (body.action === "summary") return NextResponse.json({ id, name: existing.name, version: existing.updatedAt ?? existing.createdAt, nodeCount: existing.nodes.length, edgeCount: existing.edges.length, nodeTypes: [...new Set(existing.nodes.map((n) => (n as { type?: string }).type).filter(Boolean))] });
   if (body.action === "validate") {
-    const ids = new Set(existing.nodes.map((n: any) => n.id));
-    const errors = existing.edges.flatMap((e: any) => [e.source, e.target].filter((x: string) => !ids.has(x)).map((x: string) => "edge references missing node " + x));
+    const ids = new Set(existing.nodes.map((n) => (n as { id: string }).id));
+    const errors = existing.edges
+      .flatMap((e) => { const { source, target } = e as { source: string; target: string }; return [source, target]; })
+      .filter((x) => !ids.has(x))
+      .map((x) => "edge references missing node " + x);
     return NextResponse.json({ valid: errors.length === 0, errors });
   }
   if (body.action !== "patch" || !Array.isArray(body.patch)) return NextResponse.json({ error: "unsupported action" }, { status: 400 });
-  const next: any = structuredClone(existing);
+  const next: GuestSpace = structuredClone(existing);
   for (const op of body.patch) {
     const m = op.path.match(/^\/(nodes|edges)\/(\d+)$/);
     if (!m || !["add", "replace", "remove"].includes(op.op)) return NextResponse.json({ error: "unsupported patch " + op.op + " " + op.path }, { status: 400 });
-    const list = next[m[1]] as unknown[]; const index = Number(m[2]);
+    const list = next[m[1] as "nodes" | "edges"]; const index = Number(m[2]);
     if (op.op === "remove") list.splice(index, 1); else if (op.op === "add") list.splice(index, 0, op.value); else list[index] = op.value;
   }
   next.updatedAt = Date.now(); saveSpace(next);

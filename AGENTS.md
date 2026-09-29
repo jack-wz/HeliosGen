@@ -20,10 +20,14 @@ There is no unit-test framework. Use these instead:
 
 ```sh
 npx tsc --noEmit          # typecheck — the primary gate
-pnpm lint                 # eslint (a few pre-existing WorkflowCanvas react-hooks/refs warnings)
+pnpm lint                 # eslint — ~150 pre-existing problems, NOT clean, CI does not run it
 DESKTOP_BUILD=1 pnpm build  # production build, desktop variant
 pnpm build                # production build, plain server variant
 ```
+
+`pnpm lint` exits non-zero on a clean checkout of upstream — the repo carries a
+long-standing backlog of `react-hooks/*` and `no-unused-vars` findings. It is not
+a gate. Don't "fix" the backlog; just don't add to it.
 
 HTTP (non-secure-context) regression tests — run when touching hashing, IDs or clipboard:
 

@@ -1474,6 +1474,9 @@ export default function WorkflowCanvas() {
     push("Complete");
     setIsRunning(false);
   }, [nodes, edges, updateNodeData, setIsRunning, debugMode, push, kieKeySet, addToast]);
+  // Latest-ref pattern: the shortcut handler above needs the current runAll
+  // without re-subscribing on every change.
+  // eslint-disable-next-line react-hooks/immutability
   useEffect(() => { runAllRef.current = runAll; }, [runAll]);
 
   // ── Place a node at the viewport center (used by the empty-state picker) ────
