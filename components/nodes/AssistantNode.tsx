@@ -369,7 +369,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
                 onClick={(e) => { e.stopPropagation(); if (!busy) setModelOpen((o) => !o); }}
                 className="flex items-center gap-1"
               >
-                <span className="text-[11px] text-[#A0A0A0] hover:text-white transition-colors">
+                <span className="text-[11px] text-muted-foreground hover:text-white transition-colors">
                   {MODELS.find((m) => m.id === model)?.label ?? model}
                 </span>
                 <ChevronIcon open={modelOpen} />
@@ -382,7 +382,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
                       key={m.id}
                       onMouseDown={(e) => e.stopPropagation()}
                       onClick={(e) => { e.stopPropagation(); updateNodeData(id, { model: m.id }); setModelOpen(false); }}
-                      className={`w-full text-left px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${model === m.id ? "text-white" : "text-[#A0A0A0]"}`}
+                      className={`w-full text-left px-3 py-[7px] text-[11px] hover:bg-[#141C28] transition-colors ${model === m.id ? "text-white" : "text-muted-foreground"}`}
                     >
                       {m.label}
                     </button>

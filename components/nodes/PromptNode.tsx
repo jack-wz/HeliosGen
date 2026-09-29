@@ -938,7 +938,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                       <EmptyThumb />
                     )}
                   </div>
-                  <span className={`text-[11px] font-medium truncate ${active ? "text-[#2DD4BF]" : "text-[#CCCCCC]"}`}>
+                  <span className={`text-[11px] font-medium truncate ${active ? "text-primary" : "text-[#CCCCCC]"}`}>
                     @{label}
                   </span>
                   {active && (
@@ -1066,7 +1066,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                           videoUrl ? <video src={videoUrl} autoPlay loop muted playsInline className="w-full h-full" style={{ objectFit: "cover" }} /> :
                             <EmptyThumb />}
                       </div>
-                      <span className={`text-[11px] font-medium truncate ${active ? "text-[#2DD4BF]" : "text-[#CCC]"}`}>@{label}</span>
+                      <span className={`text-[11px] font-medium truncate ${active ? "text-primary" : "text-[#CCC]"}`}>@{label}</span>
                       {active && <span className="ml-auto text-[9px] text-[#4A4A45] shrink-0">↵</span>}
                     </button>
                   );

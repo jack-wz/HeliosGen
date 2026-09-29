@@ -809,7 +809,7 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0 bg-[#0B0E14]" style={{ borderRight: "none" }}>
+    <Sidebar collapsible="icon" className="border-r-0 bg-background" style={{ borderRight: "none" }}>
 
       {/* ── Header ── */}
       <SidebarHeader className="flex-row items-center justify-between px-4 pt-5 pb-2 gap-0">

@@ -1727,7 +1727,7 @@ export default function WorkflowCanvas() {
 
           <Controls
             showInteractive={false}
-            className="[&>button]:!bg-[#0B0E14] [&>button]:!border-[#1A2030] [&>button]:!text-[#A0A0A0] [&>button:hover]:!text-white"
+            className="[&>button]:!bg-background [&>button]:!border-input [&>button]:!text-muted-foreground [&>button:hover]:!text-white"
           />
 
         </ReactFlow>
@@ -1916,9 +1916,9 @@ export default function WorkflowCanvas() {
         )}
 
         {log.length > 0 && (
-          <div className="h-24 bg-[#0B0E14] border-t border-[#1A2030] overflow-y-auto px-4 py-2 shrink-0">
+          <div className="h-24 bg-background border-t border-input overflow-y-auto px-4 py-2 shrink-0">
             {log.map((l, i) => (
-              <p key={i} className={`text-[11px] font-mono leading-5 ${l.ok ? "text-[#A0A0A0]" : "text-red-500"}`}>
+              <p key={i} className={`text-[11px] font-mono leading-5 ${l.ok ? "text-muted-foreground" : "text-red-500"}`}>
                 {l.text}
               </p>
             ))}

@@ -529,7 +529,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
           onClick={() => { fileRef.current?.click(); }}
           className="border border-dashed border-[#1E2840] hover:border-[#243050] rounded-md cursor-pointer transition-colors py-8 text-center"
         >
-          <p className="text-[11px] text-[#A0A0A0]">
+          <p className="text-[11px] text-muted-foreground">
             Drop image or{" "}
             <span className="underline underline-offset-2 text-white">browse</span>
           </p>
@@ -545,7 +545,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
         />
         <button
           onClick={() => setPickerOpen(true)}
-          className="mt-2 w-full h-7 rounded-md border border-[#1E2840] text-[11px] text-[#A0A0A0] hover:text-white hover:border-[#243050] transition-colors"
+          className="mt-2 w-full h-7 rounded-md border border-[#1E2840] text-[11px] text-muted-foreground hover:text-white hover:border-[#243050] transition-colors"
         >
           Pick from library
         </button>
