@@ -80,6 +80,31 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+
+/* ── Palette (hand-rolled system) ─────────────────────────
+   The node/canvas rules below used to hard-code these values. They are the
+   same colours, now named once so the CSS and the TSX layers agree. Tokens
+   already declared above (--background, --primary, --border, …) are reused
+   rather than duplicated. */
+:root {
+  --surface-card: #141820;
+  --surface-input: #0d1119;
+  --surface-raised: #1a2235;
+  --surface-hover: #131720;
+  --border-handle: #1e2540;
+  --border-handle-active: #1e2840;
+  --text-subtle: #6a7080;
+  --text-placeholder: #3a4055;
+  --danger-soft: #f87171;
+  --role-video: #22d3ee;
+  --role-audio: #5eead4;
+  --role-refvideo: #38bdf8;
+  --role-resource: #fb923c;
+  --role-character: #f472b6;
+  --role-assistant: #fbbf24;
+  --role-source: #34d399;
+}
+
 /* ── Base ─────────────────────────────────────────────── */
 html,
 body,
@@ -108,7 +133,7 @@ body {
 
 /* ── Node design system ──────────────────────────────── */
 .node-card {
-  background: #141820;
+  background: var(--surface-card);
   border: 1px solid transparent;
   border-radius: 8px;
   overflow: visible;
@@ -122,7 +147,7 @@ body {
 }
 
 .node-card:hover .node-above-label {
-  color: #A0A0A0;
+  color: var(--muted-foreground);
 }
 
 .node-header {
@@ -130,13 +155,13 @@ body {
   align-items: center;
   gap: 6px;
   padding: 7px 10px;
-  border-bottom: 1px solid #1C2436;
+  border-bottom: 1px solid var(--border);
 }
 
 .node-label {
   font-size: 12px;
   font-weight: 500;
-  color: #A0A0A0;
+  color: var(--muted-foreground);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -144,17 +169,17 @@ body {
 .node-field-label {
   display: block;
   font-size: 11px;
-  color: #A0A0A0;
+  color: var(--muted-foreground);
   margin-bottom: 4px;
   letter-spacing: 0.02em;
 }
 
 .node-textarea {
   width: 100%;
-  background: #0D1119;
-  border: 1px solid #1A2030;
+  background: var(--surface-input);
+  border: 1px solid var(--input);
   border-radius: 5px;
-  color: #FFFFFF;
+  color: var(--foreground);
   font-size: 13px;
   line-height: 1.5;
   padding: 7px 8px;
@@ -165,19 +190,19 @@ body {
 }
 
 .node-textarea::placeholder {
-  color: #3A4055;
+  color: var(--text-placeholder);
 }
 
 .node-textarea:focus {
-  border-color: #3A4055;
+  border-color: var(--text-placeholder);
 }
 
 .node-input {
   width: 100%;
-  background: #0D1119;
-  border: 1px solid #1A2030;
+  background: var(--surface-input);
+  border: 1px solid var(--input);
   border-radius: 5px;
-  color: #FFFFFF;
+  color: var(--foreground);
   font-size: 12px;
   padding: 5px 8px;
   outline: none;
@@ -186,19 +211,19 @@ body {
 }
 
 .node-input::placeholder {
-  color: #3A4055;
+  color: var(--text-placeholder);
 }
 
 .node-input:focus {
-  border-color: #3A4055;
+  border-color: var(--text-placeholder);
 }
 
 .node-select {
   width: 100%;
-  background: #0D1119;
-  border: 1px solid #1A2030;
+  background: var(--surface-input);
+  border: 1px solid var(--input);
   border-radius: 5px;
-  color: #A0A0A0;
+  color: var(--muted-foreground);
   font-size: 12px;
   padding: 5px 8px;
   outline: none;
@@ -209,7 +234,7 @@ body {
 }
 
 .node-select:focus {
-  border-color: #1E2840;
+  border-color: var(--border-handle-active);
 }
 
 /* ── Floating node label (above frame) ───────────────── */
@@ -218,7 +243,7 @@ body {
   top: -20px;
   left: 2px;
   font-size: 11px;
-  color: #6A7080;
+  color: var(--text-subtle);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
@@ -234,8 +259,8 @@ body {
   width: 14px !important;
   height: 14px !important;
   border-radius: 50% !important;
-  border: 2px solid #0B0E14 !important;
-  background: #1A2235 !important;
+  border: 2px solid var(--background) !important;
+  background: var(--surface-raised) !important;
   /* neutral — role color when connected or selected */
   z-index: 10;
   opacity: 0;
@@ -294,17 +319,17 @@ body {
 
 .node-handle-prompt.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-prompt.react-flow__handle {
-  background: #2DD4BF !important;
+  background: var(--primary) !important;
 }
 
 .node-handle-source.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-source.react-flow__handle {
-  background: #34d399 !important;
+  background: var(--role-source) !important;
 }
 
 .node-handle-video.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-video.react-flow__handle {
-  background: #22d3ee !important;
+  background: var(--role-video) !important;
 }
 
 /* ── Icon handles ────────────────────────────────────────────────────────── */
@@ -312,8 +337,8 @@ body {
   width: 28px !important;
   height: 28px !important;
   border-radius: 50% !important;
-  background: #0D1119 !important;
-  border: 1.5px solid #1E2540 !important;
+  background: var(--surface-input) !important;
+  border: 1.5px solid var(--border-handle) !important;
   /* neutral — role color only when connected */
   display: flex !important;
   align-items: center !important;
@@ -378,76 +403,76 @@ body {
 /* Connected or selected: full role color — input handles */
 .node-handle-icon-prompt.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-icon-prompt.react-flow__handle {
-  border-color: #2DD4BF !important;
-  --handle-color: #2DD4BF;
+  border-color: var(--primary) !important;
+  --handle-color: var(--primary);
 }
 
 .node-handle-icon-image.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-icon-image.react-flow__handle {
-  border-color: #2DD4BF !important;
-  --handle-color: #2DD4BF;
+  border-color: var(--primary) !important;
+  --handle-color: var(--primary);
 }
 
 .node-handle-icon-resource.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-icon-resource.react-flow__handle {
-  border-color: #fb923c !important;
-  --handle-color: #fb923c;
+  border-color: var(--role-resource) !important;
+  --handle-color: var(--role-resource);
 }
 
 .node-handle-icon-videoref.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-icon-videoref.react-flow__handle {
-  border-color: #22d3ee !important;
-  --handle-color: #22d3ee;
+  border-color: var(--role-video) !important;
+  --handle-color: var(--role-video);
 }
 
 .node-handle-icon-refvideo.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-icon-refvideo.react-flow__handle {
-  border-color: #38bdf8 !important;
-  --handle-color: #38bdf8;
+  border-color: var(--role-refvideo) !important;
+  --handle-color: var(--role-refvideo);
 }
 
 .node-handle-icon-audioref.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-icon-audioref.react-flow__handle {
-  border-color: #5EEAD4 !important;
-  --handle-color: #5EEAD4;
+  border-color: var(--role-audio) !important;
+  --handle-color: var(--role-audio);
 }
 
 .node-handle-icon-character.react-flow__handle.node-handle-connected,
 .react-flow__node.selected .node-handle-icon-character.react-flow__handle {
-  border-color: #f472b6 !important;
-  --handle-color: #f472b6;
+  border-color: var(--role-character) !important;
+  --handle-color: var(--role-character);
 }
 
 /* Output handle colors — always visible when the handle is shown (hover/selected/connected) */
 .react-flow__node:hover .node-handle-icon-out-text.react-flow__handle,
 .react-flow__node.selected .node-handle-icon-out-text.react-flow__handle,
 .node-handle-icon-out-text.react-flow__handle.node-handle-connected {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
 }
 
 .react-flow__node:hover .node-handle-icon-out-image.react-flow__handle,
 .react-flow__node.selected .node-handle-icon-out-image.react-flow__handle,
 .node-handle-icon-out-image.react-flow__handle.node-handle-connected {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
 }
 
 .react-flow__node:hover .node-handle-icon-out-video.react-flow__handle,
 .react-flow__node.selected .node-handle-icon-out-video.react-flow__handle,
 .node-handle-icon-out-video.react-flow__handle.node-handle-connected {
-  border-color: #22d3ee !important;
+  border-color: var(--role-video) !important;
 }
 
 .react-flow__node:hover .node-handle-icon-out-audio.react-flow__handle,
 .react-flow__node.selected .node-handle-icon-out-audio.react-flow__handle,
 .node-handle-icon-out-audio.react-flow__handle.node-handle-connected {
-  border-color: #5EEAD4 !important;
+  border-color: var(--role-audio) !important;
 }
 
 /* Assistant output — yellow, overrides the inherited out-text blue */
 .react-flow__node:hover .node-handle-icon-out-assistant.react-flow__handle,
 .react-flow__node.selected .node-handle-icon-out-assistant.react-flow__handle,
 .node-handle-icon-out-assistant.react-flow__handle.node-handle-connected {
-  border-color: #FBBF24 !important;
+  border-color: var(--role-assistant) !important;
 }
 
 /* Selected + unconnected: dim input (left) handles only; output handles keep full opacity */
@@ -482,51 +507,51 @@ body {
 
 /* Connecting handle: show its type color */
 .node-handle-icon-prompt.react-flow__handle.node-handle-connecting {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
 }
 
 .node-handle-icon-image.react-flow__handle.node-handle-connecting {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
 }
 
 .node-handle-icon-resource.react-flow__handle.node-handle-connecting {
-  border-color: #fb923c !important;
+  border-color: var(--role-resource) !important;
 }
 
 .node-handle-icon-videoref.react-flow__handle.node-handle-connecting {
-  border-color: #22d3ee !important;
+  border-color: var(--role-video) !important;
 }
 
 .node-handle-icon-refvideo.react-flow__handle.node-handle-connecting {
-  border-color: #38bdf8 !important;
+  border-color: var(--role-refvideo) !important;
 }
 
 .node-handle-icon-audioref.react-flow__handle.node-handle-connecting {
-  border-color: #5EEAD4 !important;
+  border-color: var(--role-audio) !important;
 }
 
 .node-handle-icon-character.react-flow__handle.node-handle-connecting {
-  border-color: #f472b6 !important;
+  border-color: var(--role-character) !important;
 }
 
 .node-handle-icon-out-text.react-flow__handle.node-handle-connecting {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
 }
 
 .node-handle-icon-out-assistant.react-flow__handle.node-handle-connecting {
-  border-color: #FBBF24 !important;
+  border-color: var(--role-assistant) !important;
 }
 
 .node-handle-icon-out-image.react-flow__handle.node-handle-connecting {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
 }
 
 .node-handle-icon-out-video.react-flow__handle.node-handle-connecting {
-  border-color: #22d3ee !important;
+  border-color: var(--role-video) !important;
 }
 
 .node-handle-icon-out-audio.react-flow__handle.node-handle-connecting {
-  border-color: #5EEAD4 !important;
+  border-color: var(--role-audio) !important;
 }
 
 /* ── Show only compatible input handles while connecting ─────────────────── */
@@ -574,7 +599,7 @@ body {
   flex: 1;
   height: 3px;
   border-radius: 99px;
-  background: #1C2436;
+  background: var(--border);
   outline: none;
   cursor: pointer;
 }
@@ -584,7 +609,7 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--foreground);
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
@@ -593,7 +618,7 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--foreground);
   cursor: pointer;
   border: none;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
@@ -641,12 +666,12 @@ body {
 
 /* ── React Flow overrides ────────────────────────────── */
 .react-flow {
-  --xy-background-color-default: #0B0E14;
-  background: #0B0E14;
+  --xy-background-color-default: var(--background);
+  background: var(--background);
 }
 
 .react-flow__node.selected .node-card {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
   box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.25), 0 2px 16px rgba(0, 15, 30, 0.5);
 }
 
@@ -658,7 +683,7 @@ body {
 .react-flow__node .node-card.node-over-limit,
 .react-flow__node.selected .node-card.node-over-limit,
 .react-flow__node.node-ancestor .node-card.node-over-limit {
-  border-color: #ef4444 !important;
+  border-color: var(--destructive) !important;
   box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2), 0 2px 14px rgba(239, 68, 68, 0.12) !important;
 }
 
@@ -668,7 +693,7 @@ body {
 
 /* ── Ancestor highlight (upstream nodes of selected node) ── */
 .react-flow__node.node-ancestor .node-card {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
   box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.15), 0 2px 16px rgba(0, 0, 0, 0.5);
   transition: border-color 150ms, box-shadow 150ms;
 }
@@ -701,21 +726,21 @@ body {
 
 .react-flow__controls {
   box-shadow: none !important;
-  border: 1px solid #1A2030 !important;
+  border: 1px solid var(--input) !important;
   border-radius: 6px !important;
   overflow: hidden;
 }
 
 .react-flow__controls-button {
-  background: #0B0E14 !important;
+  background: var(--background) !important;
   border: none !important;
-  border-bottom: 1px solid #1A2030 !important;
-  color: #A0A0A0 !important;
+  border-bottom: 1px solid var(--input) !important;
+  color: var(--muted-foreground) !important;
 }
 
 .react-flow__controls-button:hover {
-  background: #131720 !important;
-  color: #FFFFFF !important;
+  background: var(--surface-hover) !important;
+  color: var(--foreground) !important;
 }
 
 .react-flow__controls-button:last-child {
@@ -753,7 +778,7 @@ body {
 
   20%,
   55% {
-    border-color: #ef4444;
+    border-color: var(--destructive);
   }
 
   37%,
@@ -766,17 +791,17 @@ body {
 
   0%,
   100% {
-    color: #6A7080;
+    color: var(--text-subtle);
   }
 
   20%,
   55% {
-    color: #f87171;
+    color: var(--danger-soft);
   }
 
   37%,
   72% {
-    color: #6A7080;
+    color: var(--text-subtle);
   }
 }
 
@@ -869,9 +894,9 @@ body {
 .toolbar-btn {
   font-size: 13px;
   font-weight: 500;
-  color: #A0A0A0;
-  background: #0B0E14;
-  border: 1px solid #1E2840;
+  color: var(--muted-foreground);
+  background: var(--background);
+  border: 1px solid var(--border-handle-active);
   border-radius: 6px;
   padding: 5px 12px;
   cursor: pointer;
@@ -880,7 +905,7 @@ body {
 }
 
 .toolbar-btn:hover:not(:disabled) {
-  color: #FFFFFF;
+  color: var(--foreground);
   border-color: #243050;
 }
 
@@ -892,9 +917,9 @@ body {
 .toolbar-btn-primary {
   font-size: 13px;
   font-weight: 500;
-  color: #FFFFFF;
-  background: #2DD4BF;
-  border: 1px solid #2DD4BF;
+  color: var(--foreground);
+  background: var(--primary);
+  border: 1px solid var(--primary);
   border-radius: 6px;
   padding: 5px 14px;
   cursor: pointer;
@@ -903,8 +928,8 @@ body {
 }
 
 .toolbar-btn-primary:hover:not(:disabled) {
-  background: #2DD4BF;
-  border-color: #2DD4BF;
+  background: var(--primary);
+  border-color: var(--primary);
   box-shadow: 0 0 12px rgba(45, 212, 191, 0.35);
 }
 
@@ -915,7 +940,7 @@ body {
 
 /* ── Video Generator node — subtle border ────────────── */
 .video-node-card.node-card {
-  border-color: #1C2436;
+  border-color: var(--border);
   box-shadow: 0 0 0 1px rgba(80, 80, 80, 0.08), 0 2px 16px rgba(0, 0, 0, 0.5);
 }
 
@@ -925,12 +950,12 @@ body {
 }
 
 .react-flow__node.selected .video-node-card.node-card {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
   box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.25), 0 2px 16px rgba(0, 15, 30, 0.5);
 }
 
 .react-flow__node.node-ancestor .video-node-card.node-card {
-  border-color: #2DD4BF !important;
+  border-color: var(--primary) !important;
   box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.15), 0 0 18px rgba(0, 0, 0, 0.5);
 }
 
@@ -1063,7 +1088,7 @@ body {
 
   20%,
   55% {
-    stroke: #ef4444;
+    stroke: var(--destructive);
   }
 
   37%,
@@ -1103,7 +1128,7 @@ body {
 
   20%,
   55% {
-    border-color: #ef4444;
+    border-color: var(--destructive);
   }
 
   37%,
@@ -1192,7 +1217,7 @@ body {
 .node-card.node-generating {
   border: 2px solid transparent;
   background:
-    linear-gradient(#141820, #141820) padding-box,
+    linear-gradient(var(--surface-card), var(--surface-card)) padding-box,
     conic-gradient(
       from var(--border-angle, 0deg),
       rgba(45, 212, 191, 0.05) 0deg,
@@ -1246,7 +1271,7 @@ body {
   display: inline;
   background: rgba(255, 255, 255, 0.13);
   border-radius: 4px;
-  color: #FFFFFF;
+  color: var(--foreground);
   padding: 2px 0;
   pointer-events: auto;
   /* shadows stay well under space-char width (~3-4 px) so the natural space
