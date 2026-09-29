@@ -42,7 +42,9 @@
 - [x] `AssistantNode` / `ImageInputNode` / `PromptNode`（`901b1c7`）：句柄标签、显示输入/输出切换、复制/展开/删除标题、剪贴板失败提示等；实测 11/12（两种语言）
 - [x] `GenerateNode` / `VideoGeneratorNode` / `VideoInputNode`（`36c7c4d`）：句柄标签、生成状态（等待/排队/生成中/完成/失败/过期）、Azure 画质与分辨率、自定义尺寸、NSFW 警告、取消/删除/自定义、视频输入拖放区与播放控制、各类校验提示
   - 三个模块级数组（`BASE_HANDLES` / `SOURCE_HANDLES` / `VIDEO_SOURCE_HANDLES`）改为存 message key；按模型动态覆盖的「Reference images (up to N)」改为 ICU `{n}` 插值
-- [ ] 未做：`WorkflowCanvas`、API 错误码
+- [x] `WorkflowCanvas`（`0aa06ac`）：空态标题与三张起始卡片、运行日志、导出/剪贴板 toast、校验错误；实测两种语言 7/7
+- [ ] **API 错误码（评估后暂缓，需你决策）**：62 条唯一 error 文案，被 CLI/MCP（`cli/lib/client.mjs` 直接读 `error`）与前端 32 处展示消费。改成本地化会**动接口契约**；建议做成**增量**方案（`error` 保持英文可读消息不变，另加 `code` 供前端本地化），但涉及 62 处路由 + 124 条词条 + 32 处前端，属独立工作量
+- **Status:** R3 组件侧完成；仅 API 错误码待决策
 - ⚠️ 未验证：`PromptNode` 的 @ 提及菜单标题 `connectedNodes` —— 位于内联提及浮层，需要特定输入序列 + 兄弟节点共享下游的图形结构，headless 下未能稳定复现（键存在、tsc 通过，但**未见其渲染**）
 - **Status:** 首屏 + 侧栏 + 处理器节点 + 画布周边 + 3 个生成类节点完成
 
