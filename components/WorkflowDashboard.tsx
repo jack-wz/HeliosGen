@@ -286,27 +286,36 @@ function collectMedia(space: Space): MediaItem[] {
 
 function ThumbnailMosaic({ space }: { space: Space }) {
   const media = collectMedia(space).slice(0, 4);
+  // A media file can be missing (deleted from the shared folder, or an import
+  // that couldn't restore it). Without this the cell renders the browser's
+  // broken-image glyph; fall back to the same placeholder as an empty cell.
+  const [failed, setFailed] = useState<Set<number>>(() => new Set());
+  const markFailed = (i: number) => setFailed((prev) => new Set(prev).add(i));
+
   return (
     <div className="wsd-thumbs">
       {Array.from({ length: 4 }).map((_, i) => {
         const item = media[i];
+        const usable = item && !failed.has(i);
         return (
-          <div key={i} className={`wsd-thumb-cell${item ? "" : " wsd-thumb-cell-empty"}`}>
-            {item ? (
+          <div key={i} className={`wsd-thumb-cell${usable ? "" : " wsd-thumb-cell-empty"}`}>
+            {usable ? (
               item.type === "video" ? (
                 videoPosterUrl(item.url) ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={videoPosterUrl(item.url, null, 160)} alt="" loading="lazy" decoding="async"
+                    onError={() => markFailed(i)}
                     style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 ) : (
                   <video
                     src={item.url}
                     muted playsInline preload="metadata"
+                    onError={() => markFailed(i)}
                     style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                   />
                 )
               ) : (
-                <NextImage src={item.url} alt="" fill sizes="160px" style={{ objectFit: "cover" }} />
+                <NextImage src={item.url} alt="" fill sizes="160px" onError={() => markFailed(i)} style={{ objectFit: "cover" }} />
               )
             ) : (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"

@@ -16,6 +16,11 @@ export function useSpaceSync() {
 
   const [status,       setStatus]       = useState<SyncStatus>("idle");
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+  // True once the first DB load has settled (succeeded, found nothing, or
+  // failed). Consumers need this to tell "spaces not loaded yet" apart from
+  // "this id genuinely doesn't exist" — the /workflow/[id] guard used to
+  // redirect home because it ran while `spaces` was still empty.
+  const [loaded,       setLoaded]       = useState(false);
   // Block all writes until localStorage has fully rehydrated. In Zustand v5,
   // persist rehydration is async — if we save before it completes, we'd write
   // the default empty state and delete all real spaces.
@@ -61,6 +66,8 @@ export function useSpaceSync() {
         setStatus("synced");
       } catch {
         /* keep local state */
+      } finally {
+        setLoaded(true);
       }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,7 +162,7 @@ export function useSpaceSync() {
     };
   }, [hydrated, save]);
 
-  return { status, lastSyncedAt, syncNow };
+  return { status, lastSyncedAt, syncNow, loaded };
 }
 
 // ── Time-ago helper ───────────────────────────────────────────────────────────
