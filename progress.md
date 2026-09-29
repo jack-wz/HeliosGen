@@ -88,6 +88,21 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-29（review 收口 · 续）
+
+### 本轮完成
+- **R3b** `126ef2a`：侧栏 6 条文案（Folders / New folder / Chats / New chat / No chats yet / Purchase Kie Credits）入 `sidebar` 命名空间；`timeAgo` 改用 `Intl.RelativeTimeFormat`（实测 `16天前` / `16D AGO`，替代手写英文）；模板徽标入 `extra`
+- **R4b** `58a4b53`：
+  - **直链修复**：`/workflow/<id>` 一直跳首页的根因是守卫在挂载时同步读 `spaces`，而 spaces 是 hydration 后才异步 fetch 的，此刻必为空 → 误判"不存在"。给 `useSpaceSync` 加 `loaded` 信号，守卫等它再判定。实测直链停留并渲染节点，不存在的 id 仍正确回首页
+  - **缺图 fallback**：`ThumbnailMosaic` 记录加载失败并回落占位，不再显示浏览器破图图标
+- **R6b**：验证 + 部署。回滚点 `rollback-20260929-4`；线上实测侧栏中英双语正确、EACCES 0、170 条资产、asset-bridge Up 5 days
+
+### 仍未做（附原因）
+- R2 批次 2（119 处调色板外的一次性色）——需先做设计决策
+- R3 其余（40+ 组件的节点文案 / 弹窗 / 工具栏 / API 错误码）
+- R4 节点字号（会改变画布观感，需确认）
+- R5（动态路由、gallery 7212 行拆分）——建议单独立项
+
 ## 2026-09-29（review 收口：计划 + 执行）
 
 ### 计划

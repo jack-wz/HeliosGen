@@ -31,16 +31,21 @@
 - [ ] 批次 2 未做：剩余 119 处任意值 + gallery/节点内联 hex 属**调色板外的一次性色**，收敛需先决定新色值（属设计决策，非重构）
 - **Status:** 可安全机械替换的部分已完成；余下需设计决策
 
-### R3: i18n 全量 — 首屏完成
+### R3: i18n 全量 — 首屏 + 侧栏完成
 - [x] 首屏：`WorkflowDashboard`（5 个子组件）+ `WorkflowHero`，新增 `dashboard` 命名空间 15 条（`994c74f`）；实测 zh-CN 无英文残留、en 无中文
 - [x] ICU 复数替换了 `s` 拼接；品牌名加 `translate="no"`
-- [ ] 未做：侧栏 FOLDERS/CHATS、`timeAgo`（应改 `Intl.RelativeTimeFormat`）、`lib/templates.ts` 模板标签、其余 40+ 组件
-- **Status:** 首屏完成，其余待续
+- [x] 侧栏 `AppSidebar`：Folders / New folder / Chats / New chat / No chats yet / Purchase Kie Credits（`126ef2a`）
+- [x] `timeAgo` 改用 `Intl.RelativeTimeFormat`（线上实测 `16天前` / `16D AGO`）
+- [x] 模板徽标 `4× Image → 4× Video` 入 `messages/extra`
+- [ ] 未做：其余 40+ 组件（节点文案、MediaPickerModal、CanvasToolbar、API 错误码）
+- **Status:** 首屏与侧栏完成，其余待续
 
-### R4: 交互与可访问性 — 部分完成
+### R4: 交互与可访问性 — 完成（除节点字号）
 - [x] 10 个节点表单字段补 `id`/`name`/`aria-label`（`e172b16`）
-- [ ] 未做：节点正文 8–10px 提字号（会改变画布观感，需先确认）、缺图 fallback、`/workflow/<id>` 直链跳转
-- **Status:** 表单标注完成
+- [x] `/workflow/<id>` 直链：`useSpaceSync` 新增 `loaded` 信号，守卫等它再判定（`58a4b53`）。实测直链不再跳转、不存在的 id 仍回首页
+- [x] 缺图 fallback：`ThumbnailMosaic` 记录加载失败并回落占位（`58a4b53`）
+- [ ] 未做：节点正文 8–10px 提字号 —— 会改变画布观感，需先确认
+- **Status:** 除字号外完成
 
 ### R5: 性能与架构 — 未做（评估后暂缓）
 - [ ] 47 条路由全动态：根因是根布局读 `cookies()`（sidebar 状态 + locale），静态化需重构布局与状态来源，风险高于收益
