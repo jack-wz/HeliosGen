@@ -6,6 +6,7 @@ import CornerResizer from "./CornerResizer";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { VIDEO_MODELS } from "@/lib/modelConfig";
 import { sha256Hex } from "@/lib/assetHash";
+import { useTranslations } from "next-intl";
 
 type VideoInputNodeType = Node<NodeData, "videoInputNode">;
 
@@ -18,12 +19,14 @@ const VIDEO_SRC_COLORS: Record<string, string> = {
   audio: "#5EEAD4",
 };
 
+// labelKey rather than label: this is module scope, so it cannot call a hook.
+// The label is resolved at render time so it follows the active locale.
 const VIDEO_SOURCE_HANDLES = [
-  { id: "startFrameOut", type: "image", label: "Start frame",     icon: <VidSrcFrameStartIcon /> },
-  { id: "endFrameOut",   type: "image", label: "End frame",       icon: <VidSrcFrameEndIcon /> },
-  { id: "imagePickOut",  type: "image", label: "Image pick",      icon: <VidSrcImagePickIcon /> },
-  { id: "videoRefOut",   type: "video", label: "Reference video", icon: <VidSrcVideoIcon /> },
-  { id: "audioRefOut",   type: "audio", label: "Reference audio", icon: <VidSrcAudioIcon /> },
+  { id: "startFrameOut", type: "image", labelKey: "startFrame",     icon: <VidSrcFrameStartIcon /> },
+  { id: "endFrameOut",   type: "image", labelKey: "endFrame",       icon: <VidSrcFrameEndIcon /> },
+  { id: "imagePickOut",  type: "image", labelKey: "imagePick",      icon: <VidSrcImagePickIcon /> },
+  { id: "videoRefOut",   type: "video", labelKey: "referenceVideo", icon: <VidSrcVideoIcon /> },
+  { id: "audioRefOut",   type: "audio", labelKey: "referenceAudio", icon: <VidSrcAudioIcon /> },
 ] as const;
 const VIDEO_SOURCE_HANDLE_SPACING = 32; // px between source handles
 // Fixed slot offset from the node's vertical center — keeps the whole stack centered
@@ -31,6 +34,8 @@ const VIDEO_SOURCE_HANDLE_SPACING = 32; // px between source handles
 const videoSourceHandleCenterOffset = (i: number) => (i - (VIDEO_SOURCE_HANDLES.length - 1) / 2) * VIDEO_SOURCE_HANDLE_SPACING;
 
 export default function VideoInputNode({ id, data, selected }: NodeProps<VideoInputNodeType>) {
+  const t = useTranslations("nodes");
+  const tGeneric = useTranslations("ui.generic");
   const updateNodeData  = useWorkflowStore((s) => s.updateNodeData);
   const edges           = useWorkflowStore((s) => s.edges);
   const nodes           = useWorkflowStore((s) => s.nodes);
@@ -227,7 +232,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
 
         const cleanup = () => { tmp.src = ""; tmp.remove(); };
 
-        tmp.addEventListener("error", () => { cleanup(); reject(new Error("Could not load video for capture")); }, { once: true });
+        tmp.addEventListener("error", () => { cleanup(); reject(new Error(t("loadVideoFailed"))); }, { once: true });
         tmp.addEventListener("loadedmetadata", () => { tmp.currentTime = seekTime; }, { once: true });
         tmp.addEventListener("seeked", () => {
           try {
@@ -246,7 +251,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
             canvas.toBlob((b) => {
               cleanup();
               if (b) resolve(b);
-              else reject(new Error("Canvas capture returned empty"));
+              else reject(new Error(t("captureEmpty")));
             }, "image/jpeg", 0.95);
           } catch (e) {
             cleanup();
@@ -264,7 +269,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
         body: bytes,
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Upload failed");
+      if (!res.ok) throw new Error(json.error ?? t("uploadFailed"));
 
       if (json.cdnUrl) {
         updateNodeData(id, { capturedFrameUrl: json.cdnUrl, capturedFrameBlurUrl: blurDataUrl });
@@ -281,7 +286,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
       setShowFramePreview(false);
       videoRef.current?.play().catch(() => {});
     } catch (err) {
-      setCaptureErr(err instanceof Error ? err.message : "Capture failed");
+      setCaptureErr(err instanceof Error ? err.message : t("captureFailed"));
     } finally {
       setCapturing(false);
       updateNodeData(id, { extractingFrame: false });
@@ -331,7 +336,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
     if (!vUrl || vUrl.startsWith("blob:")) return;
     activeExtRef.current++;
     updateNodeData(id, { extractingFrame: true });
-    addToast("Extracting frame…", "info");
+    addToast(t("extractingFrame"), "info");
     try {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       const nodeData = useWorkflowStore.getState().nodes.find((n) => n.id === id)?.data;
@@ -345,7 +350,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
       if (j.cdnUrl) {
         const field = isLastFrame ? "eagerEndFrameUrl" : "eagerStartFrameUrl";
         updateNodeData(id, { [field]: j.cdnUrl });
-        addToast("Frame extracted.", "success");
+        addToast(t("frameExtracted"), "success");
       }
     } catch { /* silent */ } finally {
       activeExtRef.current--;
@@ -388,8 +393,8 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
   const loadFile = useCallback(async (file: File) => {
     setUploadErr(null);
 
-    if (!file.type.startsWith("video/")) { setUploadErr("Please select a video file"); return; }
-    if (file.size > MAX_BYTES) { setUploadErr("Video exceeds the 100 MB limit"); return; }
+    if (!file.type.startsWith("video/")) { setUploadErr(t("selectVideoFile")); return; }
+    if (file.size > MAX_BYTES) { setUploadErr(t("exceeds100mb")); return; }
 
     const bytes = await file.arrayBuffer();
     const hash  = await sha256Hex(bytes);
@@ -417,12 +422,12 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
         body: bytes,
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Upload failed");
+      if (!res.ok) throw new Error(json.error ?? t("uploadFailed"));
       URL.revokeObjectURL(blobUrl);
       localUrlRef.current = null;
       updateNodeData(id, { videoUrl: json.cdnUrl });
     } catch (e) {
-      setUploadErr(e instanceof Error ? e.message : "Upload failed");
+      setUploadErr(e instanceof Error ? e.message : t("uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -705,7 +710,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
               className="absolute pointer-events-none z-[1001] text-[10px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
               style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "#1A1A1A", border: `1px solid ${color}33`, color: "#CCCCCC" }}
             >
-              <span style={{ color }} className="mr-1.5">●</span>{def.label}
+              <span style={{ color }} className="mr-1.5">●</span>{t(def.labelKey)}
             </div>
           );
         })()}
@@ -808,7 +813,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={displayFrameUrl}
-              alt="Captured frame"
+              alt={t("capturedFrame")}
               className="absolute inset-0 w-full h-full block"
               style={{ objectFit: "fill", zIndex: 5 }}
             />
@@ -839,7 +844,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                 <button
                   onClick={(e) => { e.stopPropagation(); setViewMode("video"); }}
                   className="w-7 h-7 rounded-full flex items-center justify-center relative z-10"
-                  title="Show video"
+                  title={t("showVideo")}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={viewMode === "video" ? "white" : "#777"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 220ms" }}>
                     <rect width="15" height="14" x="2" y="5" rx="2" />
@@ -858,7 +863,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                     }
                   }}
                   className="w-7 h-7 rounded-full flex items-center justify-center relative z-10"
-                  title={displayFrameUrl ? "Show frame" : "Pick a frame"}
+                  title={displayFrameUrl ? t("showFrame") : t("pickFrame")}
                 >
                   {displayFrameUrl ? (
                     <div style={{
@@ -888,7 +893,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); setGlobalMuted(!muted); }}
                   className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/player:opacity-100 transition-opacity pointer-events-auto z-10 node-slide-reveal"
-                  title={muted ? "Unmute" : "Mute"}
+                  title={muted ? t("unmute") : t("mute")}
                 >
                   {muted ? (
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -915,7 +920,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                     if (v.paused) v.play().catch(() => {}); else v.pause();
                   }}
                   className="absolute bottom-2 right-11 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/player:opacity-100 transition-opacity pointer-events-auto z-10 node-slide-reveal"
-                  title={isPlaying ? "Pause" : "Play"}
+                  title={isPlaying ? t("pause") : t("play")}
                 >
                   {isPlaying ? (
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
@@ -978,7 +983,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); openTrim(); }}
                   className={`absolute right-2 bottom-2 w-7 h-7 rounded-full backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/player:opacity-100 transition-opacity pointer-events-auto z-10 node-slide-reveal ${data.trimStart !== undefined ? "bg-amber-400/80 hover:bg-amber-400" : "bg-black/40 hover:bg-black/60"}`}
-                  title="Trim video"
+                  title={t("trimVideo")}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={data.trimStart !== undefined ? "black" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" />
@@ -1017,7 +1022,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                     setPickerOpen(true);
                   }}
                   className="absolute bottom-2 left-1/2 -translate-x-1/2 h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors opacity-0 group-hover/player:opacity-100 pointer-events-auto z-10 node-slide-reveal"
-                  title="Retake frame"
+                  title={t("retakeFrame")}
                 >
                   <span className="flex items-center gap-1">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1115,21 +1120,21 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={(e) => { e.stopPropagation(); resetTrim(); }}
                       className="nodrag h-5 px-2 rounded-full bg-white/10 text-white text-[10px] flex items-center cursor-pointer"
-                    >Reset</button>
+                    >{tGeneric("reset")}</button>
                   )}
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => { e.stopPropagation(); cancelTrim(); }}
                     className="nodrag h-5 px-2 rounded-full bg-white/10 text-white text-[10px] flex items-center cursor-pointer"
-                  >Cancel</button>
+                  >{tGeneric("cancel")}</button>
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => { e.stopPropagation(); applyTrim(); }}
                     className="nodrag h-5 px-2 rounded-full text-black text-[10px] font-semibold flex items-center cursor-pointer"
                     style={{ background: "#FBBF24" }}
-                  >Apply</button>
+                  >{tGeneric("apply")}</button>
                 </div>
               </div>
             </div>
@@ -1151,7 +1156,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
               {capturedFrameUrl.startsWith("https://") ? (
                 <NextImage
                   src={capturedFrameUrl}
-                  alt="Captured frame"
+                  alt={t("capturedFrame")}
                   fill
                   quality={30}
                   sizes="400px"
@@ -1160,7 +1165,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                 />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={capturedFrameUrl} alt="Captured frame" className="w-full h-full" style={{ objectFit: "fill" }} />
+                <img src={capturedFrameUrl} alt={t("capturedFrame")} className="w-full h-full" style={{ objectFit: "fill" }} />
               )}
 
               {/* Layer 2: blur overlay — fades out once optimized image loads */}
@@ -1182,7 +1187,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); closeFramePreview(); }}
                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center pointer-events-auto z-10"
-                title="Back to video"
+                title={t("backToVideo")}
               >
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -1290,7 +1295,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                 <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
                 <path d="M11 3A8 8 0 0 1 19 11" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
-              <span className="text-[10px] text-[#22d3ee]">Uploading…</span>
+              <span className="text-[10px] text-[#22d3ee]">{tGeneric("uploading")}</span>
             </div>
           )}
 
@@ -1302,7 +1307,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
                   <path d="M11 3A8 8 0 0 1 19 11" stroke="#2DD4BF" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
-                <span className="text-[10px] text-primary">Extracting…</span>
+                <span className="text-[10px] text-primary">{t("extractingFrame")}</span>
               </div>
             </div>
           )}
@@ -1381,7 +1386,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
             className="absolute pointer-events-none z-[1001] text-[10px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
             style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "#1A1A1A", border: `1px solid ${color}33`, color: "#CCCCCC" }}
           >
-            <span style={{ color }} className="mr-1.5">●</span>{def.label}
+            <span style={{ color }} className="mr-1.5">●</span>{t(def.labelKey)}
           </div>
         );
       })()}
@@ -1397,8 +1402,8 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
             <rect width="18" height="14" x="3" y="5" rx="2" />
             <path d="m16 10-4-2.5v5L16 10z" fill="#22d3ee" stroke="none" />
           </svg>
-          <p className="text-[11px] text-muted-foreground">Drop video or{" "}<span className="underline underline-offset-2 text-white">browse</span></p>
-          <p className="text-[10px] text-[#4A4A45] mt-1">Max 100 MB</p>
+          <p className="text-[11px] text-muted-foreground">{t("dropVideoPrefix")}{" "}<span className="underline underline-offset-2 text-white">{t("browse")}</span></p>
+          <p className="text-[10px] text-[#4A4A45] mt-1">{t("max100mb")}</p>
         </div>
         {uploadErr && <p className="text-[10px] text-red-400 mt-1.5 text-center">{uploadErr}</p>}
       </div>

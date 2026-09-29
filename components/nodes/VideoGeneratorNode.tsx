@@ -7,6 +7,7 @@ import { Handle, Position, NodeProps, Node, useUpdateNodeInternals } from "@xyfl
 import CornerResizer from "./CornerResizer";
 import NodeActionBar from "./NodeActionBar";
 import { useWorkflowStore, NodeData } from "@/lib/store";
+import { useTranslations } from "next-intl";
 import { resolveInputs } from "@/lib/executor";
 import { useReadOnly } from "@/lib/readOnlyContext";
 import { ShieldBan } from "lucide-react";
@@ -18,16 +19,16 @@ type VideoGeneratorNodeType = Node<NodeData, "videoGeneratorNode">;
 
 // ── Handles ───────────────────────────────────────────────────────────────────
 
-type HandleDef = { id: string; label: string; className: string };
+type HandleDef = { id: string; labelKey: string; className: string };
 
 const BASE_HANDLES: HandleDef[] = [
-  { id: "prompt", label: "Text prompt", className: "node-handle-icon node-handle-icon-prompt" },
-  { id: "startFrame", label: "Start frame", className: "node-handle-icon node-handle-icon-image" },
-  { id: "endFrame", label: "End frame", className: "node-handle-icon node-handle-icon-image" },
-  { id: "resource", label: "Reference images (up to 3)", className: "node-handle-icon node-handle-icon-resource" },
-  { id: "videoRef", label: "Reference video", className: "node-handle-icon node-handle-icon-videoref" },
-  { id: "referenceVideo", label: "Reference videos (up to 3)", className: "node-handle-icon node-handle-icon-refvideo" },
-  { id: "audioRef", label: "Reference audios (up to 3)", className: "node-handle-icon node-handle-icon-audioref" },
+  { id: "prompt", labelKey: "textPrompt", className: "node-handle-icon node-handle-icon-prompt" },
+  { id: "startFrame", labelKey: "startFrame", className: "node-handle-icon node-handle-icon-image" },
+  { id: "endFrame", labelKey: "endFrame", className: "node-handle-icon node-handle-icon-image" },
+  { id: "resource", labelKey: "referenceImages3", className: "node-handle-icon node-handle-icon-resource" },
+  { id: "videoRef", labelKey: "referenceVideo", className: "node-handle-icon node-handle-icon-videoref" },
+  { id: "referenceVideo", labelKey: "referenceVideos3", className: "node-handle-icon node-handle-icon-refvideo" },
+  { id: "audioRef", labelKey: "referenceAudios3", className: "node-handle-icon node-handle-icon-audioref" },
 ];
 
 // Fixed order for bottom-anchored stacking (top-most first, bottom-most last)
@@ -59,11 +60,11 @@ const SOURCE_HANDLE_COLORS: Record<string, string> = {
 };
 
 const SOURCE_HANDLES = [
-  { id: "startFrameOut", type: "image", label: "Start frame", icon: <SrcFrameStartIcon /> },
-  { id: "endFrameOut", type: "image", label: "End frame", icon: <SrcFrameEndIcon /> },
-  { id: "imagePickOut", type: "image", label: "Image pick", icon: <SrcImagePickIcon /> },
-  { id: "videoRefOut", type: "video", label: "Reference video", icon: <SrcVideoIcon /> },
-  { id: "audioRefOut", type: "audio", label: "Reference audio", icon: <SrcAudioIcon /> },
+  { id: "startFrameOut", type: "image", labelKey: "startFrame", icon: <SrcFrameStartIcon /> },
+  { id: "endFrameOut", type: "image", labelKey: "endFrame", icon: <SrcFrameEndIcon /> },
+  { id: "imagePickOut", type: "image", labelKey: "imagePick", icon: <SrcImagePickIcon /> },
+  { id: "videoRefOut", type: "video", labelKey: "referenceVideo", icon: <SrcVideoIcon /> },
+  { id: "audioRefOut", type: "audio", labelKey: "referenceAudio", icon: <SrcAudioIcon /> },
 ] as const;
 const SOURCE_HANDLE_SPACING = 32; // px between source handles
 // Fixed slot offset from the node's vertical center — keeps the whole stack centered
@@ -158,6 +159,8 @@ function resolveMentions(
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function VideoGeneratorNode({ id, data, selected }: NodeProps<VideoGeneratorNodeType>) {
+  const t = useTranslations("nodes");
+  const tGeneric = useTranslations("ui.generic");
   const readOnly = useReadOnly();
   const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
   const updateNodeSize = useWorkflowStore((s) => s.updateNodeSize);
@@ -494,7 +497,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
         gens[slot] = json.videoUrl;
         updateNodeData(id, { status: "done", videoUrl: json.videoUrl, taskId: undefined, generations: gens, currentGenIdx: slot });
       } else {
-        const errMsg = json.error ?? "Generation failed";
+        const errMsg = json.error ?? t("generationFailed");
         gens[slot] = { error: errMsg };
         updateNodeData(id, { status: "error", errorMsg: errMsg, taskId: undefined, generations: gens, currentGenIdx: slot });
       }
@@ -574,21 +577,26 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
 
   // Apply model-specific label/class overrides.
   const handles = BASE_HANDLES.map((h) => {
-    let label = h.label;
+    let labelKey = h.labelKey;
+    let labelParams: Record<string, number> | undefined;
     let className = h.className;
-    if (h.id === "resource" && cfg.maxResources)
-      label = cfg.id === "happyhorse"
-        ? `Characters (up to ${cfg.maxResources})`
-        : `Reference images (up to ${cfg.maxResources})`;
-    if (h.id === "referenceVideo" && cfg.maxReferenceVideos)
-      label = `Reference videos (up to ${cfg.maxReferenceVideos})`;
-    if (h.id === "audioRef" && cfg.maxReferenceAudios)
-      label = `Reference audios (up to ${cfg.maxReferenceAudios})`;
+    if (h.id === "resource" && cfg.maxResources) {
+      labelKey = cfg.id === "happyhorse" ? "charactersUpTo" : "referenceImagesUpTo";
+      labelParams = { n: cfg.maxResources };
+    }
+    if (h.id === "referenceVideo" && cfg.maxReferenceVideos) {
+      labelKey = "referenceVideosUpTo";
+      labelParams = { n: cfg.maxReferenceVideos };
+    }
+    if (h.id === "audioRef" && cfg.maxReferenceAudios) {
+      labelKey = "referenceAudiosUpTo";
+      labelParams = { n: cfg.maxReferenceAudios };
+    }
     if (h.id === "startFrame" && cfg.apiInput.useMotionControl) {
-      label = "Character";
+      labelKey = "character";
       className = "node-handle-icon node-handle-icon-character";
     }
-    return { ...h, label, className };
+    return { ...h, labelKey, labelParams, className };
   });
   const ratios = cfg.ratios;
   const durations = cfg.durations;
@@ -680,7 +688,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
   const runVGExtract = useCallback(async (isLastFrame: boolean, url: string) => {
     activeVGExtRef.current++;
     updateNodeData(id, { extractingFrame: true });
-    addToast("Extracting frame…", "info");
+    addToast(t("extractingFrame"), "info");
     try {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       const body = isLastFrame ? { videoUrl: url, lastFrame: true } : { videoUrl: url, timeSeconds: 0 };
@@ -688,7 +696,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       const j = await r.json();
       if (j.cdnUrl) {
         updateNodeData(id, { [isLastFrame ? "eagerEndFrameUrl" : "eagerStartFrameUrl"]: j.cdnUrl });
-        addToast("Frame extracted.", "success");
+        addToast(t("frameExtracted"), "success");
       }
     } catch { /* silent */ } finally {
       activeVGExtRef.current--;
@@ -738,7 +746,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
     try {
       const seekTime = v.currentTime;
       const srcUrl = v.src;
-      if (!srcUrl) throw new Error("No video source");
+      if (!srcUrl) throw new Error(t("noVideoSource"));
 
       const extractHeaders: Record<string, string> = { "Content-Type": "application/json" };
       const res = await fetch("/api/extract-frame", {
@@ -747,7 +755,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
         body: JSON.stringify({ videoUrl: srcUrl, timeSeconds: seekTime }),
       });
       const j = await res.json();
-      if (!res.ok) throw new Error(j.error || "Extraction failed");
+      if (!res.ok) throw new Error(j.error || t("extractionFailed"));
 
       if (j.cdnUrl) {
         updateNodeData(id, { capturedFrameUrl: j.cdnUrl });
@@ -763,7 +771,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       }
       setPickerOpen(false);
     } catch (e: any) {
-      setCaptureErr(e.message || "Failed to capture frame");
+      setCaptureErr(e.message || t("failedToCaptureFrame"));
     } finally {
       setCapturing(false);
       updateNodeData(id, { extractingFrame: false });
@@ -811,7 +819,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       setErrorHandles(new Set(missingRequiredHandles));
       setTimeout(() => setErrorHandles(new Set()), 1400);
       updateNodeData(id, { hasError: true });
-      addToast("Connect all required inputs for this model.", "error");
+      addToast(t("errConnectRequired"), "error");
       return;
     }
 
@@ -819,7 +827,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       setErrorHandles(new Set(["prompt"]));
       setTimeout(() => setErrorHandles(new Set()), 1400);
       updateNodeData(id, { hasError: true });
-      addToast("A prompt is required to generate a video.", "error");
+      addToast(t("errPromptVideo"), "error");
       if (textEdge) {
         updateNodeData(textEdge.source, { hasError: true });
         flashEdgeError(textEdge.id);
@@ -865,7 +873,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       }
       if (hasError) {
         updateNodeData(id, { hasError: true });
-        addToast("Connect all required inputs for this model.", "error");
+        addToast(t("errConnectRequired"), "error");
         return;
       }
     }
@@ -910,7 +918,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       }
       if (hasEmpty) {
         updateNodeData(id, { hasError: true });
-        addToast("Some connected inputs have no content yet.", "error");
+        addToast(t("errSomeInputsEmpty"), "error");
         return;
       }
     }
@@ -1053,7 +1061,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
         });
         const text = await res.text();
         let json: { taskId?: string; error?: string } = {};
-        try { json = JSON.parse(text); } catch { throw new Error(res.ok ? "Invalid server response" : `Server error ${res.status}`); }
+        try { json = JSON.parse(text); } catch { throw new Error(res.ok ? t("invalidServerResponse") : `Server error ${res.status}`); }
         if (!res.ok) throw new Error(json.error ?? `Server error ${res.status}`);
         // Store taskId — the polling useEffect above will wait for completion
         updateNodeData(id, { taskId: json.taskId });
@@ -1179,8 +1187,8 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       </span>
       {(!connectedHandles.has("prompt") && !cfg.promptOptional || hasFailedMediaInput) && status !== "running" && !data.locked && (
         <MissingInputWarning messages={[
-          ...(!connectedHandles.has("prompt") && !cfg.promptOptional ? ["A text node is required"] : []),
-          ...(hasFailedMediaInput ? ["A connected image/video input has no valid content"] : []),
+          ...(!connectedHandles.has("prompt") && !cfg.promptOptional ? [t("errTextNode")] : []),
+          ...(hasFailedMediaInput ? [t("errNoValidInput")] : []),
         ]} />
       )}
 
@@ -1223,7 +1231,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
             }}
           >
             <span style={{ color }} className="mr-1.5">●</span>
-            {def.label}
+            {t(def.labelKey)}
           </div>
         );
       })()}
@@ -1282,7 +1290,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
             }}
           >
             <span style={{ color: tooltipColor }} className="mr-1.5">●</span>
-            {hoveredDef.label}
+            {t(hoveredDef.labelKey)}
           </div>
         );
       })()}
@@ -1324,7 +1332,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                       {(entry.error === "moderation_blocked" || entry.error?.includes?.("moderation_blocked") || entry.error?.includes?.("flagged as sensitive")) ? (
                         <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#f87171]">
                           <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
-                          <span>NSFW content detected</span>
+                          <span>{t("nsfwDetected")}</span>
                         </div>
                       ) : (
                         <p className="text-[10px] text-[#f87171] leading-snug break-words w-full">{entry.error}</p>
@@ -1341,7 +1349,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                           <path d="M10 11v6M14 11v6" />
                           <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
                         </svg>
-                        <span className="text-[11px] font-medium text-red-400">Delete</span>
+                        <span className="text-[11px] font-medium text-red-400">{tGeneric("delete")}</span>
                       </button>
                     </div>
                   ) : (
@@ -1382,14 +1390,14 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   Credits refunded
                 </span>
               </div>
-              <p className="text-white text-[12px] font-semibold leading-snug">Oops! Something went wrong.</p>
+              <p className="text-white text-[12px] font-semibold leading-snug">{t("oops")}</p>
               {(() => {
-                const msg = (data.errorMsg as string) ?? "Generation failed";
+                const msg = (data.errorMsg as string) ?? t("generationFailed");
                 const isNsfw = msg === "moderation_blocked" || msg.includes("moderation_blocked") || msg.includes("flagged as sensitive");
                 return isNsfw ? (
                   <div className="flex items-center gap-1.5 text-[#f87171] text-[10px]">
                     <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
-                    <span>NSFW content detected</span>
+                    <span>{t("nsfwDetected")}</span>
                   </div>
                 ) : (
                   <p className="text-[#f87171] text-[10px] leading-[1.5] break-words">{msg}</p>
@@ -1412,7 +1420,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={displayFrameUrl}
-              alt="Captured frame"
+              alt={t("capturedFrame")}
               className="absolute inset-0 w-full h-full block"
               style={{ objectFit: "fill", zIndex: 5 }}
             />
@@ -1445,7 +1453,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 <button
                   onClick={(e) => { e.stopPropagation(); setViewMode("video"); }}
                   className="w-7 h-7 rounded-full flex items-center justify-center relative z-10"
-                  title="Show video"
+                  title={t("showVideo")}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={viewMode === "video" ? "white" : "#777"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 220ms" }}>
                     <rect width="15" height="14" x="2" y="5" rx="2" />
@@ -1455,7 +1463,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 <button
                   onClick={(e) => { e.stopPropagation(); setViewMode("frame"); }}
                   className="w-7 h-7 rounded-full flex items-center justify-center relative z-10"
-                  title="Show frame"
+                  title={t("showFrame")}
                 >
                   <div style={{
                     width: 20, height: 20, borderRadius: "50%",
@@ -1474,7 +1482,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); setGlobalMuted(!muted); }}
                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/player:opacity-100 transition-opacity pointer-events-auto z-20 node-slide-reveal"
-                title={muted ? "Unmute" : "Mute"}
+                title={muted ? t("unmute") : t("mute")}
               >
                 {muted ? (
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1588,7 +1596,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3 3" />
             </svg>
-            <span className="text-[11px] font-medium" style={{ color: "rgba(148,163,184,0.8)" }}>Queued</span>
+            <span className="text-[11px] font-medium" style={{ color: "rgba(148,163,184,0.8)" }}>{t("queued")}</span>
           </div>
         )}
 
@@ -1611,7 +1619,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 </svg>
               )}
               <span className="text-[11px] font-medium" style={{ color: isPending ? "#888" : "#2DD4BF" }}>
-                {isPending ? "Pending" : "Generating…"}
+                {isPending ? t("pending") : t("generating")}
               </span>
             </div>
             {isPending && (
@@ -1625,7 +1633,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   <circle cx="12" cy="12" r="9" />
                   <path d="m6 6 12 12" />
                 </svg>
-                <span className="text-[11px] text-[#ccc] font-medium">Cancel</span>
+                <span className="text-[11px] text-[#ccc] font-medium">{tGeneric("cancel")}</span>
               </button>
             )}
           </div>
@@ -1637,7 +1645,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); setGlobalMuted(!muted); }}
             className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/player:opacity-100 transition-opacity pointer-events-auto z-20 node-slide-reveal"
-            title={muted ? "Unmute" : "Mute"}
+            title={muted ? t("unmute") : t("mute")}
           >
             {muted ? (
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1683,7 +1691,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 if (v.paused) v.play().catch(() => { }); else v.pause();
               }}
               className="shrink-0 pointer-events-auto opacity-70 hover:opacity-100 transition-opacity"
-              title={isPlaying ? "Pause" : "Play"}
+              title={isPlaying ? t("pause") : t("play")}
             >
               {isPlaying ? (
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
@@ -1719,7 +1727,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                         <span className="text-[8px] font-semibold leading-none">i</span>
                       </div>
                       <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 rounded-lg text-[10px] leading-[1.6] text-[#AAA] opacity-0 group-hover/orient-info:opacity-100 transition-opacity z-50 node-slide-reveal" style={{ background: "#111317", border: "1px solid #2A2A2A" }}>
-                        When Character Orientation matches the video, complex motions perform better; when it matches the image, camera movements are better supported.
+                        {t("orientationHint")}
                       </div>
                     </div>
                   </>
@@ -1852,7 +1860,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     >+</button>
                     <FloatMenu open={durOpen}>
                       <div className="p-3 min-w-[200px]" onMouseDown={(e) => e.stopPropagation()}>
-                        <p className="text-[12px] text-white font-medium mb-2.5">Choose duration</p>
+                        <p className="text-[12px] text-white font-medium mb-2.5">{t("chooseDuration")}</p>
                         <div
                           className="nodrag flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-lg"
                           style={{ background: "#141C28" }}
@@ -1909,7 +1917,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                   >
                     <ToggleSwitch on={sound} activeColor="#2dd4bf" />
-                    <span className="text-[11px] text-white/70">Sound</span>
+                    <span className="text-[11px] text-white/70">{t("sound")}</span>
                   </button>
                 )}
 
@@ -1929,7 +1937,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     className="flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors"
                     style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                   >                  <ToggleSwitch on={veoMode === "references"} activeColor="#fb923c" />
-                    <span className="text-[11px] text-white/70">{veoMode === "references" ? "References" : "Frames"}</span>
+                    <span className="text-[11px] text-white/70">{veoMode === "references" ? t("references") : t("frames")}</span>
                   </button>
                 )}
                 {/* Seed input */}
@@ -1939,7 +1947,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                     onMouseDown={(e) => e.stopPropagation()}
                   >
-                    <span className="text-[11px] text-white/70 shrink-0 select-none">Seed</span>
+                    <span className="text-[11px] text-white/70 shrink-0 select-none">{t("seed")}</span>
                     <input
                       type="number"
                       min={0}
@@ -1960,7 +1968,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 {activeHandles.has("resource") && hasResource && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded-full" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     <span className="w-1.5 h-1.5 rounded-full bg-[#fb923c] shrink-0" />
-                    <span className="text-[10px] text-white/60">Img ref</span>
+                    <span className="text-[10px] text-white/60">{t("imgRef")}</span>
                   </div>
                 )}
 
@@ -1990,7 +1998,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               )}
 
               {/* Generate button — always right */}
-              {!readOnly && <GenerateButton onClick={handleGenerateBatch} busy={animBusy} extracting={isExtractingFrames} disabled={promptOverLimit || kieKeySet === false || busy || isExtractingFrames || hasFailedMediaInput} warningMessages={hasFailedMediaInput ? ["A connected image/video input has no valid content"] : undefined} />}
+              {!readOnly && <GenerateButton onClick={handleGenerateBatch} busy={animBusy} extracting={isExtractingFrames} disabled={promptOverLimit || kieKeySet === false || busy || isExtractingFrames || hasFailedMediaInput} warningMessages={hasFailedMediaInput ? [t("errNoValidInput")] : undefined} />}
             </div>
           );
         })()}

@@ -8,6 +8,7 @@ import { Handle, Position, NodeProps, Node, useUpdateNodeInternals } from "@xyfl
 import CornerResizer from "./CornerResizer";
 import NodeActionBar from "./NodeActionBar";
 import { useWorkflowStore, NodeData } from "@/lib/store";
+import { useTranslations } from "next-intl";
 import { resolveInputs } from "@/lib/executor";
 import { useReadOnly } from "@/lib/readOnlyContext";
 import { browserNotify, requestNotificationPermission } from "@/lib/browserNotify";
@@ -163,6 +164,8 @@ function resolveMentions(
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function GenerateNode({ id, data, selected }: NodeProps<GenerateNodeType>) {
+  const t = useTranslations("nodes");
+  const tGeneric = useTranslations("ui.generic");
   const readOnly = useReadOnly();
   const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
   const updateNodeSize = useWorkflowStore((s) => s.updateNodeSize);
@@ -517,25 +520,25 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
           updateNodeData(id, { status: "done", imageUrl: json.imageUrl, taskId: undefined, generations: gens, currentGenIdx: slot });
           clearInterval(interval);
           document.removeEventListener("visibilitychange", onVisible);
-          browserNotify("Node complete", (data.label as string | undefined) ?? "Image generated");
+          browserNotify(t("nodeComplete"), (data.label as string | undefined) ?? t("imageGenerated"));
         } else if (json.status === "error") {
           const storeNode = useWorkflowStore.getState().nodes.find(n => n.id === id);
           const gens = [...((storeNode?.data?.generations as GenEntry[] | undefined) ?? [])] as GenEntry[];
           const slot = storeNode?.data?.currentGenIdx as number ?? gens.length - 1;
-          gens[slot] = { error: json.error ?? "Generation failed" };
+          gens[slot] = { error: json.error ?? t("generationFailed") };
           updateNodeData(id, { status: "error", errorMsg: json.error, taskId: undefined, generations: gens, currentGenIdx: slot });
           clearInterval(interval);
           document.removeEventListener("visibilitychange", onVisible);
-          browserNotify("Node failed", json.error ?? "Generation failed");
+          browserNotify(t("nodeFailed"), json.error ?? t("generationFailed"));
         } else if (json.status === "not_found") {
           const storeNode = useWorkflowStore.getState().nodes.find(n => n.id === id);
           const gens = [...((storeNode?.data?.generations as GenEntry[] | undefined) ?? [])] as GenEntry[];
           const slot = storeNode?.data?.currentGenIdx as number ?? gens.length - 1;
-          gens[slot] = { error: "Job expired or unknown" };
-          updateNodeData(id, { status: "error", errorMsg: "Job expired or unknown", taskId: undefined, generations: gens, currentGenIdx: slot });
+          gens[slot] = { error: t("jobExpired") };
+          updateNodeData(id, { status: "error", errorMsg: t("jobExpired"), taskId: undefined, generations: gens, currentGenIdx: slot });
           clearInterval(interval);
           document.removeEventListener("visibilitychange", onVisible);
-          browserNotify("Node failed", "Job expired or unknown");
+          browserNotify(t("nodeFailed"), t("jobExpired"));
         }
         // "pending" → keep polling
       } catch {
@@ -608,7 +611,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
         setErrorHandles(new Set(["image"]));
         setTimeout(() => setErrorHandles(new Set()), 1400);
         updateNodeData(id, { hasError: true });
-        addToast("Some connected image inputs have no content yet.", "error");
+        addToast(t("errSomeImageInputsEmpty"), "error");
         for (const e of emptyImageEdges) {
           const src = useWorkflowStore.getState().nodes.find((n) => n.id === e.source);
           if (src) updateNodeData(src.id, { hasError: true });
@@ -667,7 +670,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
       updateNodeData(id, { hasError: true });
       setErrorHandles(new Set(["prompt"]));
       setTimeout(() => setErrorHandles(new Set()), 1400);
-      addToast("A prompt is required to generate an image.", "error");
+      addToast(t("errPromptImage"), "error");
       if (connectedPromptNodeId) {
         updateNodeData(connectedPromptNodeId, { hasError: true });
         const promptEdge = edges.find((e) => e.target === id && e.targetHandle === "prompt");
@@ -823,8 +826,8 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
       <span className="node-above-label">{data.label as string}</span>
       {(!promptConnected || hasFailedImageInput) && status !== "running" && !data.locked && (
         <MissingInputWarning messages={[
-          ...(!promptConnected ? ["A text node is required"] : []),
-          ...(hasFailedImageInput ? ["The connected image input has no valid content"] : []),
+          ...(!promptConnected ? [t("errTextNode")] : []),
+          ...(hasFailedImageInput ? [t("errNoValidImageInput")] : []),
         ]} />
       )}
 
@@ -873,10 +876,10 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
         >
           <span style={{ color: hoveredHandle === "prompt" ? "#2DD4BF" : "#fb923c" }} className="mr-1.5">●</span>
           {hoveredHandle === "prompt"
-            ? "Text prompt"
+            ? t("textPrompt")
             : caps.maxImages > 0
               ? `Reference image (up to ${caps.maxImages})`
-              : "Reference image"
+              : t("referenceImage")
           }
         </div>
       )}
@@ -886,7 +889,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
         position={Position.Right}
         style={{ top: "50%" }}
         className={`node-handle-icon node-handle-icon-out-image${sourceConnected ? " node-handle-connected" : ""}${(data.hasError as boolean) ? " node-handle-error" : ""}`}
-        title="Image output"
+        title={t("imageOutput")}
       >
         <PhotoIcon />
       </Handle>
@@ -912,7 +915,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 <circle cx="12" cy="12" r="9" />
                 <path d="M12 7v5l3 3" />
               </svg>
-              <span className="text-[11px] font-medium" style={{ color: "rgba(148,163,184,0.8)" }}>Queued</span>
+              <span className="text-[11px] font-medium" style={{ color: "rgba(148,163,184,0.8)" }}>{t("queued")}</span>
             </div>
           )}
           {busy && generations[currentGenIdx] === null && (
@@ -933,7 +936,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                   </svg>
                 )}
                 <span className="text-[11px] font-medium" style={{ color: isPending ? "#888" : "#2DD4BF" }}>
-                  {isPending ? "Pending" : "Generating…"}
+                  {isPending ? t("pending") : t("generating")}
                 </span>
               </div>
               {isPending && (
@@ -947,7 +950,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                     <circle cx="12" cy="12" r="9" />
                     <path d="m6 6 12 12" />
                   </svg>
-                  <span className="text-[11px] text-[#ccc] font-medium">Cancel</span>
+                  <span className="text-[11px] text-[#ccc] font-medium">{tGeneric("cancel")}</span>
                 </button>
               )}
             </div>
@@ -976,7 +979,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                       {(entry.error === "moderation_blocked" || entry.error?.includes?.("moderation_blocked") || entry.error?.includes?.("flagged as sensitive")) ? (
                         <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#f87171]">
                           <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
-                          <span>NSFW content detected</span>
+                          <span>{t("nsfwDetected")}</span>
                         </div>
                       ) : (
                         <p className="text-[10px] text-[#f87171] leading-snug break-words w-full">{entry.error}</p>
@@ -993,14 +996,14 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                           <path d="M10 11v6M14 11v6" />
                           <path d="M9 6V4h6v2" />
                         </svg>
-                        <span className="text-[11px] font-medium text-red-400">Delete</span>
+                        <span className="text-[11px] font-medium text-red-400">{tGeneric("delete")}</span>
                       </button>
                     </div>
                   ) : (
                     <Image
                       ref={i === currentGenIdx ? nodeImgRef : undefined}
                       src={entry as string}
-                      alt="Generated"
+                      alt={t("generated")}
                       fill
                       quality={30}
                       sizes="400px"
@@ -1034,12 +1037,12 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 Oops! Something went wrong.
               </p>
               {(() => {
-                const msg = (data.errorMsg as string) ?? "Generation failed";
+                const msg = (data.errorMsg as string) ?? t("generationFailed");
                 const isNsfw = msg === "moderation_blocked" || msg.includes("moderation_blocked") || msg.includes("flagged as sensitive");
                 return isNsfw ? (
                   <div className="flex items-center gap-1.5 text-[#f87171] text-[10px]">
                     <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
-                    <span>NSFW content detected</span>
+                    <span>{t("nsfwDetected")}</span>
                   </div>
                 ) : (
                   <p className="text-[#f87171] text-[10px] leading-[1.5] break-words">{msg}</p>
@@ -1080,7 +1083,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               }}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all ${data.imageUrl ? "cursor-default" : "hover:brightness-125"}`}
               style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
-              title={data.imageUrl ? "Clear the image to change model" : undefined}
+              title={data.imageUrl ? t("clearImageToChangeModel") : undefined}
             >
               <span className="shrink-0 text-white/60" style={{ lineHeight: 0 }}>
                 <NodeProviderIcon provider={modelInfo.meta} />
@@ -1132,7 +1135,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 onClick={() => { setProviderOpen((o) => !o); setModelOpen(false); setRatioOpen(false); setQualityOpen(false); }}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-full hover:brightness-125 transition-all"
                 style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
-                title="Provider"
+                title={t("provider")}
               >
                 <span className="flex items-center gap-1.5 text-[11px] text-white/70">
                   <ProviderBrandIcon id={currentProvider} />
@@ -1210,7 +1213,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                           <svg width="20" height="14" viewBox="0 0 20 14" className="shrink-0">
                             <rect x="2" y="1" width="16" height="12" rx="1" fill="none" stroke={aspectRatio === "custom" ? "#FFFFFF" : "#5A5A55"} strokeWidth="1" strokeDasharray="2 1.5" />
                           </svg>
-                          <span className="flex-1 text-left">Custom…</span>
+                          <span className="flex-1 text-left">{t("custom")}</span>
                         </button>
                       </>
                     )}
@@ -1224,14 +1227,14 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                       >
                         <span aria-hidden>‹</span> Back
                       </button>
-                      <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">Custom size</span>
+                      <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("customSize")}</span>
                     </div>
                     <div className="flex items-center gap-1.5 mb-2">
                       <input
                         type="number"
                         value={customWidthDraft}
                         onChange={(e) => setCustomWidthDraft(Number(e.target.value))}
-                        placeholder="Width"
+                        placeholder={t("width")}
                         className="w-full min-w-0 bg-[#0B0F17] border border-[#1E2840] rounded px-2 py-1 text-[11px] text-white tabular-nums focus:outline-none focus:border-[#3A4A6A]"
                       />
                       <span className="text-[#4A4A45] text-[11px] shrink-0">×</span>
@@ -1239,7 +1242,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                         type="number"
                         value={customHeightDraft}
                         onChange={(e) => setCustomHeightDraft(Number(e.target.value))}
-                        placeholder="Height"
+                        placeholder={t("height")}
                         className="w-full min-w-0 bg-[#0B0F17] border border-[#1E2840] rounded px-2 py-1 text-[11px] text-white tabular-nums focus:outline-none focus:border-[#3A4A6A]"
                       />
                     </div>
@@ -1286,7 +1289,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 className="flex items-center gap-1 px-2.5 py-1 rounded-full hover:brightness-125 transition-all"
                 style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
               >
-                {caps.qualityKey === "resolution" && <span className="text-[11px] text-white/30">Res</span>}
+                {caps.qualityKey === "resolution" && <span className="text-[11px] text-white/30">{t("res")}</span>}
                 <span className="text-[11px] text-white/70 uppercase">{quality}</span>
                 <ChevronIcon open={qualityOpen} />
               </button>
@@ -1294,13 +1297,13 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 <div className={`absolute bottom-full left-0 mb-2 w-36 bg-[#111622] border border-[#1E2840] rounded-md overflow-hidden z-[1002] shadow-2xl ${qualityPopup.className}`}>
                   {caps.qualityKey === "resolution" && (
                     <div className="px-3 py-1.5 border-b border-border">
-                      <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">Resolution</span>
+                      <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("resolution")}</span>
                     </div>
                   )}
                   {[
-                    { id: "1k", label: "1K", meta: "Standard" },
-                    { id: "2k", label: "2K", meta: "High" },
-                    { id: "4k", label: "4K", meta: "Maximum" },
+                    { id: "1k", label: "1K", meta: t("tierStandard") },
+                    { id: "2k", label: "2K", meta: t("tierHigh") },
+                    { id: "4k", label: "4K", meta: t("tierMaximum") },
                   ].filter((q) => !caps.qualityOptions || caps.qualityOptions.includes(q.id as "1k" | "2k" | "4k")).map((q) => (
                     <button
                       key={q.id}
@@ -1325,7 +1328,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 onClick={() => { setAzureQualityOpen((o) => !o); setModelOpen(false); setRatioOpen(false); setQualityOpen(false); setAzureResolutionOpen(false); }}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-full hover:brightness-125 transition-all"
                 style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
-                title="Quality (Azure Foundry)"
+                title={t("qualityAzureFoundry")}
               >
                 <span className="text-[11px] text-white/70 capitalize">
                   {(data.azureQuality as string | undefined) ?? "auto"}
@@ -1335,13 +1338,13 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               {azureQualityPopup.visible && (
                 <div className={`absolute bottom-full left-0 mb-2 w-36 bg-[#111622] border border-[#1E2840] rounded-md overflow-hidden z-[1002] shadow-2xl ${azureQualityPopup.className}`}>
                   <div className="px-3 py-1.5 border-b border-border">
-                    <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">Azure Quality</span>
+                    <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("azureQuality")}</span>
                   </div>
                   {[
-                    { id: "auto", meta: "Model default" },
+                    { id: "auto", meta: t("modelDefault") },
                     { id: "low", meta: "Faster, cheaper" },
-                    { id: "medium", meta: "Balanced" },
-                    { id: "high", meta: "Best quality" },
+                    { id: "medium", meta: t("tierBalanced") },
+                    { id: "high", meta: t("tierBestQuality") },
                   ].map((q) => {
                     const active = ((data.azureQuality as string | undefined) ?? "auto") === q.id;
                     return (
@@ -1369,9 +1372,9 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                 onClick={() => { setAzureResolutionOpen((o) => !o); setModelOpen(false); setRatioOpen(false); setQualityOpen(false); setAzureQualityOpen(false); }}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-full hover:brightness-125 transition-all"
                 style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
-                title="Resolution (Azure)"
+                title={t("resolutionAzure")}
               >
-                <span className="text-[11px] text-white/30">Res</span>
+                <span className="text-[11px] text-white/30">{t("res")}</span>
                 <span className="text-[11px] text-white/70 uppercase">
                   {(data.azureResolution as string | undefined) ?? "1k"}
                 </span>
@@ -1380,12 +1383,12 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               {azureResolutionPopup.visible && (
                 <div className={`absolute bottom-full left-0 mb-2 w-36 bg-[#111622] border border-[#1E2840] rounded-md overflow-hidden z-[1002] shadow-2xl ${azureResolutionPopup.className}`}>
                   <div className="px-3 py-1.5 border-b border-border">
-                    <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">Resolution</span>
+                    <span className="text-[9px] text-[#4A4A45] tracking-wider uppercase font-semibold">{t("resolution")}</span>
                   </div>
                   {[
-                    { id: "1k", label: "1K", meta: "Standard" },
-                    { id: "2k", label: "2K", meta: "High" },
-                    { id: "4k", label: "4K", meta: "Maximum" },
+                    { id: "1k", label: "1K", meta: t("tierStandard") },
+                    { id: "2k", label: "2K", meta: t("tierHigh") },
+                    { id: "4k", label: "4K", meta: t("tierMaximum") },
                   ].map((r) => {
                     const active = ((data.azureResolution as string | undefined) ?? "1k") === r.id;
                     return (
@@ -1432,7 +1435,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
           )}
 
           {/* Generate button — always right */}
-          {!readOnly && <GenerateButton onClick={handleGenerateBatch} busy={animBusy} disabled={promptOverLimit || (!isCodexProvider && kieKeySet === false) || busy || hasFailedImageInput} warningMessages={hasFailedImageInput ? ["The connected image input has no valid content"] : undefined} />}
+          {!readOnly && <GenerateButton onClick={handleGenerateBatch} busy={animBusy} disabled={promptOverLimit || (!isCodexProvider && kieKeySet === false) || busy || hasFailedImageInput} warningMessages={hasFailedImageInput ? [t("errNoValidImageInput")] : undefined} />}
         </div>
       </div>
 
@@ -1492,7 +1495,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={data.imageUrl as string}
-              alt="Full quality"
+              alt={t("fullQuality")}
               className="block max-w-[90vw] max-h-[90vh] object-contain"
               onLoad={() => setLightboxImgLoaded(true)}
             />
