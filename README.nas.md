@@ -4,9 +4,9 @@
 
 HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接同一 Tailscale 网络）。
 
-源码：[SegFault42/HeliosGen](https://github.com/SegFault42/HeliosGen)，版本 `1.2.1`，源码提交 `99ec060`（与上游的合并点 `5f31a16`，已并入上游 `99dd5b1`，含 PR #28 音频 MIME 修复）。这是基于官方 Next.js 服务的 NAS 适配部署；上游主要发行桌面应用。
+源码：[SegFault42/HeliosGen](https://github.com/SegFault42/HeliosGen)，版本 `1.2.1`（已并入上游 `99dd5b1`，含 PR #28 音频 MIME 修复）。这是基于官方 Next.js 服务的 NAS 适配部署；上游主要发行桌面应用。
 
-> 说明：`99ec060` 是源码合并后的状态，NAS 上运行的镜像仍是上一次部署（`heliosgen:nas-http-20260915`）。下文「功能总览」中标注为**新增**的部分需要按「常用命令」一节重新构建并部署后才会在 NAS 生效。
+> 说明：NAS 上运行的镜像仍是上一次部署（`heliosgen:nas-http-20260915`，源码为上游 `f4aae3f`）。下文「功能总览」中标注为**新增**的部分需要按「常用命令」一节重新构建并部署后才会在 NAS 生效。
 
 ## 位置与运行方式
 
@@ -27,7 +27,7 @@ HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接�
 
 ## 功能总览
 
-按源码 `5f31a16` 梳理。标 **新增** 的是本次合并（相对上游 `f4aae3f`）带进来的能力。
+按当前分支源码梳理。标 **新增** 的是本次合并（相对上游 `f4aae3f`）带进来的能力。
 
 ### 画布节点（16 种，选择器 15 种 + Group）
 
