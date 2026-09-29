@@ -4,11 +4,16 @@
  * Fetches a remote image/video URL server-side and stores it locally.
  * Body: { url: string }
  * Returns: { cdnUrl: string; mediaType: "image" | "video" }
+ *
+ * The URL comes from the caller, so it goes through lib/ssrfGuard: private and
+ * link-local addresses are refused, and redirects are followed one hop at a
+ * time with the same check applied to each (see that file for the reasoning).
  */
 import { NextRequest, NextResponse } from "next/server";
 import { uploadImageWithRatio, uploadBuffer } from "@/lib/storage";
 import { GUEST_USER_ID } from "@/lib/guestMode";
 import * as guestDb from "@/lib/guest/db";
+import { fetchFollowingSafely } from "@/lib/ssrfGuard";
 
 export const maxDuration = 60;
 
@@ -21,20 +26,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing url" }, { status: 400 });
     }
 
-    let parsed: URL;
     try {
-      parsed = new URL(url);
+      new URL(url);
     } catch {
       return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return NextResponse.json({ error: "Only http/https URLs are supported" }, { status: 400 });
-    }
 
-    const upstream = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; HeliosGen/1.0)" },
-      redirect: "follow",
-    });
+    let upstream: Response;
+    try {
+      upstream = await fetchFollowingSafely(url);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return NextResponse.json({ error: msg }, { status: 400 });
+    }
 
     if (!upstream.ok) {
       return NextResponse.json({ error: `Failed to fetch URL: ${upstream.status} ${upstream.statusText}` }, { status: 400 });

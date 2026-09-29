@@ -1,8 +1,17 @@
 import path from "node:path";
+import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./app/i18n/request.ts");
+
+// The update banner compares NEXT_PUBLIC_APP_VERSION with the latest GitHub
+// release. Only the Docker build used to set it, so a plain `pnpm build` (or
+// `next dev`) reported "0.0.0" and advertised an update that was already
+// installed. Fall back to package.json; an explicit env var still wins.
+const APP_VERSION =
+  process.env.NEXT_PUBLIC_APP_VERSION ||
+  (JSON.parse(readFileSync(path.join(__dirname, "package.json"), "utf8")) as { version: string }).version;
 
 // The packaged desktop (Tauri) build runs `next build` with DESKTOP_BUILD=1 and
 // ships the self-contained `.next/standalone` server as a bundled sidecar. Plain
@@ -10,6 +19,7 @@ const withNextIntl = createNextIntlPlugin("./app/i18n/request.ts");
 const DESKTOP_BUILD = process.env.DESKTOP_BUILD === "1";
 
 const nextConfig: NextConfig = {
+  env: { NEXT_PUBLIC_APP_VERSION: APP_VERSION },
   allowedDevOrigins: ["192.168.64.2"],
   ...(DESKTOP_BUILD ? { output: "standalone" as const } : {}),
   turbopack: {

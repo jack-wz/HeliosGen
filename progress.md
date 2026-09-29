@@ -52,6 +52,21 @@
 3. `app/api/skills` POST 硬编码 `configured: true`（技能并无配置概念，字段无意义）——移除。
 4. `lib/mediaPreview.ts`：`previewImageUrl()` 未拦截绝对 http(s) URL，而 `/_next/image` 对不在 `images.remotePatterns` 的主机返回 400（实测 `cdn.kie.ai` → `"url" parameter is not allowed`）。当前资产 URL 均为本地，属潜在问题，加一行放行。
 
+## 2026-09-29（下）
+
+### 全面 review（功能 / 性能 / 交互 / 设计）
+- 方法：静态度量（bundle、文件规模、hex 字面量、shadcn 规则）+ 隔离实例实测（API 延迟、页面体积）+ 浏览器实测（chrome-devtools，截图与 focus 测试）+ 代码走查
+- 高：`/api/fetch-url` 是 SSRF 汇点——接受任意 URL、服务端 `redirect:"follow"` 抓取、无白名单/内网拦截。用 loopback-only 服务实测：能被抓取并落盘回吐（`/generated/uploads/40437268-….png`，HTTP 200）。公网无鉴权 + 同机约 30 个容器，影响面大
+- 中：非 Docker 构建版本号恒为 `0.0.0`，更新横幅永久误报；`/workflow` 首屏 6.7MB，其中 `public/2.webp` 单文件 4MB，且被塞进 108×162 的框（4 张 hero 图 4.95MB，`loading="eager"` + 裸 `<img>`）；47 条路由全为 `ƒ` 动态（根布局读 cookies）；`app/gallery/page.tsx` 7212 行；i18n 仅覆盖 57 个客户端组件中的 7 个；540 处硬编码 hex 绕过主题；节点正文 8–10px
+- 低：`/workflow/<id>` 直链会跳转；10 个表单字段缺 id/name；缺图时显示破图图标；两条横幅叠加占约 90px
+- 良好项：focus 可见性实测 0/25 缺失；media-poster 的缓存键/原子写/并发去重都正确；穿越拦截有效；`components/ui` 无裸色值
+
+### 本轮修复
+1. SSRF：新增 `lib/ssrfGuard.ts`（内网/回环/链路本地/CGNAT/组播地址拦截 + 逐跳校验重定向），`/api/fetch-url` 改用它。实测：loopback、`169.254.169.254`、`192.168.1.185:17860`、`localhost:5666`、`[::1]` 全部拒绝；公网 URL 仍正常（未误伤）。补 `scripts/test-ssrf-guard.mjs`（6 项）
+2. 版本号：`next.config.ts` 回退读取 `package.json` 版本（显式 env 仍优先）。实测 `currentVersion` 由 `0.0.0` 变为 `1.2.1`，误报横幅消失
+3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
+- 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
+
 ### 遗留
 - Phase 2 四个节点的 NAS 实测未做（节点代码已在线上，只是没点过）
 - 2026-09-29 已重新部署：同步源码（tar over ssh，排除 .env.sync / secrets / node_modules / .next / data）→ build → `up -d --force-recreate --no-deps heliosgen`，asset-bridge 未受影响（Up 4 days，reconcile helios=169 seek=169）

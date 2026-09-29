@@ -35,11 +35,13 @@ source with `ts.transpileModule` and stub its imports):
 ```sh
 node --test scripts/test-http-hash.mjs scripts/test-browser-id.mjs
 node --test scripts/test-provider-api.mjs
+node --test scripts/test-ssrf-guard.mjs
 node scripts/test-http-clipboard.mjs
 ```
 
 Run the first line when touching hashing, IDs or clipboard; the provider one
-when touching `lib/providerRegistry.ts` or the provider routes.
+when touching `lib/providerRegistry.ts` or the provider routes; the SSRF one
+when touching `lib/ssrfGuard.ts` or anything that fetches a caller-supplied URL.
 
 ## Running the app locally
 
