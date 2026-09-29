@@ -88,6 +88,23 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-29（review 收口 · 三）
+
+### 本轮完成
+- **R3c** `7b0bcb8`：**7 个处理器节点全部翻译**（Resize / Remove BG / Split Grid / Compare / Video Trim / Frame Grab / LLM Generate），新增 `nodes` 命名空间 51 条
+  - 覆盖：表头、按钮与忙碌态（Splitting…/Trimming…/Extracting…/Generating…/Resizing…）、空态提示、Resize 模式页签与字段标签、Remove BG 模型档位与进度行、Split Grid 行/列、以及各节点的失败提示
+  - 两处需改结构而非换字符串：`MODEL_OPTIONS` 原本在模块级数组里存显示文案（不能调 hook），改为存 message key、渲染时经 `formatModelLabel(model, t)` 解析；「Output produced with {model}」改为 ICU
+  - 有意保留英文：PNG/JPEG/WebP（格式标识）、contain/cover/stretch（CSS 关键字）
+  - 实测：一张画布放全部 7 个节点，zh-CN **20/20**、en **20/20** 命中，无缺失
+- **R6c**：验证 + 部署（回滚点 `rollback-20260929-5`）。线上确认 messages 已带 9 个命名空间、nodes 51 条、134/134 键集一致；EACCES 0、170 条资产、asset-bridge Up 5 days
+- 过程中发现并修正：我第一轮 grep 漏了节点里的表头/模型档位/按钮（模式匹配只覆盖 `>Text<`，漏了数组与三元里的字符串字面量），用更宽的扫描补全
+
+### 仍未做（附原因）
+- R2 批次 2（119 处调色板外的一次性色）——需先做设计决策
+- R3 其余：生成类节点（GenerateNode 等，各 6–12 条）、MediaPickerModal、CanvasToolbar、WorkflowCanvas、API 错误码
+- R4 节点字号（会改变画布观感，需确认）
+- R5（动态路由、gallery 7212 行拆分）——建议单独立项
+
 ## 2026-09-29（review 收口 · 续）
 
 ### 本轮完成
