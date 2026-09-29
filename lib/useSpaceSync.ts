@@ -160,14 +160,19 @@ export function useSpaceSync() {
 
 // ── Time-ago helper ───────────────────────────────────────────────────────────
 
-export function timeAgo(date: Date): string {
+/**
+ * Locale-aware relative time ("5m ago" / "5分钟前"). Uses
+ * Intl.RelativeTimeFormat so the wording follows the active locale instead of
+ * being hard-coded English; `numeric: "auto"` renders a fresh timestamp as
+ * "now" rather than "0s ago".
+ */
+export function timeAgo(date: Date, locale: string = "en"): string {
   const s = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (s < 10)  return "just now";
-  if (s < 60)  return `${s}s ago`;
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto", style: "narrow" });
+  if (s < 60) return rtf.format(-s, "second");
   const m = Math.floor(s / 60);
-  if (m < 60)  return `${m}m ago`;
+  if (m < 60) return rtf.format(-m, "minute");
   const h = Math.floor(m / 60);
-  if (h < 24)  return `${h}h ago`;
-  const d = Math.floor(h / 24);
-  return `${d}d ago`;
+  if (h < 24) return rtf.format(-h, "hour");
+  return rtf.format(-Math.floor(h / 24), "day");
 }

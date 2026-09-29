@@ -92,5 +92,16 @@
     "more": "More",
     "resetTemplate": "Reset template",
     "workspaceNoun": "{count, plural, one {workspace} other {workspaces}}"
+  },
+  "sidebar": {
+    "folders": "Folders",
+    "newFolder": "New folder",
+    "chats": "Chats",
+    "newChat": "New chat",
+    "noChats": "No chats yet",
+    "purchaseCredits": "Purchase Kie Credits"
+  },
+  "extra": {
+    "ugcTemplateBadge": "4× Image → 4× Video"
   }
 }

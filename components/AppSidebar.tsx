@@ -667,6 +667,7 @@ function CreditIcon({ size = 12 }: { size?: number }) {
 // ── Sidebar component ─────────────────────────────────────────────────────────
 export function AppSidebar() {
   const tNav = useTranslations("nav");
+  const tSide = useTranslations("sidebar");
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -863,10 +864,10 @@ export function AppSidebar() {
 
           {/* Section header */}
           <div className="flex items-center justify-between px-1 py-2 shrink-0">
-            <span className="text-[10px] font-bold tracking-[0.08em] uppercase text-white/25">Folders</span>
+            <span className="text-[10px] font-bold tracking-[0.08em] uppercase text-white/25">{tSide("folders")}</span>
             <button
               onClick={handleCreateFolder}
-              title="New folder"
+              title={tSide("newFolder")}
               className="w-6 h-6 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
             >
               <FolderPlus size={12} />
@@ -935,10 +936,10 @@ export function AppSidebar() {
 
           {/* Section header */}
           <div className="flex items-center justify-between px-1 py-2 shrink-0">
-            <span className="text-[10px] font-bold tracking-[0.08em] uppercase text-white/25">Chats</span>
+            <span className="text-[10px] font-bold tracking-[0.08em] uppercase text-white/25">{tSide("chats")}</span>
             <button
               onClick={startNewChat}
-              title="New chat"
+              title={tSide("newChat")}
               className="w-6 h-6 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
             >
               <Pencil size={12} />
@@ -948,7 +949,7 @@ export function AppSidebar() {
           {/* Session list */}
           <div className="flex-1 overflow-y-auto flex flex-col gap-0.5 min-h-0">
             {sessions.length === 0 ? (
-              <p className="text-center text-[11px] text-white/20 px-2 py-4">No chats yet</p>
+              <p className="text-center text-[11px] text-white/20 px-2 py-4">{tSide("noChats")}</p>
             ) : sessions.map(sess => {
               const isActive = pathname === "/chat" && sess.id === activeChatId;
               return (
@@ -1045,7 +1046,7 @@ export function AppSidebar() {
               className="flex items-center justify-between rounded-none px-4 py-3 text-[14px] text-white/60 hover:text-white focus:text-white focus:bg-white/[0.06] cursor-pointer"
               onClick={() => window.open("https://kie.ai?ref=25abb3f2236cbff9780ab9c2f84479ec", "_blank")}
             >
-              <span>Purchase Kie Credits</span>
+              <span>{tSide("purchaseCredits")}</span>
               <CreditIcon size={15} />
             </DropdownMenuItem>
 

@@ -92,5 +92,16 @@
     "more": "更多",
     "resetTemplate": "重置模板",
     "workspaceNoun": "{count, plural, other {个工作区}}"
+  },
+  "sidebar": {
+    "folders": "文件夹",
+    "newFolder": "新建文件夹",
+    "chats": "对话",
+    "newChat": "新建对话",
+    "noChats": "暂无对话",
+    "purchaseCredits": "购买 Kie 积分"
+  },
+  "extra": {
+    "ugcTemplateBadge": "4× 图像 → 4× 视频"
   }
 }

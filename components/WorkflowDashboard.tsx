@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import NextImage from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { videoPosterUrl } from "@/lib/mediaPreview";
 import { useRouter } from "next/navigation";
 import { useWorkflowStore, Space } from "@/lib/store";
@@ -208,6 +208,7 @@ const TEMPLATE_PREVIEWS = [
 
 function TemplateCard({ onLoad, onReset }: { onLoad: () => void; onReset: (e: React.MouseEvent) => void }) {
   const t = useTranslations("dashboard");
+  const tExtra = useTranslations("extra");
   return (
     <div
       className="wsd-tmpl"
@@ -255,7 +256,7 @@ function TemplateCard({ onLoad, onReset }: { onLoad: () => void; onReset: (e: Re
           fontSize: "10px", fontWeight: 500, letterSpacing: "0.04em",
           color: "rgba(99,102,241,0.6)", textTransform: "uppercase",
         }}>
-          <span>4× Image → 4× Video</span>
+          <span>{tExtra("ugcTemplateBadge")}</span>
         </div>
       </div>
     </div>
@@ -481,6 +482,7 @@ function DeleteConfirmModal({
 
 function SpaceCard({ space, onOpen }: { space: Space; onOpen: () => void }) {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [draft, setDraft] = useState(space.name);
@@ -578,7 +580,7 @@ function SpaceCard({ space, onOpen }: { space: Space; onOpen: () => void }) {
             color: "rgba(255,255,255,0.28)",
             letterSpacing: "0.05em", textTransform: "uppercase",
           }}>
-            {timeAgo(new Date(ts))}
+            {timeAgo(new Date(ts), locale)}
           </span>
         </div>
       </div>
