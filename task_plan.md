@@ -21,41 +21,36 @@
 
 ## Phases
 
-### R1: 低风险收尾
-- [ ] Dockerfile.nas runtime 阶段补 `mkdir -p /app/.next/cache && chown node:node`（消除线上 2 次 EACCES）
-- [ ] 统一 `prestart-token.sh` 路径（README 指 `scripts/`，仓库在 `bridge/`）
-- **verify:** `pnpm build` 通过；本地 `docker build` 可跳过（NAS 部署时验证）；README 路径与仓库一致
+### R1: 低风险收尾 — complete（`3653d3a`）
+- [x] Dockerfile.nas runtime 阶段补 `mkdir -p /app/.next/cache && chown node:node`（线上实测 EACCES 0 次，属主 node:node）
+- [x] 统一 `prestart-token.sh` 路径（README 改为 `bridge/`，与仓库一致）
 
-### R2: 设计 token 化（hex → token）
-- [ ] `app/globals.css`：把手写系统的 hex 抽成 `:root` 变量（surface / border / text / 角色色），CSS 内部改用 `var()`
-- [ ] TSX 中与调色板重复的 hex 换成 token 或 `var(--...)`
-  - 批次 1（可审）：`WorkflowHero` 25、`WorkflowDashboard` 20、`AppSidebar` 22、`MediaPickerModal` 13、`WorkflowCanvas` 13
-  - 批次 2（量大）：`gallery/page.tsx` 139、`GenerateNode` 94、`VideoGeneratorNode` 62、`PromptNode` 45
-- **verify:** 每批次后 `tsc` + `pnpm build`；Playwright 截图与改前逐页比对无视觉差异；`grep -c '#[0-9a-fA-F]\{6\}'` 计数下降
+### R2: 设计 token 化（hex → token）— 部分完成
+- [x] `app/globals.css`：93 处 hex → var()，复用已有 token，新增 16 个变量（`9f285b2`）；A/B 像素比对 0.0000%
+- [x] TSX：50 处等值 Tailwind 任意值 → 语义类（`85829d1`）
+- [ ] 批次 2 未做：剩余 119 处任意值 + gallery/节点内联 hex 属**调色板外的一次性色**，收敛需先决定新色值（属设计决策，非重构）
+- **Status:** 可安全机械替换的部分已完成；余下需设计决策
 
-### R3: i18n 全量
-- [ ] 首屏优先：`WorkflowDashboard`、`WorkflowHero`（当前中英混排最明显处）
-- [ ] 其余：`MediaPickerModal`、`CanvasToolbar`、节点组件文案、设置弹窗余量、API 错误码
-- [ ] `messages/zh-CN.json` / `en.json` 键集保持一致
-- **verify:** 键集 diff 为空；浏览器在 `hg_locale=zh-CN` / `en` 下首屏无英文残留；CLI/MCP 读取的 `error` 字段仍为英文稳定 code
+### R3: i18n 全量 — 首屏完成
+- [x] 首屏：`WorkflowDashboard`（5 个子组件）+ `WorkflowHero`，新增 `dashboard` 命名空间 15 条（`994c74f`）；实测 zh-CN 无英文残留、en 无中文
+- [x] ICU 复数替换了 `s` 拼接；品牌名加 `translate="no"`
+- [ ] 未做：侧栏 FOLDERS/CHATS、`timeAgo`（应改 `Intl.RelativeTimeFormat`）、`lib/templates.ts` 模板标签、其余 40+ 组件
+- **Status:** 首屏完成，其余待续
 
-### R4: 交互与可访问性
-- [ ] 节点正文 8–10px 提升到可读字号（先确认对画布观感的影响）
-- [ ] 10 个表单字段补 `id` / `name`
-- [ ] 缺图 fallback（`onError` 回落到占位）
-- [ ] `/workflow/<id>` 直链跳转问题
-- **verify:** 浏览器实测；`grep` 确认无缺 id 的 input；直链可打开
+### R4: 交互与可访问性 — 部分完成
+- [x] 10 个节点表单字段补 `id`/`name`/`aria-label`（`e172b16`）
+- [ ] 未做：节点正文 8–10px 提字号（会改变画布观感，需先确认）、缺图 fallback、`/workflow/<id>` 直链跳转
+- **Status:** 表单标注完成
 
-### R5: 性能与架构
-- [ ] 评估 47 条路由全动态（根布局读 cookies）：给出可静态化的边界与代价，做安全的部分
-- [ ] `app/gallery/page.tsx` 7212 行拆分：先做无行为变化的机械拆分，再评估
-- **verify:** 每步 `tsc` + `build` + 截图无回归；页面首屏体积不增
+### R5: 性能与架构 — 未做（评估后暂缓）
+- [ ] 47 条路由全动态：根因是根布局读 `cookies()`（sidebar 状态 + locale），静态化需重构布局与状态来源，风险高于收益
+- [ ] `app/gallery/page.tsx` 7212 行拆分：无测试兜底，机械拆分收益有限、回归风险高
+- **Status:** 评估完成，建议单独立项
 
-### R6: 验证与部署
-- [ ] tsc / `pnpm build` / 21 项回归测试 + clipboard / eslint 不新增
-- [ ] Playwright 全页截图比对
-- [ ] 部署到 NAS（回滚点 + 同步 + build + `--no-deps` recreate）
-- **verify:** 线上实测各修复点；asset-bridge 不受影响；数据完好
+### R6: 验证与部署 — complete
+- [x] tsc / build / 21 项回归测试 + clipboard / 版本守卫 / lint 154 无新增 / i18n 键集一致
+- [x] 部署：回滚点 `rollback-20260929-3` + 源码备份 → 同步 → build（确认重新编译）→ `--no-deps` recreate
+- [x] 线上实测：EACCES 0 次、首屏中文、170 条资产、asset-bridge `helios=170 seek=170`
 
 ## Decisions
 

@@ -88,6 +88,29 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-29（review 收口：计划 + 执行）
+
+### 计划
+- 按 `planning-with-files` 建 `task_plan.md`（R1–R6），原 node-banana 移植计划移入附录
+
+### 完成
+- **R1** `3653d3a`：Dockerfile runtime 补 `mkdir -p /app/.next/cache && chown node:node`（线上 EACCES 由 2 次归零，属主 node:node）；README 的 `prestart-token.sh` 路径改为 `bridge/`（与仓库一致）
+- **R2a** `9f285b2`：`globals.css` 93 处 hex → `var()`，复用已有 token、新增 16 个变量。A/B 像素比对 **0.0000%**（过程中一度看到 4.6% 差异，查实是媒体冷/热态：旧 CSS 自比也复现同样 4.6%）
+- **R2b** `85829d1`：50 处等值 Tailwind 任意值 → 语义类。只替换与 token 完全等值的（`text-[#f87171]` 是 `--danger-soft`，换成 `text-destructive` 会变 `#ef4444`，故保留）
+- **R3** `994c74f`：首屏 i18n（dashboard 5 个子组件 + hero），新增 `dashboard` 命名空间 15 条；ICU 复数替换 `s` 拼接；品牌名 `translate="no"`
+- **R4a** `e172b16`：10 个节点表单字段补 `id`/`name`/`aria-label`
+- **R6**：验证 + 部署。回滚点 `rollback-20260929-3`；线上实测 EACCES 0、首屏中文、170 条资产、asset-bridge `helios=170 seek=170`
+
+### 未完成（附原因）
+- R2 批次 2：剩余 119 处任意值属**调色板外的一次性色**（`#4a4a45`×17、`#141c28`×13…），收敛需先决定新色值——是设计决策，不是重构
+- R3 其余：侧栏 FOLDERS/CHATS、`timeAgo`、`lib/templates.ts` 标签、其余 40+ 组件
+- R4 其余：节点字号、缺图 fallback、`/workflow/<id>` 直链
+- R5：47 条路由全动态（根布局读 cookies）与 gallery 7212 行拆分——评估后建议单独立项
+
+### 环境发现（非部署问题）
+- 公网域名 `heliosgen.iepose.cn` 走「节点小宝」穿透服务，当前弹**身份验证页**（"请使用域名创建人微信扫码验证身份"）。从 NAS 访问中继仍是 200 且 i18n 正确；我本机因该验证墙拿到 404/验证页
+- 本机 shell 与浏览器均走代理（`http_proxy` 等已设置），排查公网问题需注意区分
+
 ### 遗留
 - Phase 2 四个节点的 NAS 实测未做（节点代码已在线上，只是没点过）
 - 2026-09-29 二次部署（含 review 修复）：同步 → build（确认重新编译）→ `up -d --force-recreate --no-deps heliosgen`，asset-bridge 未受影响
