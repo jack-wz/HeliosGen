@@ -281,7 +281,21 @@
       "hand": "Hand (H)",
       "undo": "Undo (⌘Z)",
       "redo": "Redo (⌘⇧Z)",
-      "exportWorkflow": "Export workflow (.zip)"
+      "exportWorkflow": "Export workflow (.zip)",
+      "buildAwesomeWorkflows": "Build awesome workflows",
+      "genImagesHint": "Generate images from a text prompt",
+      "genVideosHint": "Generate videos from a text prompt",
+      "complete": "Complete",
+      "files": "Files",
+      "noInputImage": "No input image",
+      "nothingToExport": "Nothing to export yet",
+      "runningWorkflow": "Running workflow…",
+      "selectedCellOutOfRange": "Selected cell out of range",
+      "timedOut": "Timed out waiting for generation result",
+      "imageGenerator": "Image Generator",
+      "videoGenerator": "Video Generator",
+      "textNode": "Text",
+      "writePrompts": "Write & refine prompts"
     },
     "assist": {
       "title": "Assistant",

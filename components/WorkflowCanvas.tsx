@@ -18,6 +18,7 @@ import {
 import "@xyflow/react/dist/style.css";
 
 import { useWorkflowStore, NodeData } from "@/lib/store";
+import { useTranslations } from "next-intl";
 import VideoTrimNode from "@/components/nodes/VideoTrimNode";
 import VideoFrameGrabNode from "@/components/nodes/VideoFrameGrabNode";
 import LLMGenerateNode from "@/components/nodes/LLMGenerateNode";
@@ -193,6 +194,8 @@ function nodeAcceptsPromptInput(node: Node<NodeData>, edges: Edge[]): boolean {
 }
 
 export default function WorkflowCanvas() {
+  const tCanvas = useTranslations("ui.canvas");
+  const tNodes = useTranslations("nodes");
   const {
     nodes, edges,
     onNodesChange: _onNodesChange, onEdgesChange, onConnect,
@@ -662,7 +665,7 @@ export default function WorkflowCanvas() {
     // not real external text the user wants to paste as a prompt node.
     const sentinel = `__rf_nodes_${Date.now()}__`;
     nodeSentinelRef.current = sentinel;
-    void copyText(sentinel).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error"));
+    void copyText(sentinel).catch(() => useWorkflowStore.getState().addToast(tNodes("copyFailed"), "error"));
   }, [nodes, edges]);
 
   const handlePaste = useCallback(() => {
@@ -990,7 +993,7 @@ export default function WorkflowCanvas() {
   const handleExport = useCallback(async () => {
     const space = useWorkflowStore.getState().spaces.find((sp) => sp.id === useWorkflowStore.getState().activeSpaceId);
     if (!space || space.nodes.length === 0) {
-      useWorkflowStore.getState().addToast("Nothing to export yet", "error");
+      useWorkflowStore.getState().addToast(tCanvas("nothingToExport"), "error");
       return;
     }
     setExporting(true);
@@ -1193,7 +1196,7 @@ export default function WorkflowCanvas() {
 
     setIsRunning(true);
     setLog([]);
-    push("Running workflow…");
+    push(tCanvas("runningWorkflow"));
     const order = topoSort(nodes, edges);
 
     for (const nodeId of order) {
@@ -1205,7 +1208,7 @@ export default function WorkflowCanvas() {
         const upstream = resolveInputs(nodeId, useWorkflowStore.getState().nodes as Node<NodeData>[], edges);
         const srcImage = upstream.imageUrls[0];
         if (!srcImage) {
-          updateNodeData(nodeId, { status: "error", errorMsg: "No input image" });
+          updateNodeData(nodeId, { status: "error", errorMsg: tCanvas("noInputImage") });
           push(`[${node.id}] skipped — no input image`, false);
           continue;
         }
@@ -1241,7 +1244,7 @@ export default function WorkflowCanvas() {
             const cols = node.data.gridCols ?? 2;
             const { images } = await splitWithDimensions(srcImage, rows, cols);
             const cell = images[node.data.selectedCell ?? 0];
-            if (!cell) throw new Error("Selected cell out of range");
+            if (!cell) throw new Error(tCanvas("selectedCellOutOfRange"));
             await persistNodeImage(updateNodeData, nodeId, cell, { selectedCell: node.data.selectedCell ?? 0 });
           }
           updateNodeData(nodeId, { status: "done" });
@@ -1346,7 +1349,7 @@ export default function WorkflowCanvas() {
             if (attempt > 0 && attempt % 5 === 0) push(`[${node.id}] still waiting…`);
           }
 
-          if (!imageUrl) throw new Error("Timed out waiting for generation result");
+          if (!imageUrl) throw new Error(tCanvas("timedOut"));
           updateNodeData(nodeId, { status: "done", imageUrl });
           push(`[${node.id}] done`);
         } catch (e: unknown) {
@@ -1471,7 +1474,7 @@ export default function WorkflowCanvas() {
       }
     }
 
-    push("Complete");
+    push(tCanvas("complete"));
     setIsRunning(false);
   }, [nodes, edges, updateNodeData, setIsRunning, debugMode, push, kieKeySet, addToast]);
   // Latest-ref pattern: the shortcut handler above needs the current runAll
@@ -1795,7 +1798,7 @@ export default function WorkflowCanvas() {
                   <path d="M11.8525 4.21651L11.7221 3.2387C11.6906 3.00226 11.4889 2.82568 11.2504 2.82568C11.0118 2.82568 10.8102 3.00226 10.7786 3.23869L10.6483 4.21651C10.2658 7.0847 8.00939 9.34115 5.14119 9.72358L4.16338 9.85396C3.92694 9.88549 3.75037 10.0872 3.75037 10.3257C3.75037 10.5642 3.92694 10.7659 4.16338 10.7974L5.14119 10.9278C8.00938 11.3102 10.2658 13.5667 10.6483 16.4349L10.7786 17.4127C10.8102 17.6491 11.0118 17.8257 11.2504 17.8257C11.4889 17.8257 11.6906 17.6491 11.7221 17.4127L11.8525 16.4349C12.2349 13.5667 14.4913 11.3102 17.3595 10.9278L18.3374 10.7974C18.5738 10.7659 18.7504 10.5642 18.7504 10.3257C18.7504 10.0872 18.5738 9.88549 18.3374 9.85396L17.3595 9.72358C14.4913 9.34115 12.2349 7.0847 11.8525 4.21651Z" />
                 </svg>
 
-                <TypewriterHeading text="Build awesome workflows" />
+                <TypewriterHeading text={tCanvas("buildAwesomeWorkflows")} />
                 <motion.p
                   initial={{ filter: "blur(8px)", opacity: 0 }}
                   animate={{ filter: "blur(0px)", opacity: 1 }}
@@ -1816,22 +1819,22 @@ export default function WorkflowCanvas() {
                 {[
                   {
                     type: "promptNode",
-                    label: "Text",
-                    desc: "Write & refine prompts",
+                    label: tCanvas("textNode"),
+                    desc: tCanvas("writePrompts"),
                     accent: "#4ee5b7",
                     icon: <MessageSquare size={20} strokeWidth={1.6} />,
                   },
                   {
                     type: "generateNode",
-                    label: "Image Generator",
-                    desc: "Generate images from a text prompt",
+                    label: tCanvas("imageGenerator"),
+                    desc: tCanvas("genImagesHint"),
                     accent: "#ff955a",
                     icon: <Sparkles size={20} strokeWidth={1.6} />,
                   },
                   {
                     type: "videoGeneratorNode",
-                    label: "Video Generator",
-                    desc: "Generate videos from a text prompt",
+                    label: tCanvas("videoGenerator"),
+                    desc: tCanvas("genVideosHint"),
                     accent: "#a78bfa",
                     icon: <Clapperboard size={20} strokeWidth={1.6} />,
                   },

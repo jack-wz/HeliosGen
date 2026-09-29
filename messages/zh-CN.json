@@ -281,7 +281,21 @@
       "hand": "抓手 (H)",
       "undo": "撤销 (⌘Z)",
       "redo": "重做 (⌘⇧Z)",
-      "exportWorkflow": "导出工作流 (.zip)"
+      "exportWorkflow": "导出工作流 (.zip)",
+      "buildAwesomeWorkflows": "构建出色的工作流",
+      "genImagesHint": "用文字提示生成图像",
+      "genVideosHint": "用文字提示生成视频",
+      "complete": "完成",
+      "files": "文件",
+      "noInputImage": "没有输入图片",
+      "nothingToExport": "暂无可导出的内容",
+      "runningWorkflow": "正在运行工作流…",
+      "selectedCellOutOfRange": "选中的格子超出范围",
+      "timedOut": "等待生成结果超时",
+      "imageGenerator": "图像生成器",
+      "videoGenerator": "视频生成器",
+      "textNode": "文本",
+      "writePrompts": "编写与优化提示词"
     },
     "assist": {
       "title": "助手",
