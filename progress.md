@@ -98,10 +98,10 @@
   - 但那次 dump 暴露了**真漏项**：无引号的 JSX 文本节点、以及跨元素拆分的串（`Drop video or` + 带下划线的 `browse`）。已补译，拆分那处保留了下划线样式
   - 复验：zh-CN 三个节点**无任何未翻译英文**；默认态可见的字符串（拖放区、体积上限、声音开关）两种语言 **4/4**
 
-### 部署受阻（非代码问题）
-- 本机 **Tailscale 已停止**（`tailscale status` → "Tailscale is stopped."），SSH 到 NAS 被拒（`kex_exchange_identification: Connection closed`）
-- 公网 `heliosgen.iepose.cn` 仍被「节点小宝」身份验证墙拦截
-- 两条访问路径都不可用，**本次部署未能执行**；代码已提交并推送到 origin
+### 部署（先受阻后恢复）
+- 首次尝试时本机 **Tailscale 已停止**（`tailscale status` → "Tailscale is stopped."），SSH 被拒（`kex_exchange_identification: Connection closed`）；公网域名又被「节点小宝」验证墙拦截，两条路径都不可用
+- 运行 `tailscale up` 后恢复，部署完成：回滚点 `rollback-20260930-1` → 同步 → build（18.6s）→ `--no-deps` 只重建 heliosgen
+- 线上确认：**10 命名空间 / 268 条词条 / 键集一致**；EACCES 0；170 资产；asset-bridge Up 5 days
 
 ## 2026-09-29（review 收口 · 五）
 
