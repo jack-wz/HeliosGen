@@ -7,6 +7,7 @@ import { useChatSessionStore } from "@/lib/chatSessionStore";
 import { SYSTEM_PROMPT } from "@/lib/systemPrompt";
 import { useWorkflowStore } from "@/lib/store";
 import { loadAzureBaseUrl, loadAzureTextDeployment, loadAzureTextModelName } from "@/components/SettingsModal";
+import { useTranslations } from "next-intl";
 
 interface Message {
   role: "user" | "assistant";
@@ -16,6 +17,7 @@ interface Message {
 
 
 export function QuickAssist() {
+  const t = useTranslations("ui.assist");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -121,7 +123,7 @@ export function QuickAssist() {
       });
 
       if (!res.ok || !res.body) {
-        let errMsg = "Request failed";
+        let errMsg = t("requestFailed");
         try { const j = await res.json(); errMsg = j.error ?? errMsg; } catch { errMsg = await res.text().catch(() => errMsg); }
         setMessages(prev => prev.map((m, i) => i === assistantIdx ? { ...m, content: `Error: ${errMsg}`, streaming: false } : m));
         setStreaming(false);
@@ -161,7 +163,7 @@ export function QuickAssist() {
       setMessages(prev => prev.map((m, i) => i === assistantIdx ? { ...m, streaming: false } : m));
     } catch (err: unknown) {
       if ((err as Error)?.name !== "AbortError") {
-        setMessages(prev => prev.map((m, i) => i === assistantIdx ? { ...m, content: "Request failed.", streaming: false } : m));
+        setMessages(prev => prev.map((m, i) => i === assistantIdx ? { ...m, content: t("requestFailed"), streaming: false } : m));
       }
     } finally {
       setStreaming(false);
@@ -195,7 +197,7 @@ export function QuickAssist() {
         onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(22,24,27,0.95)"; }}
       >
         <SpinnerIcon />
-        <span>Assistant</span>
+        <span>{t("title")}</span>
         <span style={{ marginLeft: "2px", padding: "2px 6px", borderRadius: "6px", background: "rgba(255,255,255,0.08)", fontSize: "11px", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>⌘K</span>
       </button>
 
@@ -219,7 +221,7 @@ export function QuickAssist() {
               {!isEmpty && (
                 <button
                   onClick={resetChat}
-                  title="New chat"
+                  title={t("newChat")}
                   style={{ width: "28px", height: "28px", borderRadius: "8px", border: "none", background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, transition: "background 120ms, color 120ms" }}
                   onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.11)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.9)"; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.45)"; }}
@@ -269,7 +271,7 @@ export function QuickAssist() {
           {/* ── Input ── */}
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "12px", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: "12px", padding: "8px 8px 8px 12px" }}>
-              <textarea ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder="Describe your idea…" rows={1} disabled={streaming} style={{ flex: 1, background: "transparent", border: "none", outline: "none", resize: "none", color: "rgba(255,255,255,0.88)", fontSize: "13.5px", fontFamily: "inherit", letterSpacing: "-0.01em", lineHeight: "22px", maxHeight: "96px", overflowY: "auto", padding: 0, cursor: streaming ? "not-allowed" : "text" }}
+              <textarea ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder={t("describe")} rows={1} disabled={streaming} style={{ flex: 1, background: "transparent", border: "none", outline: "none", resize: "none", color: "rgba(255,255,255,0.88)", fontSize: "13.5px", fontFamily: "inherit", letterSpacing: "-0.01em", lineHeight: "22px", maxHeight: "96px", overflowY: "auto", padding: 0, cursor: streaming ? "not-allowed" : "text" }}
                 onInput={e => { const t = e.currentTarget; t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 96) + "px"; }} />
               <button onClick={() => send(input)} disabled={!input.trim() || streaming || disabledIds.includes(model)} style={{ width: "32px", height: "32px", borderRadius: "8px", border: "none", background: input.trim() && !streaming && !disabledIds.includes(model) ? "rgba(45,212,191,0.25)" : "rgba(255,255,255,0.07)", color: input.trim() && !streaming && !disabledIds.includes(model) ? "rgba(45,212,191,0.9)" : "rgba(255,255,255,0.25)", cursor: input.trim() && !streaming && !disabledIds.includes(model) ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, flexShrink: 0, transition: "background 150ms, color 150ms" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>

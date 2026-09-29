@@ -4,6 +4,7 @@ import { useReactFlow, Node } from "@xyflow/react";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { edgeStyle } from "@/lib/edgeStyles";
 import { arrangeNodes } from "@/lib/arrangeNodes";
+import { useTranslations } from "next-intl";
 
 const GROUP_PADDING = 24;
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -48,6 +49,7 @@ function Sep() {
 
 // Runs inside the ReactFlow provider
 export default function SelectionToolbar() {
+  const t = useTranslations("ui.canvas");
   const { flowToScreenPosition } = useReactFlow();
   const nodes      = useWorkflowStore((s) => s.nodes);
   const edges      = useWorkflowStore((s) => s.edges);
@@ -194,7 +196,7 @@ export default function SelectionToolbar() {
         }}
       >
         {/* Arrange */}
-        <Btn onClick={handleArrange} title="Auto-arrange selected nodes">
+        <Btn onClick={handleArrange} title={t("autoArrange")}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="7" height="7" rx="1" />
             <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -206,7 +208,7 @@ export default function SelectionToolbar() {
         <Sep />
 
         {/* Group */}
-        <Btn onClick={handleGroup} title="Group selected nodes">
+        <Btn onClick={handleGroup} title={t("groupSelected")}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="7" width="8" height="8" rx="1.5" />
             <rect x="14" y="7" width="8" height="8" rx="1.5" />
@@ -217,7 +219,7 @@ export default function SelectionToolbar() {
         <Sep />
 
         {/* Duplicate */}
-        <Btn onClick={handleDuplicate} title="Duplicate selection">
+        <Btn onClick={handleDuplicate} title={t("duplicateSelection")}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -225,7 +227,7 @@ export default function SelectionToolbar() {
         </Btn>
 
         {/* Delete */}
-        <Btn onClick={handleDelete} title="Delete selection" danger>
+        <Btn onClick={handleDelete} title={t("deleteSelection")} danger>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />

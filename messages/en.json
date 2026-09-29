@@ -156,5 +156,46 @@
     "ariaRows": "Rows",
     "ariaColumns": "Columns",
     "removeBgOutputNote": "Output produced with {model} — switch model and re-run to compare."
+  },
+  "ui": {
+    "picker": {
+      "upload": "Upload",
+      "uploads": "Uploads",
+      "imageGenerations": "Image Generations",
+      "videoGenerations": "Video Generations",
+      "pasteUrl": "Paste an image URL…",
+      "failedFetchUrl": "Failed to fetch URL"
+    },
+    "canvas": {
+      "running": "Running…",
+      "deleteNode": "Delete node",
+      "duplicateNode": "Duplicate node",
+      "openPreview": "Open preview",
+      "saveToDisk": "Save to disk",
+      "downloading": "Downloading…",
+      "autoArrange": "Auto-arrange selected nodes",
+      "deleteSelection": "Delete selection",
+      "duplicateSelection": "Duplicate selection",
+      "groupSelected": "Group selected nodes",
+      "runAll": "Run all (⌘↵)",
+      "addNode": "Add node (A)",
+      "select": "Select (V)",
+      "hand": "Hand (H)",
+      "undo": "Undo (⌘Z)",
+      "redo": "Redo (⌘⇧Z)",
+      "exportWorkflow": "Export workflow (.zip)"
+    },
+    "assist": {
+      "title": "Assistant",
+      "describe": "Describe your idea…",
+      "requestFailed": "Request failed.",
+      "newChat": "New chat"
+    },
+    "banner": {
+      "updateAvailable": "Update available",
+      "dismiss": "Dismiss",
+      "close": "Close",
+      "noNotes": "No release notes provided."
+    }
   }
 }

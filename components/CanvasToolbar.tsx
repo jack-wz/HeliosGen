@@ -4,6 +4,7 @@ import {
   Plus, MousePointer2, Hand, Scissors, LayoutTemplate,
   MessageSquare, Undo2, Redo2, Download, Play, Square,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type ToolId = "select" | "hand" | "cut" | "frame" | "comment";
 
@@ -82,6 +83,7 @@ export default function CanvasToolbar({
   canRun = false,
   onRunAll,
 }: CanvasToolbarProps) {
+  const t = useTranslations("ui.canvas");
   const [internalTool, setInternalTool] = useState<ToolId>("select");
   const [addHovered, setAddHovered] = useState(false);
   const [shareHovered, setShareHovered] = useState(false);
@@ -112,7 +114,7 @@ export default function CanvasToolbar({
       {/* Add — teal accent */}
       <button
         id="toolbar-add"
-        title="Add node (A)"
+        title={t("addNode")}
         onMouseEnter={() => setAddHovered(true)}
         onMouseLeave={() => setAddHovered(false)}
         onClick={(e) => onAddNode?.((e.currentTarget as HTMLElement).getBoundingClientRect())}
@@ -131,21 +133,21 @@ export default function CanvasToolbar({
 
       <Divider />
 
-      <Btn id="toolbar-select" title="Select (V)" active={activeTool === "select"} activeStyle="circle" onClick={() => selectTool("select")}>
+      <Btn id="toolbar-select" title={t("select")} active={activeTool === "select"} activeStyle="circle" onClick={() => selectTool("select")}>
         <MousePointer2 size={15} strokeWidth={1.8} />
       </Btn>
 
-      <Btn id="toolbar-hand" title="Hand (H)" active={activeTool === "hand"} activeStyle="circle" onClick={() => selectTool("hand")}>
+      <Btn id="toolbar-hand" title={t("hand")} active={activeTool === "hand"} activeStyle="circle" onClick={() => selectTool("hand")}>
         <Hand size={15} strokeWidth={1.8} />
       </Btn>
 
       <Divider />
 
-      <Btn id="toolbar-undo" title="Undo (⌘Z)" dimmed={!canUndo} onClick={() => onUndo?.()}>
+      <Btn id="toolbar-undo" title={t("undo")} dimmed={!canUndo} onClick={() => onUndo?.()}>
         <Undo2 size={15} strokeWidth={1.8} />
       </Btn>
 
-      <Btn id="toolbar-redo" title="Redo (⌘⇧Z)" dimmed={!canRedo} onClick={() => onRedo?.()}>
+      <Btn id="toolbar-redo" title={t("redo")} dimmed={!canRedo} onClick={() => onRedo?.()}>
         <Redo2 size={15} strokeWidth={1.8} />
       </Btn>
 
@@ -153,7 +155,7 @@ export default function CanvasToolbar({
 
       <button
         id="toolbar-run"
-        title={isRunning ? "Running…" : "Run all (⌘↵)"}
+        title={isRunning ? t("running") : t("runAll")}
         onMouseEnter={() => setRunHovered(true)}
         onMouseLeave={() => setRunHovered(false)}
         onClick={() => { if (canRun && !isRunning) onRunAll?.(); }}
@@ -182,7 +184,7 @@ export default function CanvasToolbar({
 
       <button
         id="toolbar-export"
-        title="Export workflow (.zip)"
+        title={t("exportWorkflow")}
         onMouseEnter={() => setShareHovered(true)}
         onMouseLeave={() => setShareHovered(false)}
         onClick={() => { if (!exporting) onExport?.(); }}

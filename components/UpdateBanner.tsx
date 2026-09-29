@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * "Update available" bar, styled like {@link KieBanner} but amber.
@@ -24,6 +25,7 @@ type UpdateInfo = {
 };
 
 export default function UpdateBanner() {
+  const tBanner = useTranslations("ui.banner");
   const [info, setInfo] = useState<UpdateInfo | null>(null);
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -109,7 +111,7 @@ export default function UpdateBanner() {
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
         <span style={{ fontSize: "12px", color: `rgba(${AMBER},0.95)`, fontWeight: 500 }}>
-          Update available{info.latestVersion ? ` — ${info.latestVersion}` : ""}
+          {tBanner("updateAvailable")}{info.latestVersion ? ` — ${info.latestVersion}` : ""}
         </span>
         <span
           style={{
@@ -128,7 +130,7 @@ export default function UpdateBanner() {
         <span
           role="button"
           tabIndex={0}
-          aria-label="Dismiss"
+          aria-label={tBanner("dismiss")}
           onClick={dismiss}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") dismiss(e);
@@ -163,6 +165,7 @@ export default function UpdateBanner() {
 }
 
 function ChangelogModal({ info, onClose }: { info: UpdateInfo; onClose: () => void }) {
+  const tBanner = useTranslations("ui.banner");
   return (
     <>
       <div
@@ -222,7 +225,7 @@ function ChangelogModal({ info, onClose }: { info: UpdateInfo; onClose: () => vo
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label={tBanner("close")}
             style={{
               display: "flex",
               alignItems: "center",
@@ -251,7 +254,7 @@ function ChangelogModal({ info, onClose }: { info: UpdateInfo; onClose: () => vo
 
         {/* Notes */}
         <div style={{ padding: "16px 20px", overflowY: "auto", flex: 1 }}>
-          <Notes text={info.notes || "No release notes provided."} />
+          <Notes text={info.notes || tBanner("noNotes")} />
         </div>
 
         {/* Footer */}

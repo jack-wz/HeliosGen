@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom";
 import { GalleryItem, galleryCache, getToken, thumbSrc } from "@/lib/galleryUtils";
 import { videoPosterUrl } from "@/lib/mediaPreview";
+import { useTranslations } from "next-intl";
 
 type TabId = "uploads" | "image-gen" | "video-gen";
 
@@ -104,6 +105,7 @@ export function MediaPickerModal({
   selectedUrls?: string[];
   maxCount?: number;
 }) {
+  const t = useTranslations("ui.picker");
   const defaultTab: TabId = mediaKind === "image" ? "image-gen" : mediaKind === "video" ? "video-gen" : "uploads";
   const [activeTab, setActiveTab] = useState<TabId>(defaultTab);
   const [sourceItems, setSourceItems] = useState<GalleryItem[]>([]);
@@ -173,12 +175,12 @@ export function MediaPickerModal({
         body: JSON.stringify({ url: trimmed }),
       });
       const data = await res.json() as { cdnUrl?: string; mediaType?: "image" | "video"; error?: string };
-      if (!res.ok || !data.cdnUrl) throw new Error(data.error ?? "Failed to fetch URL");
+      if (!res.ok || !data.cdnUrl) throw new Error(data.error ?? t("failedFetchUrl"));
       setUrlInput("");
       onPickUrl(data.cdnUrl, data.mediaType ?? "image");
       onClose();
     } catch (e: unknown) {
-      setUrlError(e instanceof Error ? e.message : "Failed to fetch URL");
+      setUrlError(e instanceof Error ? e.message : t("failedFetchUrl"));
     } finally {
       setUrlLoading(false);
     }
@@ -394,18 +396,18 @@ export function MediaPickerModal({
   const tabs: { id: TabId; label: string }[] =
     mediaKind === "any"
       ? [
-          { id: "uploads",   label: "Uploads" },
-          { id: "image-gen", label: "Image Generations" },
-          { id: "video-gen", label: "Video Generations" },
+          { id: "uploads",   label: t("uploads") },
+          { id: "image-gen", label: t("imageGenerations") },
+          { id: "video-gen", label: t("videoGenerations") },
         ]
       : mediaKind === "image"
       ? [
-          { id: "image-gen", label: "Image Generations" },
-          { id: "uploads",   label: "Uploads" },
+          { id: "image-gen", label: t("imageGenerations") },
+          { id: "uploads",   label: t("uploads") },
         ]
       : [
-          { id: "video-gen", label: "Video Generations" },
-          { id: "uploads",   label: "Uploads" },
+          { id: "video-gen", label: t("videoGenerations") },
+          { id: "uploads",   label: t("uploads") },
         ];
 
   const modal = createPortal(
@@ -565,7 +567,7 @@ export function MediaPickerModal({
                       <path d="M12 5v14M5 12h14" />
                     </svg>
                   </div>
-                  <span style={{ fontSize: "10px", fontWeight: 500 }}>Upload</span>
+                  <span style={{ fontSize: "10px", fontWeight: 500 }}>{t("upload")}</span>
                 </button>
               )}
 

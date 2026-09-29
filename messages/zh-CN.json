@@ -156,5 +156,46 @@
     "ariaRows": "行数",
     "ariaColumns": "列数",
     "removeBgOutputNote": "使用 {model} 生成 —— 切换模型并重新运行以对比。"
+  },
+  "ui": {
+    "picker": {
+      "upload": "上传",
+      "uploads": "上传",
+      "imageGenerations": "图像生成",
+      "videoGenerations": "视频生成",
+      "pasteUrl": "粘贴图片 URL…",
+      "failedFetchUrl": "获取该 URL 失败"
+    },
+    "canvas": {
+      "running": "运行中…",
+      "deleteNode": "删除节点",
+      "duplicateNode": "复制节点",
+      "openPreview": "打开预览",
+      "saveToDisk": "保存到本地",
+      "downloading": "下载中…",
+      "autoArrange": "自动排列选中节点",
+      "deleteSelection": "删除所选",
+      "duplicateSelection": "复制所选",
+      "groupSelected": "编组所选节点",
+      "runAll": "运行全部 (⌘↵)",
+      "addNode": "添加节点 (A)",
+      "select": "选择 (V)",
+      "hand": "抓手 (H)",
+      "undo": "撤销 (⌘Z)",
+      "redo": "重做 (⌘⇧Z)",
+      "exportWorkflow": "导出工作流 (.zip)"
+    },
+    "assist": {
+      "title": "助手",
+      "describe": "描述你的想法…",
+      "requestFailed": "请求失败。",
+      "newChat": "新建对话"
+    },
+    "banner": {
+      "updateAvailable": "有可用更新",
+      "dismiss": "忽略",
+      "close": "关闭",
+      "noNotes": "该版本未提供更新说明。"
+    }
   }
 }
