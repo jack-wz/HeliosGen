@@ -54,4 +54,7 @@
 
 ### 遗留
 - Phase 2 四个节点的 NAS 实测未做（节点代码已在线上，只是没点过）
-- 线上部署状态（2026-09-29 实测修正，此前记的"仍是上一版镜像"是错的）：NAS 已包含本分支标为新增的全部内容（15 节点 / 8 provider / 7 skill / i18n / media-poster）；**未部署**的是上游 `99dd5b1`、provider 修复（线上 `/api/providers` 仍回显 `secretRef`）与 lint 清理
+- 2026-09-29 已重新部署：同步源码（tar over ssh，排除 .env.sync / secrets / node_modules / .next / data）→ build → `up -d --force-recreate --no-deps heliosgen`，asset-bridge 未受影响（Up 4 days，reconcile helios=169 seek=169）
+- 部署后实测：`/api/providers` 不再回显 `secretRef`；nested/top-level `configured` 一致；15 节点 / 8 provider / 7 skill；`lang=zh-CN`；169 条资产与两张测试图完好；上游音频 MIME 修复生效
+- 回滚点：镜像 `heliosgen:rollback-20260929`、源码 `/home/wyai/heliosgen-src-backup-20260929.tar.gz`
+- 已知存量问题（非本次引入，重建前后镜像一致）：`/app/.next/cache` 不存在而 compose 把 `data/cache/next-images` 挂到其子目录，Docker 以 root 建出该目录，`node` 用户无法再建 `fetch-cache`，日志出现 2 次 EACCES（不影响功能）。修法：runtime 阶段加 `mkdir -p /app/.next/cache && chown node:node`。

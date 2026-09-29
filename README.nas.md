@@ -6,9 +6,9 @@ HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接�
 
 源码：[SegFault42/HeliosGen](https://github.com/SegFault42/HeliosGen)，版本 `1.2.1`。这是基于官方 Next.js 服务的 NAS 适配部署；上游主要发行桌面应用。
 
-> 部署状态（2026-09-29 实测线上，非推断）：NAS 上运行的**已经包含**「功能总览」中标 **新增** 的全部内容——`/api/capabilities` 返回 15 种节点（含 8 个新节点）、8 个 provider、7 个 skill，`/api/providers`、`/api/skills`、`/api/media-poster` 均在线，页面 `<html lang="zh-CN">`。
+> 部署状态（2026-09-29 实测）：NAS 已重建至本分支当前状态。`/api/capabilities` 返回 15 种节点（含 8 个新节点）、8 个 provider、7 个 skill；`/api/providers`、`/api/skills`、`/api/media-poster` 在线；页面 `<html lang="zh-CN">`；上游 `99dd5b1`（音频 MIME 修复）与 provider 修复均已生效（`/api/providers` 不再回显 `secretRef`）。
 >
-> **尚未部署**的是其后的改动：上游 `99dd5b1`（PR #28 音频 MIME 修复 + codex 修复）、provider 修复（`secretRef` 脱敏与 `configured` 一致性）以及 lint 清理。实测线上 `/api/providers` 仍在回显 `secretRef`（如 `kie_api_token`）。这些需按「常用命令」一节重新构建并部署后生效。
+> 回滚：镜像 `heliosgen:rollback-20260929`（重建前版本），源码备份 `/home/wyai/heliosgen-src-backup-20260929.tar.gz`。重建时只 recreate `heliosgen` 服务（`--no-deps`），`asset-bridge` 不受影响。
 
 ## 位置与运行方式
 
