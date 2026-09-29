@@ -95,7 +95,7 @@ HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接�
 
 - `Dockerfile.nas` + `compose.nas.yaml`（`heliosgen` 与 `asset-bridge` 两个服务）
 - `asset-bridge`：inotify 监听共享媒体目录，HeliosGen ↔ Seek 双向索引同步，每 5 分钟兜底核对
-- `scripts/prestart-token.sh`：fnOS 重启后自愈 Seek token
+- `bridge/prestart-token.sh`：fnOS 重启后自愈 Seek token
 - HTTP（非安全上下文）兼容：SHA-256 走 `@noble/hashes` 回退、UUID 用 `getRandomValues`、剪贴板走兼容路径
 
 ## 常用命令（在 NAS 执行）
@@ -130,10 +130,10 @@ Seek token 只保存在 NAS 的 `/home/wyai/heliosgen/secrets/seek-token`（`060
 
 ### token 自愈
 
-fnOS 重启后可能把 bind mount 源文件重建为 root 所有的空目录，导致 `asset-bridge` 启动时报 `Seek token file not found`。启动容器前先运行 `scripts/prestart-token.sh` 自愈：
+fnOS 重启后可能把 bind mount 源文件重建为 root 所有的空目录，导致 `asset-bridge` 启动时报 `Seek token file not found`。启动容器前先运行 `bridge/prestart-token.sh` 自愈：
 
 ```sh
-sh /home/wyai/heliosgen/scripts/prestart-token.sh
+sh /home/wyai/heliosgen/bridge/prestart-token.sh
 docker compose --env-file .env.sync -f compose.nas.yaml up -d
 ```
 
