@@ -52,6 +52,27 @@
 3. `app/api/skills` POST 硬编码 `configured: true`（技能并无配置概念，字段无意义）——移除。
 4. `lib/mediaPreview.ts`：`previewImageUrl()` 未拦截绝对 http(s) URL，而 `/_next/image` 对不在 `images.remotePatterns` 的主机返回 400（实测 `cdn.kie.ai` → `"url" parameter is not allowed`）。当前资产 URL 均为本地，属潜在问题，加一行放行。
 
+## 2026-09-29（设计系统收敛）
+
+### 发现：整套 shadcn 语义 token 层是缺失的
+- `components.json` 声明 `cssVariables: true`，但 `app/globals.css` 没有 `@theme` 块、也没有任何 `--background` / `--primary` 定义
+- 后果：编译产物里 `bg-background`、`bg-primary`、`text-foreground`、`border-border` 等**出现 0 次**（对照 `.node-card` 出现 19 次）——这些类全是空操作，`Button` 的 default / destructive / outline 等变体渲染结果完全相同，sidebar 没有表面色。影响 11 个文件
+- 另一处：没有 `@custom-variant dark`，Tailwind v4 的 `dark:` 编译为 `@media (prefers-color-scheme: dark)`，而应用靠 `class="dark"` 强制暗色 —— 系统为浅色时这些样式静默失效
+
+### 修复
+- `app/globals.css` 补齐 `@custom-variant dark (&:is(.dark *))`、`:root` token、`@theme inline` 映射；色值全部取自现有手写系统（`--background:#0B0E14`、`--primary:#2DD4BF`、`--muted-foreground:#A0A0A0`、`--border:#1C2436` 等），不引入新色
+- 另加 `html { color-scheme: dark }`，让原生滚动条/表单控件跟随暗色
+- 验证：token 类全部生成且解析正确（`bg-primary` → `rgb(45,212,191)`、`text-primary-foreground` → `rgb(6,35,31)`、`border-border` → `rgb(28,36,54)`）；浅色系统偏好下页面仍渲染为暗色（证明 `dark:` 已按 class 生效）
+
+### 顺带修正一处自己引入的回归
+- 上一轮压缩 hero 图时先裁切再压缩，且只按 hero 的小盒子算尺寸；而 gallery 空状态用的是**方形 172px**盒子，会偏软
+- 改为从原图（commit `3039757^`）重新编码，**保持原始宽高比**、短边取 344（=172px @2x，取两处消费方里最大的盒子）。两处 `object-cover` 的裁切结果与原来一致，只有分辨率变化
+- 结果：4 张 4,952KB → 116KB（-97.7%），`public/` 480KB
+
+### 验证
+- tsc、`pnpm build`、21 项回归测试 + clipboard 全过；eslint 154 项无新增
+- 浏览器实测（Playwright，1440×900）：dashboard / gallery / assets / chat 四页视觉无回归
+
 ## 2026-09-29（下）
 
 ### 全面 review（功能 / 性能 / 交互 / 设计）

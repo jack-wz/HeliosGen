@@ -1,5 +1,84 @@
 @import "tailwindcss";
 
+/* The app forces dark via `class="dark"` on <html>. Without this, Tailwind v4's
+   `dark:` compiles to @media (prefers-color-scheme: dark), so those styles
+   silently stop applying on a light-mode OS. */
+@custom-variant dark (&:is(.dark *));
+
+/* ── Design tokens ────────────────────────────────────────
+   components.json declares cssVariables: true, but this file had no @theme
+   block, so every semantic utility the shadcn components use (bg-background,
+   bg-primary, text-muted-foreground, --sidebar-*) compiled to nothing — Button
+   variants rendered identically and the sidebar had no surface colour.
+
+   Values are taken from the hand-rolled system below so the token layer and the
+   existing rules describe the same palette rather than fighting each other. */
+:root {
+  --background: #0B0E14;
+  --foreground: #FFFFFF;
+  --card: #141820;
+  --card-foreground: #FFFFFF;
+  --popover: #141820;
+  --popover-foreground: #FFFFFF;
+  --primary: #2DD4BF;
+  --primary-foreground: #06231F;
+  --secondary: #1A2235;
+  --secondary-foreground: #FFFFFF;
+  --muted: #141820;
+  --muted-foreground: #A0A0A0;
+  --accent: #1A2235;
+  --accent-foreground: #FFFFFF;
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #1C2436;
+  --input: #1A2030;
+  --ring: #2DD4BF;
+
+  --sidebar: #0B0E14;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #2DD4BF;
+  --sidebar-primary-foreground: #06231F;
+  --sidebar-accent: #1A2235;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #1C2436;
+  --sidebar-ring: #2DD4BF;
+
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
 
 /* ── Base ─────────────────────────────────────────────── */
 html,
@@ -8,9 +87,14 @@ body,
   height: 100%;
 }
 
+html {
+  /* Native scrollbars, form controls and the caret follow the app's dark theme. */
+  color-scheme: dark;
+}
+
 body {
-  background: #0B0E14;
-  color: #FFFFFF;
+  background: var(--background);
+  color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
