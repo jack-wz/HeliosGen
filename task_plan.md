@@ -38,8 +38,9 @@
 - [x] `timeAgo` 改用 `Intl.RelativeTimeFormat`（线上实测 `16天前` / `16D AGO`）
 - [x] 模板徽标 `4× Image → 4× Video` 入 `messages/extra`
 - [x] 7 个处理器节点全部翻译（`7b0bcb8`）：表头、按钮与忙碌态、空态提示、模式页签、模型档位、进度行、失败提示；`MODEL_OPTIONS` 改为存 message key（模块级数组不能调 hook）；「Output produced with {model}」改为 ICU
-- [ ] 未做：`GenerateNode` / `VideoGeneratorNode` / `VideoInputNode` / `PromptNode` / `AssistantNode` 等生成类节点（各 6–12 条）、`MediaPickerModal`、`CanvasToolbar`、`WorkflowCanvas`、API 错误码
-- **Status:** 首屏 + 侧栏 + 处理器节点完成，其余待续
+- [x] 画布周边组件（`4de1fc8`）：`CanvasToolbar`（含 ⌘ 快捷键的 7 个 tooltip）、`NodeActionBar`、`SelectionToolbar`、`MediaPickerModal`（页签/上传/失败提示）、`QuickAssist`、`UpdateBanner`
+- [ ] 未做：生成类节点 `GenerateNode` / `VideoGeneratorNode` / `VideoInputNode` / `PromptNode` / `AssistantNode`（各 2–12 条）、`WorkflowCanvas`、API 错误码
+- **Status:** 首屏 + 侧栏 + 处理器节点 + 画布周边完成，生成类节点待续
 
 ### R4: 交互与可访问性 — 完成（除节点字号）
 - [x] 10 个节点表单字段补 `id`/`name`/`aria-label`（`e172b16`）

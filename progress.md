@@ -88,6 +88,25 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-29（review 收口 · 四）
+
+### 本轮完成
+- **R3d** `4de1fc8`：**画布周边组件翻译**，新增 `ui` 命名空间（picker / canvas / assist / banner）
+  - `CanvasToolbar`：添加节点 / 选择 / 抓手 / 撤销 / 重做 / 运行全部 / 导出工作流（含 ⌘ 快捷键提示）
+  - `NodeActionBar`：打开预览 / 复制节点 / 删除节点 / 保存到本地 / 下载中…
+  - `SelectionToolbar`：自动排列 / 编组 / 复制所选 / 删除所选
+  - `MediaPickerModal`：三个页签（上传 / 图像生成 / 视频生成）、上传按钮、URL 抓取失败提示
+  - `QuickAssist`：助手胶囊、输入框占位、新建对话、请求失败文案
+  - `UpdateBanner`：有可用更新 / 忽略 / 关闭 / 无更新说明
+  - 实测：tooltip 7/8（第 8 条是更新横幅，无更新时不渲染——属正确行为）；用 `NEXT_PUBLIC_UPDATE_CHECK_FORCE=1` 强制渲染后横幅 **2/2** 通过
+- **R6d**：验证 + 部署（回滚点 `rollback-20260929-6`）。线上确认 **10 个命名空间 / 165 条 / 键集一致**；EACCES 0、170 条资产、asset-bridge Up 5 days
+
+### 仍未做（附原因）
+- R2 批次 2（119 处调色板外的一次性色）——需先做设计决策
+- R3 其余：生成类节点（`GenerateNode` / `VideoGeneratorNode` 各 12 条、`VideoInputNode` 7、`PromptNode` 6、`AssistantNode` 2）、`WorkflowCanvas`、API 错误码
+- R4 节点字号（会改变画布观感，需确认）
+- R5（动态路由、gallery 7212 行拆分）——建议单独立项
+
 ## 2026-09-29（review 收口 · 三）
 
 ### 本轮完成
