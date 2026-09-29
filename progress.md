@@ -88,6 +88,25 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-29（review 收口 · 五）
+
+### 本轮完成
+- **R3e** `901b1c7`：`AssistantNode` / `ImageInputNode` / `PromptNode` 翻译，`nodes` 命名空间 +15 条
+  - AssistantNode：输出句柄标签、显示输入/输出切换（含"先生成后才能看到输出"态）、复制/删除标题、生成失败文案
+  - ImageInputNode：图像/文本输入与图像输出句柄标签、Input alt、完整画质 alt
+  - PromptNode：复制提示词/展开编辑器/删除/复制标题、文本输出句柄、剪贴板失败 toast、提及菜单标题
+  - 实测：三个节点同画布，zh-CN **11/12**、en **11/12**
+- **R6e**：验证 + 部署（回滚点 `rollback-20260929-7`）。线上 **10 命名空间 / 180 条 / 键集一致**；EACCES 0、170 资产、asset-bridge Up 5 days
+
+### ⚠️ 一条未验证（如实记录）
+- `PromptNode` 的 @ 提及菜单标题 `connectedNodes` **我没能让它在浏览器里渲染出来**。它位于内联提及浮层，条件是「输入 @」+「存在兄弟节点与 prompt 节点共享下游目标」（`mentionableNodes` 的过滤条件）。我按这个条件构造了图形并驱动 textarea，但浮层只在一次 zh-CN 运行中偶发打开，立刻复测即失败。键在两种语言里都存在、tsc 也通过，但**我没有看到它渲染**，因此不声称它可用。
+
+### 仍未做（附原因）
+- R2 批次 2（119 处调色板外的一次性色）——需先做设计决策
+- R3 其余：`GenerateNode` / `VideoGeneratorNode` / `VideoInputNode`（各 12–16 条，文件 1300–2300 行）、`WorkflowCanvas`、API 错误码
+- R4 节点字号（会改变画布观感，需确认）
+- R5（动态路由、gallery 7212 行拆分）——建议单独立项
+
 ## 2026-09-29（review 收口 · 四）
 
 ### 本轮完成
