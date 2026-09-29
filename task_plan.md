@@ -48,12 +48,14 @@
 - ⚠️ 未验证：`PromptNode` 的 @ 提及菜单标题 `connectedNodes` —— 位于内联提及浮层，需要特定输入序列 + 兄弟节点共享下游的图形结构，headless 下未能稳定复现（键存在、tsc 通过，但**未见其渲染**）
 - **Status:** 首屏 + 侧栏 + 处理器节点 + 画布周边 + 3 个生成类节点完成
 
-### R4: 交互与可访问性 — 完成（除节点字号）
+### R4: 交互与可访问性 — 完成
 - [x] 10 个节点表单字段补 `id`/`name`/`aria-label`（`e172b16`）
 - [x] `/workflow/<id>` 直链：`useSpaceSync` 新增 `loaded` 信号，守卫等它再判定（`58a4b53`）。实测直链不再跳转、不存在的 id 仍回首页
 - [x] 缺图 fallback：`ThumbnailMosaic` 记录加载失败并回落占位（`58a4b53`）
-- [ ] 未做：节点正文 8–10px 提字号 —— 会改变画布观感，需先确认
-- **Status:** 除字号外完成
+- [x] 节点字号（`030a737`，已获确认）：8–11px 统一 +1px，157 处 / 19 个文件
+  - 实测影响：Resize +5px 高、VideoInput +3px 高；RemoveBG / SplitGrid / Generate / Prompt 尺寸不变；宽度全不变
+  - 验证：12 种节点同画布，无文本溢出、无 JS 错误，zh-CN 与 en 一致
+- **Status:** 完成
 
 ### R5: 性能与架构 — 未做（评估后暂缓）
 - [ ] 47 条路由全动态：根因是根布局读 `cookies()`（sidebar 状态 + locale），静态化需重构布局与状态来源，风险高于收益
