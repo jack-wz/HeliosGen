@@ -88,6 +88,21 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-30（review 收口 · 六）
+
+### 本轮完成
+- **R3f** `36c7c4d`：`GenerateNode` / `VideoGeneratorNode` / `VideoInputNode` 翻译，`nodes` +71 条、`ui.generic` +1
+  - 覆盖：句柄标签、生成状态、Azure 画质/分辨率、自定义尺寸、NSFW 警告、取消/删除/自定义、视频输入拖放区与播放控制、校验提示
+  - 三个模块级数组改为存 message key；按模型动态覆盖的「Reference images (up to N)」改为 ICU `{n}` 插值
+  - **验证过程中的教训**：第一次测出 1/24，看着像失败——其实是我把"各分支才出现的字符串"（生成中 / 仅 Azure / 自定义尺寸）拿去比对默认态节点。节点渲染正常、翻译也已生效
+  - 但那次 dump 暴露了**真漏项**：无引号的 JSX 文本节点、以及跨元素拆分的串（`Drop video or` + 带下划线的 `browse`）。已补译，拆分那处保留了下划线样式
+  - 复验：zh-CN 三个节点**无任何未翻译英文**；默认态可见的字符串（拖放区、体积上限、声音开关）两种语言 **4/4**
+
+### 部署受阻（非代码问题）
+- 本机 **Tailscale 已停止**（`tailscale status` → "Tailscale is stopped."），SSH 到 NAS 被拒（`kex_exchange_identification: Connection closed`）
+- 公网 `heliosgen.iepose.cn` 仍被「节点小宝」身份验证墙拦截
+- 两条访问路径都不可用，**本次部署未能执行**；代码已提交并推送到 origin
+
 ## 2026-09-29（review 收口 · 五）
 
 ### 本轮完成

@@ -40,7 +40,9 @@
 - [x] 7 个处理器节点全部翻译（`7b0bcb8`）：表头、按钮与忙碌态、空态提示、模式页签、模型档位、进度行、失败提示；`MODEL_OPTIONS` 改为存 message key（模块级数组不能调 hook）；「Output produced with {model}」改为 ICU
 - [x] 画布周边组件（`4de1fc8`）：`CanvasToolbar`（含 ⌘ 快捷键的 7 个 tooltip）、`NodeActionBar`、`SelectionToolbar`、`MediaPickerModal`（页签/上传/失败提示）、`QuickAssist`、`UpdateBanner`
 - [x] `AssistantNode` / `ImageInputNode` / `PromptNode`（`901b1c7`）：句柄标签、显示输入/输出切换、复制/展开/删除标题、剪贴板失败提示等；实测 11/12（两种语言）
-- [ ] 未做：`GenerateNode` / `VideoGeneratorNode` / `VideoInputNode`（各 12–16 条，文件 1300–2300 行）、`WorkflowCanvas`、API 错误码
+- [x] `GenerateNode` / `VideoGeneratorNode` / `VideoInputNode`（`36c7c4d`）：句柄标签、生成状态（等待/排队/生成中/完成/失败/过期）、Azure 画质与分辨率、自定义尺寸、NSFW 警告、取消/删除/自定义、视频输入拖放区与播放控制、各类校验提示
+  - 三个模块级数组（`BASE_HANDLES` / `SOURCE_HANDLES` / `VIDEO_SOURCE_HANDLES`）改为存 message key；按模型动态覆盖的「Reference images (up to N)」改为 ICU `{n}` 插值
+- [ ] 未做：`WorkflowCanvas`、API 错误码
 - ⚠️ 未验证：`PromptNode` 的 @ 提及菜单标题 `connectedNodes` —— 位于内联提及浮层，需要特定输入序列 + 兄弟节点共享下游的图形结构，headless 下未能稳定复现（键存在、tsc 通过，但**未见其渲染**）
 - **Status:** 首屏 + 侧栏 + 处理器节点 + 画布周边 + 3 个生成类节点完成
 
