@@ -53,5 +53,5 @@
 4. `lib/mediaPreview.ts`：`previewImageUrl()` 未拦截绝对 http(s) URL，而 `/_next/image` 对不在 `images.remotePatterns` 的主机返回 400（实测 `cdn.kie.ai` → `"url" parameter is not allowed`）。当前资产 URL 均为本地，属潜在问题，加一行放行。
 
 ### 遗留
-- Phase 2 四个节点的 NAS 部署实测未做
-- NAS 上运行的仍是上一版镜像（`heliosgen:nas-http-20260915`），需重新构建部署才会生效
+- Phase 2 四个节点的 NAS 实测未做（节点代码已在线上，只是没点过）
+- 线上部署状态（2026-09-29 实测修正，此前记的"仍是上一版镜像"是错的）：NAS 已包含本分支标为新增的全部内容（15 节点 / 8 provider / 7 skill / i18n / media-poster）；**未部署**的是上游 `99dd5b1`、provider 修复（线上 `/api/providers` 仍回显 `secretRef`）与 lint 清理
