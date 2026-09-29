@@ -93,10 +93,10 @@ export default function SplitGridNode({ id, data, selected }: NodeProps<SplitGri
       <div className="p-2 flex flex-col gap-2">
         <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
           <span>Rows</span>
-          <input type="number" min={1} max={MAX_GRID} className={inputCls} value={rows}
+          <input type="number" min={1} max={MAX_GRID} id={`${id}-rows`} name="rows" aria-label="Rows" className={inputCls} value={rows}
             onChange={(e) => setGrid({ gridRows: clampGrid(Number(e.target.value)) })} />
           <span>Cols</span>
-          <input type="number" min={1} max={MAX_GRID} className={inputCls} value={cols}
+          <input type="number" min={1} max={MAX_GRID} id={`${id}-cols`} name="cols" aria-label="Columns" className={inputCls} value={cols}
             onChange={(e) => setGrid({ gridCols: clampGrid(Number(e.target.value)) })} />
           <button
             onClick={run}

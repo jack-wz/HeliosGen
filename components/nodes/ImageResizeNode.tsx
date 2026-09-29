@@ -125,17 +125,17 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
         {mode === "exact" && (
           <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
             <span>W</span>
-            <input type="number" min={1} className={inputCls} value={data.resizeWidth ?? 1024}
+            <input type="number" min={1} id={`${id}-width`} name="width" aria-label="Width" className={inputCls} value={data.resizeWidth ?? 1024}
               onChange={(e) => updateNodeData(id, { resizeWidth: Number(e.target.value) || 1 })} />
             <span>H</span>
-            <input type="number" min={1} className={inputCls} value={data.resizeHeight ?? 1024}
+            <input type="number" min={1} id={`${id}-height`} name="height" aria-label="Height" className={inputCls} value={data.resizeHeight ?? 1024}
               onChange={(e) => updateNodeData(id, { resizeHeight: Number(e.target.value) || 1 })} />
           </div>
         )}
         {mode === "maxEdge" && (
           <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
             <span>Max edge</span>
-            <input type="number" min={1} className={inputCls} value={data.resizeMaxEdge ?? 1024}
+            <input type="number" min={1} id={`${id}-max-edge`} name="maxEdge" aria-label="Max edge in pixels" className={inputCls} value={data.resizeMaxEdge ?? 1024}
               onChange={(e) => updateNodeData(id, { resizeMaxEdge: Number(e.target.value) || 1 })} />
             <span>px</span>
           </div>
@@ -143,7 +143,7 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
         {mode === "scale" && (
           <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
             <span>Scale</span>
-            <input type="number" min={1} max={400} className={inputCls} value={data.resizeScalePct ?? 50}
+            <input type="number" min={1} max={400} id={`${id}-scale`} name="scalePct" aria-label="Scale percent" className={inputCls} value={data.resizeScalePct ?? 50}
               onChange={(e) => updateNodeData(id, { resizeScalePct: Math.min(400, Math.max(1, Number(e.target.value) || 1)) })} />
             <span>%</span>
           </div>
@@ -171,7 +171,7 @@ export default function ImageResizeNode({ id, data, selected }: NodeProps<Resize
           {(format === "jpeg" || format === "webp") && (
             <>
               <span>Q</span>
-              <input type="range" min={0.1} max={1} step={0.05} value={quality} className="flex-1"
+              <input type="range" min={0.1} max={1} step={0.05} value={quality} id={`${id}-quality`} name="quality" aria-label="Quality" className="flex-1"
                 onChange={(e) => updateNodeData(id, { resizeQuality: Number(e.target.value) })} />
               <span className="w-7 text-right text-neutral-500">{quality.toFixed(2)}</span>
             </>
