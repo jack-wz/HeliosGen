@@ -39,6 +39,19 @@
 - 文档：README.nas.md 更新版本/提交并新增「功能总览」；README.md 更新 Features / Nodes / Supported Models / Tech Stack；AGENTS.md 补充目录说明与验证命令
 - Lint：清掉本分支新增的 11 个问题（prefer-const、no-explicit-any ×5、no-img-element ×3、no-unused-vars ×2、exhaustive-deps、react-hooks/immutability），eslint 154 项 vs 上游 156 项，未新增；tsc 与 `pnpm build` 通过
 
+### 功能验证与 code review
+- 本地隔离实例（`HELIOS_DATA_DIR`/`HELIOS_MEDIA_DIR` 指向 /tmp，不碰真实 data/ 与 public/generated/），`env -u KIE_API_KEY` 保证 provider 判定可复现
+- 接口层 87 项断言全过：capabilities / providers / skills / models / workflows（summary·validate·patch）/ upload / media-poster / extract-frame / trim-video / gallery / assets / i18n，含路径穿越与非法入参
+- 回归脚本：`node --test scripts/test-http-hash.mjs scripts/test-browser-id.mjs`（9 项）、`scripts/test-http-clipboard.mjs`（1 项）、新增 `scripts/test-provider-api.mjs`（6 项，已验证在修复前会失败 3 项）
+- 浏览器实测（chrome-devtools，NAS 同款 HTTP 入口）：/workflow/nodetest 载入 10 个节点，8 个新节点标签与 handle 正确；Resize 把 400×300 源图输出 200×100 PNG 并落盘（ffprobe 复核 `png,200,100`）；Split Grid 2×2 出 4 格、选中 cell 2 后输出持久化；无 React/hydration 报错
+- 已知无害告警：无 Key 时 `/api/credit` 返回 401（浏览器记为 error）；DevTools 提示 10 个表单字段缺 id/name
+
+#### 修复（本轮 review 发现）
+1. `lib/providerRegistry.ts`：`listProviders()` 的 `{ ...p, secretRef: undefined }` 根本没脱敏——`secretRef` 在 `auth` 下，且顶层 `undefined` 会被 JSON 丢弃。`GET /api/providers` 与 `/api/capabilities` 一直回显内部 settings 键名（`kie_api_token` 等）。改为显式构造 `PublicProvider`（不含 secretRef），另加内部 `getProviderDefinition()` 供路由查密钥。
+2. `configured` 三处不一致：`configured()` 只认 kie/azure，其他 provider 即使存了 Key 也报 false；`/api/providers/<id>` 又只读 DB 设置、忽略 env 回退，导致同一响应里 `provider.configured` 与顶层 `configured` 自相矛盾（fal 实测 false/true 并存）。统一为单一 `isConfigured()`。
+3. `app/api/skills` POST 硬编码 `configured: true`（技能并无配置概念，字段无意义）——移除。
+4. `lib/mediaPreview.ts`：`previewImageUrl()` 未拦截绝对 http(s) URL，而 `/_next/image` 对不在 `images.remotePatterns` 的主机返回 400（实测 `cdn.kie.ai` → `"url" parameter is not allowed`）。当前资产 URL 均为本地，属潜在问题，加一行放行。
+
 ### 遗留
 - Phase 2 四个节点的 NAS 部署实测未做
 - NAS 上运行的仍是上一版镜像（`heliosgen:nas-http-20260915`），需重新构建部署才会生效

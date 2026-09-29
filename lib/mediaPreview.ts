@@ -7,9 +7,13 @@
 
 const NEXT_IMG_WIDTHS = [16, 32, 48, 64, 96, 128, 256, 384, 640, 750, 828, 1080, 1200, 1920, 2048, 3840];
 
-/** Resized image URL for a stored image. Blob/data URLs are returned unchanged. */
+/** Resized image URL for a stored image. Blob/data/remote URLs are returned unchanged. */
 export function previewImageUrl(url: string, cssWidth = 320): string {
   if (!url || url.startsWith("blob:") || url.startsWith("data:") || url.startsWith("/_next/")) return url;
+  // The optimizer only serves hosts listed in next.config images.remotePatterns
+  // and answers 400 "url parameter is not allowed" for anything else, so a
+  // remote URL must be passed through rather than silently broken.
+  if (/^https?:\/\//i.test(url)) return url;
   const target = cssWidth * 2;
   const w = NEXT_IMG_WIDTHS.find((s) => s >= target) ?? NEXT_IMG_WIDTHS[NEXT_IMG_WIDTHS.length - 1];
   return `/_next/image?url=${encodeURIComponent(url)}&w=${w}&q=75`;
