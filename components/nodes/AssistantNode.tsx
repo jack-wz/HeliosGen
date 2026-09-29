@@ -7,6 +7,7 @@ import { useAnimatedPopup } from "@/lib/useAnimatedPopup";
 import CornerResizer from "./CornerResizer";
 import { useGeneratingBorderAnimation } from "@/lib/useGeneratingBorderAnimation";
 import { useReadOnly } from "@/lib/readOnlyContext";
+import { useTranslations } from "next-intl";
 
 type AssistantNodeType = Node<NodeData, "assistantNode">;
 
@@ -16,6 +17,8 @@ const MODELS = [
 ];
 
 export default function AssistantNode({ id, data, selected }: NodeProps<AssistantNodeType>) {
+  const t = useTranslations("nodes");
+  const tCanvas = useTranslations("ui.canvas");
   const readOnly = useReadOnly();
   const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
   const onNodesChange = useWorkflowStore((s) => s.onNodesChange);
@@ -152,8 +155,8 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Generation failed" }));
-        throw new Error(err.error ?? "Generation failed");
+        const err = await res.json().catch(() => ({ error: t("generationFailed") }));
+        throw new Error(err.error ?? t("generationFailed"));
       }
 
       const reader = res.body!.getReader();
@@ -231,14 +234,14 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
           whiteSpace: "nowrap",
         }}
       >
-        <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDuplicate(); }} title="Duplicate node"
+        <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDuplicate(); }} title={tCanvas("duplicateNode")}
           className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-white hover:bg-white/10 transition-colors duration-150">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
           </svg>
         </button>
         <span className="w-px h-4 bg-white/[0.08] mx-0.5 shrink-0" />
-        <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDelete(); }} title="Delete node"
+        <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDelete(); }} title={tCanvas("deleteNode")}
           className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-red-400 hover:bg-red-400/10 transition-colors duration-150">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
@@ -270,7 +273,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
         <button
           onClick={(e) => { e.stopPropagation(); setViewMode("input"); }}
           className="w-7 h-7 rounded-full flex items-center justify-center relative z-10"
-          title="Show input"
+          title={t("showInput")}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
             style={{ color: viewMode === "input" ? "white" : "rgba(255,255,255,0.35)", transition: "color 220ms" }}>
@@ -285,7 +288,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
           onClick={(e) => { e.stopPropagation(); if (hasOutput) setViewMode("output"); }}
           disabled={!hasOutput}
           className="w-7 h-7 rounded-full flex items-center justify-center relative z-10 disabled:cursor-not-allowed"
-          title={hasOutput ? "Show output" : "Generate first to see output"}
+          title={hasOutput ? t("showOutput") : t("assistantGenerateFirst")}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" strokeLinecap="round"
             style={{
@@ -415,7 +418,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
         id="textOut"
         style={{ top: "50%" }}
         className={`node-handle-icon node-handle-icon-out-text node-handle-icon-out-assistant${sourceConnected ? " node-handle-connected" : ""}`}
-        title="Assistant output"
+        title={t("assistantOutput")}
       >
         <BrainIcon />
       </Handle>

@@ -7,12 +7,14 @@ import CornerResizer from "./CornerResizer";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { sha256Hex } from "@/lib/assetHash";
 import { MediaPickerModal } from "../MediaPickerModal";
+import { useTranslations } from "next-intl";
 
 
 type ImageInputNodeType = Node<NodeData, "imageInputNode">;
 
 
 export default function ImageInputNode({ id, data, selected }: NodeProps<ImageInputNodeType>) {
+  const t = useTranslations("nodes");
   const updateNodeData  = useWorkflowStore((s) => s.updateNodeData);
   const updateNodeSize  = useWorkflowStore((s) => s.updateNodeSize);
   const edges           = useWorkflowStore((s) => s.edges);
@@ -285,7 +287,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
               <NextImage
                 ref={nodeImgRef}
                 src={baseSrc}
-                alt="Input"
+                alt={t("inputLabel")}
                 fill
                 quality={30}
                 sizes="600px"
@@ -299,7 +301,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
               <img
                 ref={nodeImgRef}
                 src={baseSrc}
-                alt="Input"
+                alt={t("inputLabel")}
                 style={{
                   position: "absolute", inset: 0, width: "100%", height: "100%",
                   display: "block", objectFit: "fill", zIndex: 1,
@@ -390,7 +392,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
                 position={Position.Right}
                 style={{ top: "50%" }}
                 className={`node-handle-icon node-handle-icon-out-image${sourceConnected ? " node-handle-connected" : ""}`}
-                title="Image output"
+                title={t("imageOutput")}
               >
                 <ImageOutIcon />
               </Handle>
@@ -402,7 +404,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
                 id="decorativeText"
                 style={{ top: "calc(50% - 16px)" }}
                 className={`node-handle-icon node-handle-icon-prompt${edges.some((e) => e.target === id && e.targetHandle === "decorativeText") ? " node-handle-connected" : ""}`}
-                title="Text input"
+                title={t("textInput")}
               >
                 <PromptIcon />
               </Handle>
@@ -412,7 +414,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
                 id="decorativeImage"
                 style={{ top: "calc(50% + 16px)" }}
                 className={`node-handle-icon node-handle-icon-resource${edges.some((e) => e.target === id && e.targetHandle === "decorativeImage") ? " node-handle-connected" : ""}`}
-                title="Image input"
+                title={t("imageInput")}
               >
                 <ImageOutIcon />
               </Handle>
@@ -449,7 +451,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={canonicalSrc}
-                alt="Full quality"
+                alt={t("fullQuality")}
                 className="block max-w-[90vw] max-h-[90vh] object-contain"
                 onLoad={() => setLightboxImgLoaded(true)}
               />
@@ -495,7 +497,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
         position={Position.Right}
         style={{ top: "50%" }}
         className={`node-handle-icon node-handle-icon-out-image${sourceConnected ? " node-handle-connected" : ""}`}
-        title="Image output"
+        title={t("imageOutput")}
       >
         <ImageOutIcon />
       </Handle>
@@ -507,7 +509,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
         id="decorativeText"
         style={{ top: "calc(50% - 16px)" }}
         className={`node-handle-icon node-handle-icon-prompt${edges.some((e) => e.target === id && e.targetHandle === "decorativeText") ? " node-handle-connected" : ""}`}
-        title="Text input"
+        title={t("textInput")}
       >
         <PromptIcon />
       </Handle>
@@ -517,7 +519,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
         id="decorativeImage"
         style={{ top: "calc(50% + 16px)" }}
         className={`node-handle-icon node-handle-icon-resource${edges.some((e) => e.target === id && e.targetHandle === "decorativeImage") ? " node-handle-connected" : ""}`}
-        title="Image input"
+        title={t("imageInput")}
       >
         <ImageOutIcon />
       </Handle>

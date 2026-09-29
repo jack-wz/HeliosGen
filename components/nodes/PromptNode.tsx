@@ -10,6 +10,7 @@ import { IMAGE_MODELS, VIDEO_MODELS } from "@/lib/modelConfig";
 import { thumbSrc } from "@/lib/galleryUtils";
 import { copyText } from "@/lib/clipboard";
 import { useReadOnly } from "@/lib/readOnlyContext";
+import { useTranslations } from "next-intl";
 import { detectTextMode } from "@/lib/textFormat";
 import CornerResizer from "./CornerResizer";
 
@@ -87,6 +88,8 @@ function renderWithMentions(
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeType>) {
+  const t = useTranslations("nodes");
+  const tCanvas = useTranslations("ui.canvas");
   const readOnly = useReadOnly();
   const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
   const onNodesChange = useWorkflowStore((s) => s.onNodesChange);
@@ -604,7 +607,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
 
   const handleCopyToClipboard = useCallback(() => {
     const text = (data.prompt as string) ?? "";
-    void copyText(text).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error"));
+    void copyText(text).catch(() => useWorkflowStore.getState().addToast(t("copyFailed"), "error"));
   }, [data.prompt]);
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -637,7 +640,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           }}
         >
           {/* Copy to clipboard */}
-          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleCopyToClipboard(); }} title="Copy prompt text"
+          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleCopyToClipboard(); }} title={t("copyPromptText")}
             className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-white hover:bg-white/10 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
@@ -645,14 +648,14 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           </button>
           <span className="w-px h-4 bg-white/[0.08] mx-0.5 shrink-0" />
           {/* Duplicate */}
-          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDuplicate(); }} title="Duplicate node"
+          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDuplicate(); }} title={tCanvas("duplicateNode")}
             className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-white hover:bg-white/10 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
           </button>
           {/* Expand */}
-          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setExpandOpen(true); }} title="Expand editor"
+          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setExpandOpen(true); }} title={t("expandEditor")}
             className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-white hover:bg-white/10 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 3 21 3 21 9" /><polyline points="9 21 3 21 3 15" /><line x1="21" y1="3" x2="14" y2="10" /><line x1="3" y1="21" x2="10" y2="14" />
@@ -660,7 +663,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           </button>
           <span className="w-px h-4 bg-white/[0.08] mx-0.5 shrink-0" />
           {/* Delete */}
-          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDelete(); }} title="Delete node"
+          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDelete(); }} title={tCanvas("deleteNode")}
             className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-red-400 hover:bg-red-400/10 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
@@ -884,7 +887,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           position={Position.Right}
           style={{ top: "50%" }}
           className={`node-handle-icon node-handle-icon-out-text${sourceConnected ? " node-handle-connected" : ""}${hasError ? " node-handle-error" : ""}`}
-          title="Text output"
+          title={t("textOutput")}
         >
           <TextOutIcon />
         </Handle>
@@ -898,7 +901,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           >
             <div className="px-2.5 py-1.5 border-b border-[#1E1E1E]">
               <p className="text-[9px] text-[#4A4A45] uppercase tracking-widest">
-                Connected nodes
+                {t("connectedNodes")}
               </p>
             </div>
             {filteredMentions.map((n, idx) => {
@@ -1046,7 +1049,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                 onMouseDown={(e) => e.preventDefault()}
               >
                 <div className="px-3 py-1.5 border-b border-[#1A1A1A]">
-                  <p className="text-[9px] text-[#4A4A45] uppercase tracking-widest">Connected nodes</p>
+                  <p className="text-[9px] text-[#4A4A45] uppercase tracking-widest">{t("connectedNodes")}</p>
                 </div>
                 {expandFilteredMentions.map((n, idx) => {
                   const label = n.data.label as string;

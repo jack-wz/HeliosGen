@@ -155,7 +155,22 @@
     "ariaScalePercent": "缩放百分比",
     "ariaRows": "行数",
     "ariaColumns": "列数",
-    "removeBgOutputNote": "使用 {model} 生成 —— 切换模型并重新运行以对比。"
+    "removeBgOutputNote": "使用 {model} 生成 —— 切换模型并重新运行以对比。",
+    "assistantOutput": "助手输出",
+    "assistantGenerateFirst": "先生成后才能看到输出",
+    "showInput": "显示输入",
+    "showOutput": "显示输出",
+    "generationFailed": "生成失败",
+    "imageInput": "图像输入",
+    "imageOutput": "图像输出",
+    "inputLabel": "输入",
+    "textInput": "文本输入",
+    "fullQuality": "完整画质",
+    "copyPromptText": "复制提示词",
+    "copyFailed": "无法复制到剪贴板。",
+    "expandEditor": "展开编辑器",
+    "textOutput": "文本输出",
+    "connectedNodes": "已连接节点"
   },
   "ui": {
     "picker": {

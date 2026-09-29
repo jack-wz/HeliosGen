@@ -155,7 +155,22 @@
     "ariaScalePercent": "Scale percent",
     "ariaRows": "Rows",
     "ariaColumns": "Columns",
-    "removeBgOutputNote": "Output produced with {model} — switch model and re-run to compare."
+    "removeBgOutputNote": "Output produced with {model} — switch model and re-run to compare.",
+    "assistantOutput": "Assistant output",
+    "assistantGenerateFirst": "Generate first to see output",
+    "showInput": "Show input",
+    "showOutput": "Show output",
+    "generationFailed": "Generation failed",
+    "imageInput": "Image input",
+    "imageOutput": "Image output",
+    "inputLabel": "Input",
+    "textInput": "Text input",
+    "fullQuality": "Full quality",
+    "copyPromptText": "Copy prompt text",
+    "copyFailed": "Could not copy to clipboard.",
+    "expandEditor": "Expand editor",
+    "textOutput": "Text output",
+    "connectedNodes": "Connected nodes"
   },
   "ui": {
     "picker": {
