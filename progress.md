@@ -27,3 +27,17 @@
 - 发现并适配：另一会话已把 /data/media 改挂到共享团队目录（asset-bridge 同步源），模型目录随之放到该目录
 - 已知取舍：SplitGrid 的格子预览存在组件 state，刷新页面后需重新 Split（选中输出已持久化）；处理节点不进入 pipeline 自动波次，需点节点上的 Run
 - 清理：测试工作流 P1 Node Test 已删除（其余空间保留）
+
+## 2026-09-29
+
+### 分支统一与提交
+- 工作区 45 个改动文件 + 32 个新增文件分两个提交落在 `nas-agent-cli`：`0426a3e`（节点 / i18n / registry / HTTP 兼容）与 `99eacdf`（计划文档）
+- `main` 快进到 `nas-agent-cli`，再并入上游 `upstream/main`（`99dd5b1`，PR #28 音频 MIME 修复 + codex 修复），无冲突自动合并 → 合并提交 `5f31a16`
+- `nas-agent-cli` 与 `dulse` 一并指向 `5f31a16`，三条分支内容一致
+- 版本号随上游升到 `1.2.1`；新增依赖（@imgly/background-removal、onnxruntime-web、react-compare-slider、next-intl、@noble/hashes）与上游依赖改动均已保留
+- 验证：`npx tsc --noEmit` 通过
+- 文档：README.nas.md 更新版本/提交并新增「功能总览」；README.md 更新 Features / Nodes / Supported Models / Tech Stack；AGENTS.md 补充目录说明与验证命令
+
+### 遗留
+- Phase 2 四个节点的 NAS 部署实测未做
+- NAS 上运行的仍是上一版镜像（`heliosgen:nas-http-20260915`），需重新构建部署才会生效

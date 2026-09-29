@@ -132,17 +132,31 @@ You only pay for what you generate.
 - Multi-model pipelines
 - Reference image support
 - Parallel & sequential pipeline execution
+- On-device image processing — resize, background removal, grid split, A/B compare
+- Video tools — trim, frame grab
+- LLM text nodes — generate and template prompts on the canvas
+- Chinese & English UI (next-intl)
 - Real-time generation history
 - 100% local — your data never leaves your machine
 - Bring your own kie.ai key
 - Modern responsive UI
+
+## 🧩 Nodes
+
+| Group | Nodes |
+| --- | --- |
+| Generate | Image Generator, Video Generator, Assistant, LLM Generate |
+| Input | Prompt, Image Input, Video Input, Prompt Constructor |
+| Image processing (browser-side, no credits) | Resize, Remove BG, Split Grid, Compare |
+| Video processing | Video Trim, Frame Grab |
+| Canvas | Note, Comment, Group |
 
 ---
 
 # ⚡ Supported Models
 
 ## Images
-- GPT Image 2 (OpenAI)
+- GPT Image 2 / GPT Image 2.5 Flare / GPT Image 2.5 Sunburst (OpenAI)
 - Nano Banana / Nano Banana 2 / Nano Banana 2 Lite / Nano Banana Pro (Google)
 - Seedream 5.0 Lite / Pro (Seedream)
 - Z-Image (Z-AI)
@@ -151,9 +165,9 @@ You only pay for what you generate.
 ## Videos
 - Veo 3.1 Lite / Fast / Quality, Gemini Omni Video (Google)
 - Kling 3.0, Kling 3.0 Turbo, Motion Control 2.6 / 3.0 (Kling)
-- Seedance 2.0 / Fast / Mini (Bytedance)
+- Seedance 2.0 / Fast / Mini, Seedance 2.5 / 2.5 Edit (Bytedance)
 - Grok Imagine, Grok Imagine 1.5 preview (X)
-- HappyHorse (Alibaba)
+- HappyHorse, H3 (Alibaba)
 
 More models are coming.
 
@@ -168,6 +182,27 @@ More models are coming.
 | Database | SQLite (local) |
 | Storage | Local disk |
 | AI Backend | kie.ai |
+| i18n | next-intl (zh-CN / en) |
+| Self-hosting | Docker Compose (`Dockerfile.nas`, `compose.nas.yaml`) — see [`README.nas.md`](README.nas.md) |
+| Agent access | `helios` CLI + MCP server (`cli/`) |
+
+---
+
+# 🐳 Self-hosted deployment (optional)
+
+The same Next.js app can run as a server instead of a desktop app — useful for
+sharing one library across devices. [`README.nas.md`](README.nas.md) documents the
+Docker Compose deployment (app + media-sync bridge), the LAN/HTTPS access setup,
+and the non-secure-context fallbacks (SHA-256 hashing, UUIDs, clipboard) that
+plain-HTTP LAN access needs.
+
+The deployment also ships an agent layer, outside the container:
+
+- **`helios` CLI** — generate, upload, browse the gallery and asset library,
+  and manage workflows, all with JSON output.
+- **MCP server** (`cli/mcp/server.mjs`) — exposes the same surface as tools for
+  Codex/Claude-style agents, plus compact `capabilities`, `providers`, `skills`
+  and `workflow summary / validate / patch` endpoints.
 
 ---
 

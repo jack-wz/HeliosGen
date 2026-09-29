@@ -4,7 +4,9 @@
 
 HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接同一 Tailscale 网络）。
 
-源码：[SegFault42/HeliosGen](https://github.com/SegFault42/HeliosGen)，版本 `1.2.0`，提交 `f4aae3f154474fc73e4e019deabad68fa686552a`。这是基于官方 Next.js 服务的 NAS 适配部署；上游主要发行桌面应用。
+源码：[SegFault42/HeliosGen](https://github.com/SegFault42/HeliosGen)，版本 `1.2.1`，合并提交 `5f31a16fdaa4ba0249ee61a2e9809d25e4bf5ffb`（已并入上游 `99dd5b1`，含 PR #28 音频 MIME 修复）。这是基于官方 Next.js 服务的 NAS 适配部署；上游主要发行桌面应用。
+
+> 说明：`5f31a16` 是源码合并后的状态，NAS 上运行的镜像仍是上一次部署（`heliosgen:nas-http-20260915`）。下文「功能总览」中标注为**新增**的部分需要按「常用命令」一节重新构建并部署后才会在 NAS 生效。
 
 ## 位置与运行方式
 
@@ -22,6 +24,75 @@ HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接�
 打开 Settings → API Keys，填写自己的 kie.ai API Key。密钥保存在 NAS SQLite 数据库中。未迁移 Mac 桌面版的密钥、工作流或历史记录。本次部署不包含可选的 Codex CLI 生图环境。
 
 该应用采用共享本地用户，访问同一 NAS 地址的人共用工作流、图库和 API Key。聊天历史及部分界面偏好仍保存在各浏览器本地。
+
+## 功能总览
+
+按源码 `5f31a16` 梳理。标 **新增** 的是本次合并（相对上游 `f4aae3f`）带进来的能力。
+
+### 画布节点（16 种，选择器 15 种 + Group）
+
+生成与输入
+
+- Prompt、Image Input、Video Input —— 提示词与参考素材入口
+- Image Generator（`generateNode`）、Video Generator（`videoGeneratorNode`）—— 多模型生成，按波次并行/串行执行
+- Assistant（`assistantNode`）—— 提示词优化助手
+- LLM Generate（`llmGenerateNode`）**新增** —— 调 `/api/assistant` 产出文本，可接下游提示词
+
+图像处理（`processors` 分类，浏览器本地执行，不消耗积分）**新增**
+
+- Resize（`imageResizeNode`）—— 精确尺寸 / 最长边 / 按比例缩放，输出 PNG/JPEG/WebP
+- Remove BG（`removeBackgroundNode`）—— `@imgly/background-removal` + `onnxruntime-web` 端上推理，模型自托管在 `/generated/bgremoval/`
+- Split Grid（`splitGridNode`）—— 宫格拆分，点击格子选定输出
+- Compare（`imageCompareNode`）—— A/B 对比滑杆（`react-compare-slider`），只读
+
+视频处理 **新增**
+
+- Video Trim（`videoTrimNode`）→ `/api/trim-video`
+- Frame Grab（`videoFrameGrabNode`）→ `/api/extract-frame`，支持指定时间点或末帧
+
+其他
+
+- Prompt Constructor（`promptConstructorNode`）**新增** —— 模板化提示词构造（`{input}` 变量）
+- Note、Comment、Group —— 画布注释与分组
+
+处理类节点手动 Run，不进入 pipeline 自动波次；输出写入 `data.imageUrl` / `videoUrl`，下游通过 `resolveInputs` 自动衔接。
+
+### 模型（`lib/modelConfig.ts`）
+
+- 图片 11 个：Nano Banana、Nano Banana 2、Nano Banana Pro、Nano Banana 2 Lite、Z-Image、Seedream 5.0 Lite / Pro、Grok Imagine、GPT Image 2、GPT Image 2.5 Flare / Sunburst
+- 视频 17 个：Veo 3.1 Lite / Fast / Quality、Gemini Omni Video、Kling 3.0 / 3.0 Turbo、Grok Imagine / 1.5 preview、Seedance 2.0 / 2.0 Fast / 2.0 Mini / 2.5 / 2.5 Edit、HappyHorse、H3、Motion Control 2.6 / 3.0
+
+机器可读目录：`GET /api/models`（同一注册表，NAS 不可用模型标 `nasSupported:false`）。
+
+### 页面与媒体加载
+
+- Gallery、Assets 资产库、Chat、Workflows 首页、Settings
+- 加载优化 **新增**：资产库分页（每页 48）、图片走 `/_next/image` 缩略图、视频先显示封面且 `preload=none`、图片并发 8（卸载时归还名额）、封面缓存落在 NAS 数据盘
+
+### 多语言 **新增**
+
+`next-intl` 接入，入口 `app/i18n/request.ts`，语言由 cookie `hg_locale` 决定，默认 `zh-CN`、可选 `en`，文案在 `messages/*.json`。当前覆盖导航、资产库、设置等 5 个文件，其余界面文案仍在逐步迁移。
+
+### 服务端接口（28 个路由）
+
+- 生成：`/api/generate`、`/api/generate-image`、`/api/generate-video`、`/api/job-status`、`/api/job-stream`、`/api/models`、`/api/credit`
+- 媒体：`/api/upload`、`/api/upload-video`、`/api/upload-asset`、`/api/download`、`/api/fetch-url`、`/api/extract-frame`、`/api/trim-video`、`/api/generated/[...path]`、`/api/media-poster` **新增**
+- 资产：`/api/assets`、`/api/assets/[id]`、`/api/assets/import`、`/api/assets/reconcile`、`/api/assets/collections`、`/api/lookup-asset`
+- 工作流：`/api/workflows`、`/api/workflows/[id]`
+- 其它：`/api/settings`、`/api/assistant`、`/api/folders`、`/api/folder-items`、`/api/gallery`、`/api/open-external`、`/api/update-check`
+- Agent **新增**：`/api/capabilities`（紧凑能力目录）、`/api/providers` 与 `/api/providers/[id]`（provider 列表、密钥读写，响应脱敏）、`/api/skills`（技能注册表）
+
+### CLI 与 MCP
+
+- **CLI** `helios`（`cli/helios.mjs`，Node 零依赖，JSON 输出）：`doctor` / `config` / `key`、`models` / `credit` / `upload` / `image` / `video` / `pipeline` / `wait` / `status`、`gallery`、`asset list|add|import|update|reconcile`、`asset collection list|create|add|remove`、`workflow list|get|export|import|delete|create`、`download`
+- **MCP** `cli/mcp/server.mjs`：27 个工具，除原有生成/图库/资产/工作流工具外 **新增** `helios_capabilities`、`helios_providers`、`helios_provider_get` / `_configure` / `_delete_key`、`helios_skills`、`helios_workflow_summary` / `_validate` / `_patch`
+
+### 部署与运维
+
+- `Dockerfile.nas` + `compose.nas.yaml`（`heliosgen` 与 `asset-bridge` 两个服务）
+- `asset-bridge`：inotify 监听共享媒体目录，HeliosGen ↔ Seek 双向索引同步，每 5 分钟兜底核对
+- `scripts/prestart-token.sh`：fnOS 重启后自愈 Seek token
+- HTTP（非安全上下文）兼容：SHA-256 走 `@noble/hashes` 回退、UUID 用 `getRandomValues`、剪贴板走兼容路径
 
 ## 常用命令（在 NAS 执行）
 
@@ -89,15 +160,19 @@ HTTP 兼容回归：`node --test scripts/test-http-hash.mjs scripts/test-browser
 部署包含一套 agent 客户端（本地 `cli/` 目录，不在容器内）：
 
 - **CLI**：`helios`（安装在 `~/.local/bin/helios`，源码 [cli/helios.mjs](cli/helios.mjs)，Node 零依赖，JSON 输出）。除生成、图库和工作流命令外，新增 `asset list/add/import/update/reconcile` 与 `asset collection list/create/add/remove`。`asset import` 只注册 NAS 已有路径，不复制文件。
-- **MCP**：`cli/mcp/server.mjs` 向 Codex/Claude 等暴露原有 11 个工具，并新增 `helios_asset_list / helios_asset_add / helios_asset_import / helios_asset_update / helios_asset_reconcile / helios_asset_collection_create`。
+- **MCP**：`cli/mcp/server.mjs` 共 27 个工具。除原有生成、图库、资产、工作流工具外，新增 `helios_capabilities`、`helios_providers`、`helios_provider_get` / `_configure` / `_delete_key`、`helios_skills`、`helios_workflow_summary` / `_validate` / `_patch`，以及 `helios_asset_list / _add / _import / _update / _reconcile / _collection_create`。
 - **Codex 技能**：`~/.codex/skills/heliosgen/SKILL.md`，教 agent 标准流程（查余额 → 选模型 → 上传参考 → debug 校验 → 生成 → 落盘）与成本规则。
 
-为支持 agent 接入，服务端新增了两个路由（不影响 Web UI）：
+为支持 agent 接入，服务端新增了以下路由（不影响 Web UI）：
 
 - `GET /api/models`：机器可读的模型目录（与 `lib/modelConfig.ts` 同一注册表，`nasSupported:false` 标记 Veo 等 NAS 不可用的模型）。
 - `GET/PUT/DELETE /api/workflows/<id>`：单工作流读写，避免全量替换 `PUT /api/workflows` 删除其他画布的风险。
 - `GET /api/assets`、`POST /api/assets/import|reconcile`、`PATCH /api/assets/<id>`：零拷贝资产注册、磁盘核对及分类/元数据更新。
 - `GET/POST/PATCH /api/assets/collections`：手动集合与按分类、来源、MIME、关键词匹配的智能集合。
+- `GET /api/capabilities`：紧凑能力目录（provider 能力、skill 列表、节点类型），一次调用拿全。
+- `GET/POST /api/providers`、`GET/POST/DELETE /api/providers/<id>`：provider 列表、密钥读写；`GET` 只返回 `configured` 布尔值，密钥不回显。
+- `GET/POST /api/skills`：按 id/scope 列出或解析服务端注册的技能。
+- `GET /api/media-poster?url=/generated/<path>.mp4[&w=480]`：视频封面 JPEG（ffmpeg 抽帧 + 磁盘缓存，缓存放在 `DATA_DIR` 之外，Seek 与资产索引看不到）。
 
 并修复了 `/api/download` 在反代后自取回源失败（HTTP 502）的问题：本地 `/generated/...` 文件改为直接从媒体目录流式返回，网页 UI 的下载按钮同样受益。
 

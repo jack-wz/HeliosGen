@@ -8,6 +8,12 @@
 
 Phase A/B/C — provider registry, Skill runtime and compact Agent APIs (foundation implemented; real fal execution remains pending)
 
+## Branch state (2026-09-29)
+
+所有分支已统一到 `main` @ `5f31a16`：`nas-agent-cli`、`dulse` 与 `main` 指向同一提交，
+并已并入上游 `99dd5b1`（PR #28 音频 MIME 修复 + codex 修复）。Phase 1 与 Phase 2 的节点代码、
+i18n、provider/skill registry 均在该提交内；Phase 2 的 NAS 实测尚未进行。
+
 ## Context
 
 - HeliosGen（目标）：Next.js 16 + React 19 + @xyflow/react + zustand，9-11 种节点；生成走服务端 API（kie.ai 轮询 + SQLite 密钥），已部署飞牛 NAS（https://fn-evo4-8cad.tail071480.ts.net:9443/，镜像 heliosgen:nas-f4aae3f，数据 /vol1/1000/HeliosGen/data）。
@@ -34,12 +40,13 @@ Phase A/B/C — provider registry, Skill runtime and compact Agent APIs (foundat
 - **Status:** complete
 
 ### Phase 2: 媒体与文本节点（接现有 API）
-- [ ] VideoTrim 视频裁剪 → /api/trim-video
-- [ ] VideoFrameGrab 抽帧 → /api/extract-frame
-- [ ] LLMGenerate 文本生成 → /api/assistant
-- [ ] PromptConstructor 变量提示词构造
-- [ ] 测试 + NAS 部署验证
-- **Status:** pending
+- [x] VideoTrim 视频裁剪 → /api/trim-video
+- [x] VideoFrameGrab 抽帧 → /api/extract-frame（支持指定时间点与末帧）
+- [x] LLMGenerate 文本生成 → /api/assistant
+- [x] PromptConstructor 变量提示词构造（`{input}` 模板）
+- [x] 接线：executor 新增 `videoUrl` handle 与文本节点下游提示词传递；nodeTypes 注册
+- [ ] NAS 部署 + 浏览器实测
+- **Status:** 代码完成（tsc 通过）；NAS 实测待部署后进行
 
 ### Phase 3: 视频剪辑管线
 - [ ] VideoStitch 视频拼接（转场 + 调色，来自 fork 自研）
