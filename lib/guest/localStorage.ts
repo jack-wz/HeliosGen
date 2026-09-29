@@ -18,6 +18,12 @@ function ext(contentType: string): string {
   if (contentType.includes("png"))  return "png";
   if (contentType.includes("gif"))  return "gif";
   if (contentType.includes("webp")) return "webp";
+  if (contentType.startsWith("audio")) {
+    if (contentType.includes("mpeg")) return "mp3";
+    if (contentType.includes("wav"))  return "wav";
+    if (contentType.includes("ogg"))  return "ogg";
+    return "m4a";
+  }
   return "jpg";
 }
 

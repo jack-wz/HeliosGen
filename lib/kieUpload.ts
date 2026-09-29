@@ -33,6 +33,10 @@ const MIME_BY_EXT: Record<string, string> = {
   gif: "image/gif",
   mp4: "video/mp4",
   webm: "video/webm",
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  m4a: "audio/mp4",
+  ogg: "audio/ogg",
 };
 
 /** A local reference that kie.ai can't fetch and we must re-host. */
