@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IMAGE_MODELS, VIDEO_MODELS } from "@/lib/modelConfig";
 import { MODEL_GROUPS } from "@/lib/models";
 import { useWorkflowStore } from "@/lib/store";
+import { copyText } from "@/lib/clipboard";
+import { useTranslations } from "next-intl";
 import { PROVIDERS, ProviderId, loadModelProviders, saveModelProviders, getModelProvider } from "@/lib/providers";
 
 /* ─── Provider options (re-exported for backwards compat) ───────────────────── */
@@ -439,6 +441,7 @@ function ApiKeysPanel({
   codexStatus: CodexStatus;
   onCodexLoginSuccess: () => void;
 }) {
+  const tSettings = useTranslations("settings");
   const [kieInput, setKieInput]       = useState("");
   const [kieSaving, setKieSaving]     = useState(false);
   const [kieError, setKieError]       = useState<string | null>(null);
@@ -467,10 +470,10 @@ function ApiKeysPanel({
   };
 
   const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(code).then(() => {
+    void copyText(code).then(() => {
       setCodeCopied(true);
       setTimeout(() => setCodeCopied(false), 1500);
-    }).catch(() => {});
+    }).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error"));
   };
 
   /* Poll while a device-code login is pending, until it resolves */
@@ -539,7 +542,7 @@ function ApiKeysPanel({
       {/* Header */}
       <div>
         <h2 style={{ fontSize: "17px", fontWeight: 600, color: "rgba(255,255,255,0.9)", margin: 0, lineHeight: 1.2 }}>
-          API Keys
+          {tSettings("nav.api-keys")}
         </h2>
         <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.28)", marginTop: "6px", lineHeight: 1.5 }}>
           Your Kie.ai key is stored securely on the server — it is never exposed to the browser.
@@ -645,7 +648,7 @@ function ApiKeysPanel({
                   transition: "background 140ms ease, color 140ms ease",
                 }}
               >
-                {kieSaving ? "Saving…" : "Save"}
+                {kieSaving ? tSettings("saving") : tSettings("save")}
               </button>
             </div>
             {kieError && (
@@ -763,7 +766,7 @@ function ApiKeysPanel({
                     transition: "background 140ms ease, color 140ms ease",
                   }}
                 >
-                  {azureSaving ? "Saving…" : "Save"}
+                  {azureSaving ? tSettings("saving") : tSettings("save")}
                 </button>
               </div>
               {azureError && (
@@ -979,6 +982,7 @@ function ImageModelsPanel({
   azureDeployments: Record<string, string>;
   onDeploymentChange: (modelId: string, v: string) => void;
 }) {
+  const tSettings = useTranslations("settings");
   const models = IMAGE_MODELS.map((m) => ({
     id: m.id,
     name: m.name,
@@ -991,7 +995,7 @@ function ImageModelsPanel({
     <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
       <div>
         <h2 style={{ fontSize: "17px", fontWeight: 600, color: "rgba(255,255,255,0.9)", margin: 0, lineHeight: 1.2 }}>
-          Image Models
+          {tSettings("nav.image-models")}
         </h2>
         <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.28)", marginTop: "6px", lineHeight: 1.5 }}>
           Choose which provider serves each image model. Azure-capable models show a deployment name field when Azure is selected.
@@ -1024,6 +1028,7 @@ function VideoModelsPanel({
   azureDeployments: Record<string, string>;
   onDeploymentChange: (modelId: string, v: string) => void;
 }) {
+  const tSettings = useTranslations("settings");
   const models = VIDEO_MODELS.map((m) => ({
     id: m.id,
     name: m.name,
@@ -1036,7 +1041,7 @@ function VideoModelsPanel({
     <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
       <div>
         <h2 style={{ fontSize: "17px", fontWeight: 600, color: "rgba(255,255,255,0.9)", margin: 0, lineHeight: 1.2 }}>
-          Video Models
+          {tSettings("nav.video-models")}
         </h2>
         <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.28)", marginTop: "6px", lineHeight: 1.5 }}>
           Choose which provider serves each video model.
@@ -1073,6 +1078,7 @@ function TextModelsPanel({
   onDeploymentChange: (v: string) => void;
   onModelNameChange: (v: string) => void;
 }) {
+  const tSettings = useTranslations("settings");
   const azureReady = azureKeyStatus === "set" && !!azureBaseUrl.trim();
   const kieGroups = MODEL_GROUPS.filter(g => g.label !== "Azure");
 
@@ -1081,7 +1087,7 @@ function TextModelsPanel({
       {/* Header */}
       <div>
         <h2 style={{ fontSize: "17px", fontWeight: 600, color: "rgba(255,255,255,0.9)", margin: 0, lineHeight: 1.2 }}>
-          Text Models
+          {tSettings("nav.text-models")}
         </h2>
         <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.28)", marginTop: "6px", lineHeight: 1.5 }}>
           Configure AI text models for chat. Azure Auto uses your Azure Foundry credentials from the API Keys tab.
@@ -1334,6 +1340,7 @@ function DebugPanel() {
 /* ─── Main modal ─────────────────────────────────────────────────────────────── */
 
 export default function SettingsModal({ onClose }: SettingsModalProps) {
+  const tSettings = useTranslations("settings");
   const [activeNav, setActiveNav]             = useState<NavId>("api-keys");
   const [modelProviders, setModelProviders]   = useState<Record<string, ProviderId>>({});
   const [azureDeployments, setAzureDeployments] = useState<Record<string, string>>({});
@@ -1539,7 +1546,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
               letterSpacing: "0.01em",
             }}
           >
-            Settings
+            {tSettings("title")}
           </div>
 
           {/* Nav items */}
@@ -1580,7 +1587,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 }}
               >
                 <span style={{ opacity: isActive ? 1 : 0.6, flexShrink: 0 }}>{item.icon}</span>
-                {item.label}
+                {tSettings(`nav.${item.id}`)}
               </button>
             );
           })}

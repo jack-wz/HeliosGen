@@ -8,6 +8,7 @@ import { Handle, Position, NodeProps, Node, useViewport } from "@xyflow/react";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { IMAGE_MODELS, VIDEO_MODELS } from "@/lib/modelConfig";
 import { thumbSrc } from "@/lib/galleryUtils";
+import { copyText } from "@/lib/clipboard";
 import { useReadOnly } from "@/lib/readOnlyContext";
 import { detectTextMode } from "@/lib/textFormat";
 import CornerResizer from "./CornerResizer";
@@ -603,7 +604,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
 
   const handleCopyToClipboard = useCallback(() => {
     const text = (data.prompt as string) ?? "";
-    navigator.clipboard.writeText(text).catch(() => { });
+    void copyText(text).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error"));
   }, [data.prompt]);
 
   // ── Render ────────────────────────────────────────────────────────────────

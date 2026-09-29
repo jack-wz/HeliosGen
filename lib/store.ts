@@ -64,6 +64,34 @@ export interface NodeData extends Record<string, unknown> {
   locked?: boolean;
   // pending job
   taskId?: string;
+  // phase-1 processing nodes (ported from node-banana, MIT)
+  resizeMode?: "exact" | "maxEdge" | "scale";
+  resizeWidth?: number;
+  resizeHeight?: number;
+  resizeMaxEdge?: number;
+  resizeScalePct?: number;
+  resizeFit?: "contain" | "cover" | "stretch";
+  resizeFormat?: "keep" | "png" | "jpeg" | "webp";
+  resizeQuality?: number;
+  bgModel?: "isnet_quint8" | "isnet_fp16" | "isnet";
+  gridRows?: number;
+  gridCols?: number;
+  selectedCell?: number;
+  outputWidth?: number;
+  outputHeight?: number;
+  outputBytes?: number;
+  persistWarning?: string;
+  trimStart?: number;
+  trimEnd?: number;
+  trimDuration?: number;
+  frameTimeSeconds?: number;
+  lastFrame?: boolean;
+  text?: string;
+  outputText?: string;
+  llmModel?: string;
+  llmProvider?: string;
+  promptTemplate?: string;
+  promptVariables?: Record<string, string>;
 }
 
 /** Pick only the listed keys from an object; returns null if none are present. */
@@ -85,6 +113,10 @@ export function getNodeLabel(type: string, n: number): string {
     generateNode:        `Image Generator #${n}`,
     videoGeneratorNode:  `Video Generator #${n}`,
     commentNode:         `Comment #${n}`,
+    imageResizeNode:     `Resize #${n}`,
+    removeBackgroundNode: `Remove BG #${n}`,
+    splitGridNode:       `Split Grid #${n}`,
+    imageCompareNode:    `Compare #${n}`,
   };
   return map[type] ?? `Node #${n}`;
 }

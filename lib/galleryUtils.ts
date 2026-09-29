@@ -4,6 +4,7 @@ export interface GalleryItem {
   imageUrls?: string[];
   mediaType: "image" | "video";
   prompt?: string;
+  posterUrl?: string;
   model?: string;
   aspect_ratio?: string;
   quality?: string;

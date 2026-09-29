@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GUEST_USER_ID } from "@/lib/guestMode";
-import { ASSET_CATEGORIES, normalizeCategory } from "@/lib/guest/creativeAssets";
+import { ASSET_CATEGORIES, CATEGORY_IDS, normalizeCategory } from "@/lib/guest/creativeAssets";
 import * as guestDb from "@/lib/guest/db";
 
 export async function GET(req: NextRequest) {
@@ -22,5 +22,26 @@ export async function GET(req: NextRequest) {
   }
   const all = guestDb.getCreativeAssets(GUEST_USER_ID);
   const counts = Object.fromEntries(ASSET_CATEGORIES.map((name) => [name, all.filter((asset) => asset.category === name).length]));
-  return NextResponse.json({ assets, total: assets.length, allTotal: all.length, counts, categories: ASSET_CATEGORIES, collections });
+  const uncategorized = all.filter((asset) => !asset.category).length;
+
+  // Pagination: the asset grid pages through results instead of rendering
+  // every file at once. Omitting `limit` keeps the old "return everything"
+  // behaviour for the CLI/MCP clients.
+  const total = assets.length;
+  const limitParam = req.nextUrl.searchParams.get("limit");
+  const offset = Math.max(0, Number(req.nextUrl.searchParams.get("offset") ?? 0) || 0);
+  if (limitParam) {
+    const limit = Math.min(200, Math.max(1, Number(limitParam) || 48));
+    assets = assets.slice(offset, offset + limit);
+  }
+  const page = assets.map((asset) => {
+    if (!asset.mime_type.startsWith("video/")) return asset;
+    const poster = guestDb.findGenerationByMediaUrl(asset.url)?.poster_url ?? null;
+    return { ...asset, poster_url: poster };
+  });
+  return NextResponse.json({
+    assets: page, total, offset, hasMore: offset + page.length < total,
+    allTotal: all.length, uncategorized, counts,
+    categories: ASSET_CATEGORIES, categoryIds: CATEGORY_IDS, collections,
+  });
 }

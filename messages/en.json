@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "image": "Image",
+    "video": "Video",
+    "workflow": "Workflow",
+    "assets": "Assets",
+    "chat": "Chat",
+    "settings": "Settings",
+    "allAssets": "All assets"
+  },
+  "assets": {
+    "title": "All creative assets",
+    "sharedWith": "Shared with Seek · one file on disk",
+    "indexed": "indexed",
+    "uncategorized": "Uncategorized",
+    "searchPlaceholder": "Search assets, prompts, models",
+    "selected": "selected",
+    "clear": "Clear",
+    "deselectAll": "Deselect all",
+    "addToCollection": "Add to collection…",
+    "remove": "Remove",
+    "newCollection": "New collection",
+    "newSmartCollection": "New smart collection",
+    "collections": "Collections",
+    "categories": {
+      "characters": "Characters",
+      "props": "Props",
+      "environments": "Environments",
+      "styles": "Styles",
+      "scenes": "Scenes"
+    }
+  },
+  "gallery": {
+    "loading": "Loading…",
+    "upload": "Upload",
+    "generate": "Generate",
+    "delete": "Delete",
+    "download": "Download",
+    "downloading": "Downloading…",
+    "copied": "Copied!",
+    "copyPrompt": "Copy prompt",
+    "copy": "Copy",
+    "addReference": "Add reference",
+    "information": "Information",
+    "retry": "Retry",
+    "dismiss": "Dismiss"
+  },
+  "chat": {
+    "landingTitle": "I'm here to help you make better prompts.",
+    "landingSubtitle": "Give me a prompt and I'll make it better.",
+    "placeholders": {
+      "promptJson": "Convert this prompt into a JSON prompt",
+      "promptCamera": "Improve this prompt by giving more camera details",
+      "promptGenerate": "Generate a prompt to create an image of a girl holding a flower",
+      "promptCinematic": "Make this prompt more cinematic and add lighting details",
+      "promptPhotorealistic": "Rewrite this prompt for a photorealistic style"
+    },
+    "describePlaceholder": "Describe your image or video idea…",
+    "sendMessage": "Send a message…",
+    "copyResponse": "Copy response",
+    "copy": "Copy",
+    "copied": "Copied",
+    "newChat": "New chat"
+  },
+  "settings": {
+    "title": "Settings",
+    "nav": {
+      "api-keys": "API Keys",
+      "image-models": "Image Models",
+      "video-models": "Video Models",
+      "text-models": "Text Models",
+      "debug": "Debug"
+    },
+    "close": "Close (Esc)",
+    "save": "Save",
+    "saving": "Saving…",
+    "copy": "Copy",
+    "copied": "Copied"
+  }
+}

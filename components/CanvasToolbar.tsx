@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import {
   Plus, MousePointer2, Hand, Scissors, LayoutTemplate,
-  MessageSquare, Undo2, Redo2, Download,
+  MessageSquare, Undo2, Redo2, Download, Play, Square,
 } from "lucide-react";
 
 type ToolId = "select" | "hand" | "cut" | "frame" | "comment";
@@ -18,6 +18,9 @@ interface CanvasToolbarProps {
   onOpenSettings?: () => void;
   onExport?: () => void;
   exporting?: boolean;
+  isRunning?: boolean;
+  canRun?: boolean;
+  onRunAll?: () => void;
 }
 
 function Divider() {
@@ -75,10 +78,14 @@ export default function CanvasToolbar({
   canRedo = false,
   onExport,
   exporting = false,
+  isRunning = false,
+  canRun = false,
+  onRunAll,
 }: CanvasToolbarProps) {
   const [internalTool, setInternalTool] = useState<ToolId>("select");
   const [addHovered, setAddHovered] = useState(false);
   const [shareHovered, setShareHovered] = useState(false);
+  const [runHovered, setRunHovered] = useState(false);
   const activeTool = externalTool ?? internalTool;
 
   function selectTool(tool: ToolId) {
@@ -141,6 +148,31 @@ export default function CanvasToolbar({
       <Btn id="toolbar-redo" title="Redo (⌘⇧Z)" dimmed={!canRedo} onClick={() => onRedo?.()}>
         <Redo2 size={15} strokeWidth={1.8} />
       </Btn>
+
+      <Divider />
+
+      <button
+        id="toolbar-run"
+        title={isRunning ? "Running…" : "Run all (⌘↵)"}
+        onMouseEnter={() => setRunHovered(true)}
+        onMouseLeave={() => setRunHovered(false)}
+        onClick={() => { if (canRun && !isRunning) onRunAll?.(); }}
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: "34px", height: "34px", borderRadius: "10px",
+          border: "none", cursor: canRun && !isRunning ? "pointer" : "not-allowed", flexShrink: 0,
+          transition: "background 150ms, color 150ms, opacity 150ms",
+          background: isRunning
+            ? "rgba(239,68,68,0.15)"
+            : runHovered && canRun ? "rgba(59,130,246,0.20)" : "rgba(59,130,246,0.10)",
+          color: isRunning
+            ? "#F87171"
+            : canRun ? (runHovered ? "#93C5FD" : "rgba(96,165,250,0.9)") : "rgba(255,255,255,0.2)",
+          opacity: canRun || isRunning ? 1 : 0.5,
+        }}
+      >
+        {isRunning ? <Square size={13} strokeWidth={2} /> : <Play size={15} strokeWidth={2} />}
+      </button>
 
       {/* ── Bottom section: export ── */}
       <span style={{

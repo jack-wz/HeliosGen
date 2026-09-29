@@ -102,6 +102,7 @@ export function resolveInputs(
   startFrameUrl?: string;
   endFrameUrl?: string;
   videoRefUrl?: string;
+  videoUrl?: string;
   resources: Array<{ url: string; label: string }>;
   referenceVideoUrls: string[];
   referenceAudioUrls: string[];
@@ -114,6 +115,7 @@ export function resolveInputs(
     startFrameUrl:      undefined as string | undefined,
     endFrameUrl:        undefined as string | undefined,
     videoRefUrl:        undefined as string | undefined,
+    videoUrl:           undefined as string | undefined,
     prompt:             undefined as string | undefined,
     referenceVideoUrls: [] as string[],
     referenceAudioUrls: [] as string[],
@@ -129,6 +131,10 @@ export function resolveInputs(
     }
     if (src.type === "assistantNode") {
       result.prompt = src.data.outputText as string | undefined;
+    }
+    if (src.type === "llmGenerateNode" || src.type === "promptConstructorNode") {
+      const text = (src.data.outputText ?? src.data.text ?? src.data.prompt) as string | undefined;
+      if (text) result.prompt = text;
     }
 
     // "image" handle — multi-image input for generateNode (up to 14)
@@ -163,6 +169,11 @@ export function resolveInputs(
     if (edge.targetHandle === "videoRef") {
       const url = src.data.videoUrl as string | undefined;
       if (url) result.videoRefUrl = url;
+    }
+
+    if (edge.targetHandle === "video") {
+      const url = (src.data.videoUrl ?? src.data.r2Url) as string | undefined;
+      if (url) result.videoUrl = url;
     }
 
     // "referenceVideo" handle — multi-video references (e.g. Seedance)

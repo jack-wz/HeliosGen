@@ -18,6 +18,10 @@ import {
 import "@xyflow/react/dist/style.css";
 
 import { useWorkflowStore, NodeData } from "@/lib/store";
+import VideoTrimNode from "@/components/nodes/VideoTrimNode";
+import VideoFrameGrabNode from "@/components/nodes/VideoFrameGrabNode";
+import LLMGenerateNode from "@/components/nodes/LLMGenerateNode";
+import PromptConstructorNode from "@/components/nodes/PromptConstructorNode";
 import { requestWorkflowSync } from "@/lib/workflowSyncBus";
 import { VIDEO_MODELS } from "@/lib/modelConfig";
 import CuttableEdge from "@/components/edges/CuttableEdge";
@@ -25,7 +29,12 @@ import { topoSort, resolveInputs } from "@/lib/executor";
 import { NODE_SIZE, FALLBACK_SIZE, getLastNodeSettings, getDefaultNodeSize } from "@/lib/nodeTypes";
 import { edgeStyle } from "@/lib/edgeStyles";
 import { sha256Hex } from "@/lib/assetHash";
+import { copyText } from "@/lib/clipboard";
 import { detectTextMode } from "@/lib/textFormat";
+import { resizeImage } from "@/lib/imageResize";
+import { removeImageBackground } from "@/lib/backgroundRemoval";
+import { splitWithDimensions } from "@/lib/gridSplitter";
+import { persistNodeImage } from "@/lib/nodeOutput";
 
 import { motion } from "motion/react";
 import TypewriterHeading from "@/components/ui/TypewriterHeading";
@@ -37,6 +46,10 @@ import VideoGeneratorNode from "./nodes/VideoGeneratorNode";
 import AssistantNode from "./nodes/AssistantNode";
 import GroupNode from "./nodes/GroupNode";
 import CommentNode from "./nodes/CommentNode";
+import ImageResizeNode from "./nodes/ImageResizeNode";
+import RemoveBackgroundNode from "./nodes/RemoveBackgroundNode";
+import SplitGridNode from "./nodes/SplitGridNode";
+import ImageCompareNode from "./nodes/ImageCompareNode";
 import NodePickerMenu, { DropState } from "./NodePickerMenu";
 import SelectionToolbar from "./SelectionToolbar";
 import CanvasToolbar from "./CanvasToolbar";
@@ -61,6 +74,14 @@ const nodeTypes = {
   assistantNode: AssistantNode,
   groupNode: GroupNode,
   commentNode: CommentNode,
+  imageResizeNode: ImageResizeNode,
+  removeBackgroundNode: RemoveBackgroundNode,
+  splitGridNode: SplitGridNode,
+  imageCompareNode: ImageCompareNode,
+  videoTrimNode: VideoTrimNode,
+  videoFrameGrabNode: VideoFrameGrabNode,
+  llmGenerateNode: LLMGenerateNode,
+  promptConstructorNode: PromptConstructorNode,
 };
 
 const edgeTypes = {
@@ -641,7 +662,7 @@ export default function WorkflowCanvas() {
     // not real external text the user wants to paste as a prompt node.
     const sentinel = `__rf_nodes_${Date.now()}__`;
     nodeSentinelRef.current = sentinel;
-    navigator.clipboard.writeText(sentinel).catch(() => { });
+    void copyText(sentinel).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error"));
   }, [nodes, edges]);
 
   const handlePaste = useCallback(() => {
@@ -710,6 +731,18 @@ export default function WorkflowCanvas() {
       }
 
       const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.key === "Enter") {
+        const st = useWorkflowStore.getState();
+        const hasRunnable = st.nodes.some((n) =>
+          n.type === "generateNode" || n.type === "videoGeneratorNode" ||
+          n.type === "assistantNode" || n.type === "imageResizeNode" ||
+          n.type === "removeBackgroundNode" || n.type === "splitGridNode"
+        );
+        if (hasRunnable && !st.isRunning) {
+          e.preventDefault();
+          runAllRef.current();
+        }
+      }
       if (mod && (e.key === "z" || e.key === "Z")) {
         e.preventDefault();
         if (e.shiftKey) handleRedo(); else handleUndo();
@@ -1154,6 +1187,7 @@ export default function WorkflowCanvas() {
   const addToast   = useWorkflowStore((s) => s.addToast);
   const kieKeySet  = useWorkflowStore((s) => s.kieKeySet);
 
+  const runAllRef = useRef<() => void>(() => {});
   const runAll = useCallback(async () => {
     const token = await getAccessToken();
 
@@ -1165,6 +1199,60 @@ export default function WorkflowCanvas() {
     for (const nodeId of order) {
       const node = nodes.find((n) => n.id === nodeId) as Node<NodeData> | undefined;
       if (!node) continue;
+
+      // ── Image processors (browser-side, run inline during Run All) ─────────
+      if (node.type === "imageResizeNode" || node.type === "removeBackgroundNode" || node.type === "splitGridNode") {
+        const upstream = resolveInputs(nodeId, useWorkflowStore.getState().nodes as Node<NodeData>[], edges);
+        const srcImage = upstream.imageUrls[0];
+        if (!srcImage) {
+          updateNodeData(nodeId, { status: "error", errorMsg: "No input image" });
+          push(`[${node.id}] skipped — no input image`, false);
+          continue;
+        }
+        updateNodeData(nodeId, { status: "running", errorMsg: undefined });
+        try {
+          if (node.type === "imageResizeNode") {
+            push(`[${node.id}] resizing…`);
+            const result = await resizeImage(srcImage, {
+              mode: node.data.resizeMode ?? "maxEdge",
+              width: node.data.resizeWidth ?? 1024,
+              height: node.data.resizeHeight ?? 1024,
+              maxEdge: node.data.resizeMaxEdge ?? 1024,
+              scalePct: node.data.resizeScalePct ?? 50,
+              fit: node.data.resizeFit ?? "contain",
+              format: node.data.resizeFormat ?? "keep",
+              quality: node.data.resizeQuality ?? 0.9,
+            });
+            await persistNodeImage(updateNodeData, nodeId, result.dataUrl, {
+              outputWidth: result.width,
+              outputHeight: result.height,
+              outputBytes: result.bytes,
+            });
+          } else if (node.type === "removeBackgroundNode") {
+            push(`[${node.id}] removing background…`);
+            const resultUrl = await removeImageBackground(srcImage, {
+              model: node.data.bgModel ?? "isnet_fp16",
+            });
+            await persistNodeImage(updateNodeData, nodeId, resultUrl);
+          } else {
+            // splitGridNode: auto-split and pick the previously selected cell
+            push(`[${node.id}] splitting…`);
+            const rows = node.data.gridRows ?? 2;
+            const cols = node.data.gridCols ?? 2;
+            const { images } = await splitWithDimensions(srcImage, rows, cols);
+            const cell = images[node.data.selectedCell ?? 0];
+            if (!cell) throw new Error("Selected cell out of range");
+            await persistNodeImage(updateNodeData, nodeId, cell, { selectedCell: node.data.selectedCell ?? 0 });
+          }
+          updateNodeData(nodeId, { status: "done" });
+          push(`[${node.id}] done`);
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          updateNodeData(nodeId, { status: "error", errorMsg: msg });
+          push(`[${node.id}] error: ${msg}`, false);
+        }
+        continue;
+      }
 
       // ── Image generator ─────────────────────────────────────────────────────
       if (node.type === "generateNode") {
@@ -1386,6 +1474,7 @@ export default function WorkflowCanvas() {
     push("Complete");
     setIsRunning(false);
   }, [nodes, edges, updateNodeData, setIsRunning, debugMode, push, kieKeySet, addToast]);
+  useEffect(() => { runAllRef.current = runAll; }, [runAll]);
 
   // ── Place a node at the viewport center (used by the empty-state picker) ────
   const addNodeAtCenter = useCallback((type: string) => {
@@ -1652,6 +1741,11 @@ export default function WorkflowCanvas() {
           onOpenSettings={() => setSettingsOpen(true)}
           onExport={handleExport}
           exporting={exporting}
+          isRunning={isRunning}
+          canRun={canRun || nodes.some((n) =>
+            n.type === "imageResizeNode" || n.type === "removeBackgroundNode" || n.type === "splitGridNode"
+          )}
+          onRunAll={runAll}
         />
 
 

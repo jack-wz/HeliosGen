@@ -24,6 +24,7 @@ interface Generation {
   image_url?: string;
   image_urls?: string[];
   video_url?: string;
+  poster_url?: string;
   error_msg?: string;
   created_at: string;
   updated_at: string;
@@ -34,6 +35,7 @@ interface Upload {
   user_id: string;
   r2_url: string;
   mime_type?: string | null;
+  aspect_ratio?: string;
   source: string;
   created_at: string;
 }
@@ -63,6 +65,8 @@ export interface CreativeAsset {
   url: string;
   name: string;
   category: string | null;
+  manual_category_id: string | null;
+  asset_tags: string[] | undefined;
   mime_type: string;
   source: string;
   description: string | null;
@@ -109,6 +113,7 @@ function rowToGeneration(r: GenRow): Generation {
     image_url: (r.image_url as string) ?? undefined,
     image_urls: parseArr(r.image_urls),
     video_url: (r.video_url as string) ?? undefined,
+    poster_url: (r.poster_url as string) ?? undefined,
     error_msg: (r.error_msg as string) ?? undefined,
     created_at: r.created_at as string,
     updated_at: r.updated_at as string,
@@ -128,8 +133,8 @@ export function insertGeneration(data: Omit<Generation, "id" | "created_at" | "u
       INSERT INTO generations
         (id, user_id, task_id, generation_type, status, prompt, model, aspect_ratio,
          quality, azure_resolution, duration, kling_mode, sound, reference_image_urls,
-         image_url, image_urls, video_url, error_msg, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         image_url, image_urls, video_url, poster_url, error_msg, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(task_id) DO NOTHING
     `)
     .run(
@@ -139,20 +144,22 @@ export function insertGeneration(data: Omit<Generation, "id" | "created_at" | "u
       data.sound ? 1 : 0,
       data.reference_image_urls ? JSON.stringify(data.reference_image_urls) : null,
       data.image_url ?? null, data.image_urls ? JSON.stringify(data.image_urls) : null,
-      data.video_url ?? null, data.error_msg ?? null, ts, ts,
+      data.video_url ?? null, data.poster_url ?? null, data.error_msg ?? null, ts, ts,
     );
 }
 
 export function updateGeneration(
   taskId: string,
-  updates: Partial<Pick<Generation, "status" | "image_url" | "image_urls" | "video_url" | "error_msg">>,
+  updates: Partial<Pick<Generation, "status" | "image_url" | "image_urls" | "video_url" | "poster_url" | "error_msg" | "aspect_ratio">>,
 ): void {
   const sets: string[] = ["updated_at = ?"];
   const vals: unknown[] = [now()];
   if ("status" in updates) { sets.push("status = ?"); vals.push(updates.status ?? null); }
   if ("image_url" in updates) { sets.push("image_url = ?"); vals.push(updates.image_url ?? null); }
   if ("image_urls" in updates) { sets.push("image_urls = ?"); vals.push(updates.image_urls ? JSON.stringify(updates.image_urls) : null); }
+  if ("aspect_ratio" in updates) { sets.push("aspect_ratio = ?"); vals.push(updates.aspect_ratio ?? null); }
   if ("video_url" in updates) { sets.push("video_url = ?"); vals.push(updates.video_url ?? null); }
+  if ("poster_url" in updates) { sets.push("poster_url = ?"); vals.push(updates.poster_url ?? null); }
   if ("error_msg" in updates) { sets.push("error_msg = ?"); vals.push(updates.error_msg ?? null); }
   vals.push(taskId);
   db().prepare(`UPDATE generations SET ${sets.join(", ")} WHERE task_id = ?`).run(...(vals as never[]));
@@ -185,10 +192,10 @@ export function deleteGeneration(id: string, userId: string): void {
 
 // ── Uploads ────────────────────────────────────────────────────────────────
 
-export function insertUpload(data: Omit<Upload, "id" | "created_at">): void {
+export function insertUpload(data: Omit<Upload, "id" | "created_at"> & { aspect_ratio?: string | null }): void {
   db()
-    .prepare("INSERT INTO uploads (id, user_id, r2_url, mime_type, source, created_at) VALUES (?, ?, ?, ?, ?, ?)")
-    .run(randomUUID(), data.user_id, data.r2_url, data.mime_type ?? null, data.source, now());
+    .prepare("INSERT INTO uploads (id, user_id, r2_url, mime_type, aspect_ratio, source, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    .run(randomUUID(), data.user_id, data.r2_url, data.mime_type ?? null, data.aspect_ratio ?? null, data.source, now());
 }
 
 export function getUploads(userId: string, mimeTypePrefix: string): Upload[] {
@@ -202,10 +209,11 @@ export function getUploads(userId: string, mimeTypePrefix: string): Upload[] {
   return rows.map((r) => ({
     id: r.id as string,
     user_id: r.user_id as string,
-    r2_url: r.r2_url as string,
-    mime_type: (r.mime_type as string) ?? null,
-    source: r.source as string,
-    created_at: r.created_at as string,
+      r2_url: r.r2_url as string,
+      mime_type: (r.mime_type as string) ?? null,
+      aspect_ratio: (r.aspect_ratio as string) ?? undefined,
+      source: r.source as string,
+      created_at: r.created_at as string,
   }));
 }
 
@@ -219,7 +227,7 @@ export function ensureUploadForAsset(url: string, mimeType: string, source = "as
   insertUpload({ user_id: "guest", r2_url: url, mime_type: mimeType, source });
 }
 
-export function findGenerationByMediaUrl(url: string): Pick<Generation, "prompt" | "model" | "created_at"> | null {
+export function findGenerationByMediaUrl(url: string): Pick<Generation, "prompt" | "model" | "created_at" | "poster_url"> | null {
   const rows = db().prepare(`
     SELECT * FROM generations
     WHERE status = 'done' AND (
@@ -230,7 +238,7 @@ export function findGenerationByMediaUrl(url: string): Pick<Generation, "prompt"
   for (const row of rows) {
     const generation = rowToGeneration(row);
     if (generation.image_url === url || generation.video_url === url || generation.image_urls?.includes(url)) {
-      return { prompt: generation.prompt, model: generation.model, created_at: generation.created_at };
+      return { prompt: generation.prompt, model: generation.model, created_at: generation.created_at, poster_url: generation.poster_url };
     }
   }
   return null;
@@ -246,6 +254,8 @@ function rowToCreativeAsset(r: Record<string, unknown>): CreativeAsset {
     url: r.url as string,
     name: r.name as string,
     category: (r.category as string) ?? null,
+    manual_category_id: (r.manual_category_id as string) ?? null,
+    asset_tags: parseArr(r.asset_tags),
     mime_type: r.mime_type as string,
     source: r.source as string,
     description: (r.description as string) ?? null,
@@ -259,16 +269,20 @@ function rowToCreativeAsset(r: Record<string, unknown>): CreativeAsset {
 
 export function upsertCreativeAsset(data: Omit<CreativeAsset, "id" | "created_at" | "updated_at">): CreativeAsset {
   const ts = now();
-  const current = db().prepare("SELECT id, created_at FROM creative_assets WHERE relative_path = ?")
-    .get(data.relative_path) as { id: string; created_at: string } | undefined;
+  const current = db().prepare("SELECT id, created_at, manual_category_id, asset_tags FROM creative_assets WHERE relative_path = ?")
+    .get(data.relative_path) as { id: string; created_at: string; manual_category_id: string | null; asset_tags: string | null } | undefined;
   const id = current?.id ?? randomUUID();
+  const manualCat = data.manual_category_id ?? current?.manual_category_id ?? null;
+  const tags = data.asset_tags?.length ? JSON.stringify(data.asset_tags) : (current?.asset_tags ?? null);
   db().prepare(`
     INSERT INTO creative_assets
-      (id, user_id, relative_path, url, name, category, mime_type, source,
+      (id, user_id, relative_path, url, name, category, manual_category_id, asset_tags, mime_type, source,
        description, prompt, model, seek_guid, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(relative_path) DO UPDATE SET
       url = excluded.url, name = excluded.name, category = COALESCE(excluded.category, creative_assets.category),
+      manual_category_id = COALESCE(excluded.manual_category_id, creative_assets.manual_category_id),
+      asset_tags = COALESCE(excluded.asset_tags, creative_assets.asset_tags),
       mime_type = excluded.mime_type, source = excluded.source,
       description = COALESCE(excluded.description, creative_assets.description),
       prompt = COALESCE(excluded.prompt, creative_assets.prompt),
@@ -276,7 +290,7 @@ export function upsertCreativeAsset(data: Omit<CreativeAsset, "id" | "created_at
       seek_guid = COALESCE(excluded.seek_guid, creative_assets.seek_guid),
       updated_at = excluded.updated_at
   `).run(
-    id, data.user_id, data.relative_path, data.url, data.name, data.category,
+    id, data.user_id, data.relative_path, data.url, data.name, data.category, manualCat, tags,
     data.mime_type, data.source, data.description, data.prompt, data.model,
     data.seek_guid, current?.created_at ?? ts, ts,
   );
@@ -307,13 +321,14 @@ export function getCreativeAsset(id: string, userId: string): CreativeAsset | nu
 export function updateCreativeAsset(
   id: string,
   userId: string,
-  updates: Partial<Pick<CreativeAsset, "name" | "category" | "description" | "prompt" | "model" | "seek_guid">>,
+  updates: Partial<Pick<CreativeAsset, "name" | "category" | "manual_category_id" | "asset_tags" | "description" | "prompt" | "model" | "seek_guid">>,
 ): CreativeAsset | null {
   const sets = ["updated_at = ?"];
   const values: unknown[] = [now()];
-  for (const key of ["name", "category", "description", "prompt", "model", "seek_guid"] as const) {
+  for (const key of ["name", "category", "manual_category_id", "description", "prompt", "model", "seek_guid"] as const) {
     if (key in updates) { sets.push(`${key} = ?`); values.push(updates[key] ?? null); }
   }
+  if ("asset_tags" in updates) { sets.push("asset_tags = ?"); values.push(updates.asset_tags?.length ? JSON.stringify(updates.asset_tags) : null); }
   values.push(id, userId);
   db().prepare(`UPDATE creative_assets SET ${sets.join(", ")} WHERE id = ? AND user_id = ?`)
     .run(...(values as never[]));
@@ -323,8 +338,18 @@ export function updateCreativeAsset(
 function collectionMatches(asset: CreativeAsset, rule: Record<string, string> | null): boolean {
   if (!rule) return true;
   if (rule.category && asset.category !== rule.category) return false;
+  if (rule.manualCategoryId && asset.manual_category_id !== rule.manualCategoryId) return false;
   if (rule.source && asset.source !== rule.source) return false;
   if (rule.mimeType && !asset.mime_type.startsWith(rule.mimeType)) return false;
+  if (rule.mediaType) {
+    const isVideo = asset.mime_type.startsWith("video/");
+    if (rule.mediaType === "video" && !isVideo) return false;
+    if (rule.mediaType === "image" && isVideo) return false;
+  }
+  if (rule.tag) {
+    const tags = asset.asset_tags ?? [];
+    if (!tags.some(tag => tag.toLowerCase() === rule.tag!.toLowerCase())) return false;
+  }
   if (rule.query) {
     const haystack = [asset.name, asset.description, asset.prompt, asset.model].filter(Boolean).join(" ").toLowerCase();
     if (!haystack.includes(rule.query.toLowerCase())) return false;
@@ -404,18 +429,18 @@ export function storeAssetHash(hash: string, cdnUrl: string, mimeType: string, b
 
 // ── Settings ───────────────────────────────────────────────────────────────
 
-function getSetting(key: string): string | null {
+export function getSetting(key: string): string | null {
   const r = db().prepare("SELECT value FROM settings WHERE key = ?").get(key) as
     | { value: string }
     | undefined;
   return r?.value ?? null;
 }
-function setSetting(key: string, value: string): void {
+export function setSetting(key: string, value: string): void {
   db()
     .prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
     .run(key, value);
 }
-function deleteSetting(key: string): void {
+export function deleteSetting(key: string): void {
   db().prepare("DELETE FROM settings WHERE key = ?").run(key);
 }
 

@@ -120,7 +120,14 @@ export const api = {
   generateVideo: (payload) => request("/api/generate-video", { method: "POST", json: payload, timeoutMs: 300_000 }),
 
   workflows: () => request("/api/workflows"),
+  providers: () => request("/api/providers"),
+  providerGet: (id) => request(`/api/providers/${encodeURIComponent(id)}`),
+  providerKeySet: (id, apiKey) => request(`/api/providers/${encodeURIComponent(id)}`, { method: "POST", json: { apiKey } }),
+  providerKeyDelete: (id) => request(`/api/providers/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  skills: ({ ids, scope } = {}) => request(`/api/skills?${new URLSearchParams({ ...(ids ? { ids } : {}), ...(scope ? { scope } : {}) })}`),
+  capabilities: () => request("/api/capabilities"),
   workflowGet: (id) => request(`/api/workflows/${encodeURIComponent(id)}`),
+  workflowAction: (id, action, patch) => request(`/api/workflows/${encodeURIComponent(id)}`, { method: "POST", json: { action, patch } }),
   workflowPut: (id, space) => request(`/api/workflows/${encodeURIComponent(id)}`, { method: "PUT", json: space }),
   workflowDelete: (id) => request(`/api/workflows/${encodeURIComponent(id)}`, { method: "DELETE" }),
 };

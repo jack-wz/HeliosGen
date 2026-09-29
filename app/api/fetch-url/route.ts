@@ -6,7 +6,7 @@
  * Returns: { cdnUrl: string; mediaType: "image" | "video" }
  */
 import { NextRequest, NextResponse } from "next/server";
-import { uploadBuffer } from "@/lib/storage";
+import { uploadImageWithRatio, uploadBuffer } from "@/lib/storage";
 import { GUEST_USER_ID } from "@/lib/guestMode";
 import * as guestDb from "@/lib/guest/db";
 
@@ -55,11 +55,19 @@ export async function POST(req: NextRequest) {
     }
 
     const folder = isVideo ? "references" : "uploads";
-    const cdnUrl = await uploadBuffer(buffer, mimeType, folder);
+    let cdnUrl: string;
+    let aspectRatio: string | undefined;
+    if (isImage) {
+      const result = await uploadImageWithRatio(buffer, mimeType, folder);
+      cdnUrl = result.url;
+      aspectRatio = result.aspectRatio;
+    } else {
+      cdnUrl = await uploadBuffer(buffer, mimeType, folder);
+    }
     const mediaType: "image" | "video" = isImage ? "image" : "video";
 
     // Record in uploads so it appears in the gallery "uploaded" section
-    guestDb.insertUpload({ user_id: GUEST_USER_ID, r2_url: cdnUrl, mime_type: mimeType, source: "user_upload" });
+    guestDb.insertUpload({ user_id: GUEST_USER_ID, r2_url: cdnUrl, mime_type: mimeType, aspect_ratio: aspectRatio, source: "user_upload" });
 
     return NextResponse.json({ cdnUrl, mediaType });
   } catch (e: unknown) {

@@ -4,12 +4,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.nas
-    image: heliosgen:nas-f4aae3f
+    image: heliosgen:nas-http-20260915
     container_name: heliosgen
     restart: unless-stopped
     init: true
     ports:
       - "127.0.0.1:17860:3000"
+      - "192.168.1.185:17860:3000"
     environment:
       TZ: Asia/Shanghai
       HELIOS_WEB: "1"
@@ -24,6 +25,8 @@ services:
     volumes:
       - /vol1/1000/HeliosGen/data/db:/data/db
       - /vol1/@team/AIGC 创作/创作资产:/data/media
+      # Keep resized thumbnails across rebuilds so a redeploy is not a cold cache.
+      - /vol1/1000/HeliosGen/data/cache/next-images:/app/.next/cache/images
     mem_limit: 2g
     cpus: 2.0
     security_opt:

@@ -19,12 +19,17 @@ const SECTIONS: Array<{ id: string; label: string; nodeTypes: string[] }> = [
   {
     id: "generators",
     label: "GENERATORS",
-    nodeTypes: ["generateNode", "videoGeneratorNode", "assistantNode"],
+    nodeTypes: ["generateNode", "videoGeneratorNode", "assistantNode", "llmGenerateNode"],
   },
   {
     id: "resources",
     label: "INPUTS",
-    nodeTypes: ["promptNode"],
+    nodeTypes: ["promptNode", "promptConstructorNode"],
+  },
+  {
+    id: "processors",
+    label: "PROCESSORS",
+    nodeTypes: ["imageResizeNode", "removeBackgroundNode", "splitGridNode", "imageCompareNode", "videoTrimNode", "videoFrameGrabNode"],
   },
   {
     id: "annotate",

@@ -40,6 +40,8 @@ MEDIA_EXTENSIONS = {
     ".mp4", ".webm", ".mov",
     ".mp3", ".wav", ".m4a",
 }
+# Helios 自己生成的目录（视频封面、抠图模型缓存），不作为创作资产导入。
+SYSTEM_DIRS = {"posters", "bgremoval"}
 
 
 def load_state() -> dict[str, str]:
@@ -97,9 +99,13 @@ def seek_files(folder_guid: str, base_relative=""):
         current = base_relative
     for item in payload.get("files") or []:
         relative = f"{current}/{item['name']}".strip("/")
+        if relative.split("/")[0] in SYSTEM_DIRS:
+            continue
         if Path(relative).suffix.lower() in MEDIA_EXTENSIONS:
             yield (relative, item)
     for folder in payload.get("folders") or []:
+        if not current and folder["name"] in SYSTEM_DIRS:
+            continue
         yield from seek_files(folder["guid"], f"{current}/{folder['name']}".strip("/"))
 
 

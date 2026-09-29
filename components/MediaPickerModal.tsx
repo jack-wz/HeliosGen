@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GalleryItem, galleryCache, getToken, thumbSrc } from "@/lib/galleryUtils";
+import { videoPosterUrl } from "@/lib/mediaPreview";
 
 type TabId = "uploads" | "image-gen" | "video-gen";
 
@@ -610,11 +611,11 @@ export function MediaPickerModal({
                     {item.mediaType === "video" ? (
                       <video
                         src={item.url}
+                        poster={videoPosterUrl(item.url, item.posterUrl, 160)}
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="none"
                         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                        onLoadedMetadata={(e) => { (e.target as HTMLVideoElement).currentTime = 0.001; }}
                       />
                     ) : (
                       <PickerImage src={item.url} />

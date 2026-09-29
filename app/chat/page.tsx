@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useChatSessionStore, type StoredMessage, type ChatSession } from "@/lib/chatSessionStore";
 import { getToken } from "@/lib/galleryUtils";
+import { copyText } from "@/lib/clipboard";
 import { MODEL_GROUPS, MODELS, type ModelId } from "@/lib/models";
 import { SYSTEM_PROMPT } from "@/lib/systemPrompt";
 import { Send, ChevronUp, Copy, Check } from "lucide-react";
@@ -13,6 +14,7 @@ import Image from "next/image";
 import DotCanvasBackground from "@/components/ui/DotCanvasBackground";
 import TypewriterHeading from "@/components/ui/TypewriterHeading";
 import { useWorkflowStore } from "@/lib/store";
+import { useTranslations } from "next-intl";
 import { loadAzureBaseUrl, loadAzureTextDeployment, loadAzureTextModelName } from "@/components/SettingsModal";
 
 // ── Logo ──────────────────────────────────────────────────────────────────────
@@ -125,15 +127,11 @@ function ModelPicker({
 
 // ── Cycling placeholder ───────────────────────────────────────────────────────
 
-const PLACEHOLDER_SENTENCES = [
-  "Convert this prompt into a JSON prompt",
-  "Improve this prompt by giving more camera details",
-  "Generate a prompt to create an image of a girl holding a flower",
-  "Make this prompt more cinematic and add lighting details",
-  "Rewrite this prompt for a photorealistic style",
+const PLACEHOLDER_KEYS = [
+  "promptJson", "promptCamera", "promptGenerate", "promptCinematic", "promptPhotorealistic",
 ];
 
-function useCyclingPlaceholder(paused: boolean) {
+function useCyclingPlaceholder(sentences: string[], paused: boolean) {
   const [text, setText] = useState("");
   const idx = useRef(0);
   const phase = useRef<"typing" | "waiting" | "deleting">("typing");
@@ -145,7 +143,7 @@ function useCyclingPlaceholder(paused: boolean) {
     let timeout: ReturnType<typeof setTimeout>;
 
     function tick() {
-      const sentence = PLACEHOLDER_SENTENCES[idx.current];
+      const sentence = sentences[idx.current];
 
       if (phase.current === "typing") {
         char.current++;
@@ -163,7 +161,7 @@ function useCyclingPlaceholder(paused: boolean) {
         char.current--;
         setText(sentence.slice(0, char.current));
         if (char.current <= 0) {
-          idx.current = (idx.current + 1) % PLACEHOLDER_SENTENCES.length;
+          idx.current = (idx.current + 1) % sentences.length;
           phase.current = "typing";
           timeout = setTimeout(tick, 300);
         } else {
@@ -174,7 +172,7 @@ function useCyclingPlaceholder(paused: boolean) {
 
     timeout = setTimeout(tick, 400);
     return () => clearTimeout(timeout);
-  }, [paused]);
+  }, [paused, sentences]);
 
   return text;
 }
@@ -189,10 +187,13 @@ function LandingView({
   model: ModelId;
   onModelChange: (id: ModelId) => void;
 }) {
+  const tChat = useTranslations("chat");
   const [input, setInput] = useState("");
   const [headingDone, setHeadingDone] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const animatedPlaceholder = useCyclingPlaceholder(!headingDone || input.length > 0);
+  const tPlaceholders = useTranslations("chat.placeholders");
+  const placeholderSentences = PLACEHOLDER_KEYS.map(key => tPlaceholders(key));
+  const animatedPlaceholder = useCyclingPlaceholder(placeholderSentences, !headingDone || input.length > 0);
   const kieKeySet   = useWorkflowStore((s) => s.kieKeySet);
   const azureKeySet = useWorkflowStore((s) => s.azureKeySet);
   const disabledIds = azureKeySet === true ? [] : ["azure-auto"];
@@ -220,14 +221,14 @@ function LandingView({
       <LogoIcon size={48} />
 
       {/* Title */}
-      <TypewriterHeading text="I'm here to help you make better prompts." onDone={() => setHeadingDone(true)} />
+      <TypewriterHeading text={tChat("landingTitle")} onDone={() => setHeadingDone(true)} />
       <motion.p
         initial={{ filter: "blur(10px)", opacity: 0 }}
         animate={{ filter: "blur(0px)", opacity: 1 }}
         transition={{ duration: 1 }}
         style={{ color: "rgba(255,255,255,0.4)", fontSize: "15px", marginBottom: "40px", textAlign: "center" }}
       >
-        Give me a prompt and I&apos;ll make it better.
+        {tChat("landingSubtitle")}
       </motion.p>
 
       {/* Input + suggestions */}
@@ -304,6 +305,7 @@ function ChatWindow({
   onAuthRequired?: () => void;
   initialMessage?: string;
 }) {
+  const tChat = useTranslations("chat");
   const [isStreaming, setIsStreaming] = useState(false);
   const [messages, setMessages] = useState<LiveMessage[]>(() =>
     session.messages.map((m) => ({ ...m }))
@@ -444,7 +446,7 @@ function ChatWindow({
     return (
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 24px 80px", minWidth: 0 }}>
         <LogoIcon size={48} />
-        <TypewriterHeading text="I'm here to help you make better prompts." />
+        <TypewriterHeading text={tChat("landingTitle")} />
         <div style={{ width: "100%", maxWidth: "680px" }}>
           <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "18px", padding: "10px 10px 10px 20px", transition: "border-color 150ms" }}>
             <textarea
@@ -452,7 +454,7 @@ function ChatWindow({
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={onKey}
-              placeholder="Describe your image or video idea…"
+              placeholder={tChat("describePlaceholder")}
               rows={1}
               style={{ flex: 1, background: "transparent", border: "none", outline: "none", resize: "none", color: "rgba(255,255,255,0.88)", fontSize: "15px", fontFamily: "inherit", lineHeight: "24px", maxHeight: "120px", overflowY: "auto", padding: 0 }}
               onInput={e => { const t = e.currentTarget; t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 120) + "px"; }}
@@ -508,11 +510,12 @@ function ChatWindow({
               {m.role === "assistant" && !m.streaming && m.content && (
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(m.content);
-                    setCopiedIdx(i);
-                    setTimeout(() => setCopiedIdx(null), 1500);
+                    void copyText(m.content).then(() => {
+                      setCopiedIdx(i);
+                      setTimeout(() => setCopiedIdx(null), 1500);
+                    }).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error"));
                   }}
-                  title="Copy response"
+                  title={tChat("copyResponse")}
                   style={{
                     marginTop: "4px",
                     display: "flex", alignItems: "center", gap: "4px",
@@ -525,7 +528,7 @@ function ChatWindow({
                   onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = copiedIdx === i ? "rgba(45,212,191,0.8)" : "rgba(255,255,255,0.25)"; (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
                 >
                   {copiedIdx === i ? <Check size={11} /> : <Copy size={11} />}
-                  {copiedIdx === i ? "Copied" : "Copy"}
+                  {copiedIdx === i ? tChat("copied") : tChat("copy")}
                 </button>
               )}
             </div>
@@ -548,7 +551,7 @@ function ChatWindow({
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={onKey}
-            placeholder="Send a message…"
+            placeholder={tChat("sendMessage")}
             rows={1}
             disabled={isStreaming}
             style={{

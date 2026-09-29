@@ -6,6 +6,7 @@ import { Handle, Position, NodeProps, Node, useUpdateNodeInternals } from "@xyfl
 import CornerResizer from "./CornerResizer";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { sha256Hex } from "@/lib/assetHash";
+import { MediaPickerModal } from "../MediaPickerModal";
 
 
 type ImageInputNodeType = Node<NodeData, "imageInputNode">;
@@ -19,6 +20,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
   const fileRef        = useRef<HTMLInputElement>(null);
   const rootRef        = useRef<HTMLDivElement>(null);
   const updateNodeInternals = useUpdateNodeInternals();
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Persistent ResizeObserver — fires as image aspect ratio drives CSS height changes,
   // keeping group bounds in sync throughout the transition.
@@ -166,6 +168,35 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
       if (file?.type.startsWith("image/")) loadFile(file);
     },
     [loadFile]
+  );
+
+  // Source 3: pick an existing asset from the generated/uploaded library.
+  // The asset already lives on the server (/generated/...), so no re-upload —
+  // r2Url is set directly.
+  const pickFromLibrary = useCallback(
+    (url: string) => {
+      setPickerOpen(false);
+      const img = new window.Image();
+      img.onload = () => {
+        updateNodeData(id, {
+          inputImage:        url,
+          r2Url:             url,
+          imageNaturalRatio: `${img.naturalWidth} / ${img.naturalHeight}`,
+        });
+      };
+      img.src = url;
+    },
+    [id, updateNodeData]
+  );
+
+  const libraryPicker = (
+    <MediaPickerModal
+      open={pickerOpen}
+      mediaKind="image"
+      onClose={() => setPickerOpen(false)}
+      onPickUrl={(url) => pickFromLibrary(url)}
+      anchorRef={rootRef}
+    />
   );
 
   // ── Two-layer crossfade: old image stays visible until new one fades in ─────
@@ -335,13 +366,20 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           </div>
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center px-2.5 opacity-0 group-hover:opacity-100 transition-opacity node-slide-reveal">
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 px-2.5 opacity-0 group-hover:opacity-100 transition-opacity node-slide-reveal">
             <button
               onMouseDown={(e) => e.stopPropagation()}
               onClick={() => { fileRef.current?.click(); }}
               className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors relative z-10"
             >
               replace
+            </button>
+            <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={() => setPickerOpen(true)}
+              className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors relative z-10"
+            >
+              library
             </button>
           </div>
         </div>
@@ -389,6 +427,8 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
             if (f) loadFile(f);
           }}
         />
+
+        {libraryPicker}
 
         {/* Lightbox — full-quality view on double-click */}
         {lightboxOpen && typeof document !== "undefined" && createPortal(
@@ -503,6 +543,12 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
             if (v) setImage(v);
           }}
         />
+        <button
+          onClick={() => setPickerOpen(true)}
+          className="mt-2 w-full h-7 rounded-md border border-[#1E2840] text-[11px] text-[#A0A0A0] hover:text-white hover:border-[#243050] transition-colors"
+        >
+          Pick from library
+        </button>
       </div>
 
       <input
@@ -515,6 +561,8 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
           if (f) loadFile(f);
         }}
       />
+
+      {libraryPicker}
     </div>
   );
 }
@@ -536,5 +584,3 @@ function PromptIcon() {
     </svg>
   );
 }
-
-

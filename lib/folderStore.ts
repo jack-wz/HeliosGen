@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { createBrowserId } from "./browserId";
 
 export interface Folder {
   id: string;
@@ -116,7 +117,7 @@ export const useFolderStore = create<FolderState>()(
           : 0;
 
         const optimistic: Folder = {
-          id: typeof crypto !== "undefined" ? crypto.randomUUID() : Math.random().toString(36).slice(2),
+          id: createBrowserId(),
           name,
           parentId: parentId ?? null,
           orderIndex,

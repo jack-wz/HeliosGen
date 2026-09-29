@@ -8,7 +8,7 @@
  */
 import { mirrorToStorage, ensureStorage } from "./guest/localStorage";
 
-export { uploadBuffer, uploadDataUrl, mirrorToStorage, ensureStorage } from "./guest/localStorage";
+export { uploadBuffer, uploadDataUrl, mirrorToStorage, ensureStorage, uploadImageWithRatio } from "./guest/localStorage";
 
 /** Legacy names kept so call sites don't churn — both write to local disk. */
 export const mirrorToR2 = mirrorToStorage;

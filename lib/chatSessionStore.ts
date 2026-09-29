@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { createBrowserId } from "./browserId";
 
 export interface StoredMessage {
   role: "user" | "assistant";
@@ -34,7 +35,7 @@ export const useChatSessionStore = create<ChatSessionState>()(
       setPreferredModel: (model) => set({ preferredModel: model }),
 
       createSession: (model, title) => {
-        const id = crypto.randomUUID();
+        const id = createBrowserId();
         const now = Date.now();
         set(s => ({
           sessions: [

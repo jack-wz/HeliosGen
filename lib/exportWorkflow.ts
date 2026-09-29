@@ -9,6 +9,7 @@
  * disk paths — and round-trips through `lib/importWorkflow.ts`.
  */
 import { makeZip, type ZipEntry } from "./makeZip";
+import { sha256Hex } from "./assetHash";
 import type { Space } from "./store";
 
 export const WORKFLOW_FORMAT = "heliosgen-workflow";
@@ -42,10 +43,7 @@ function extFromUrl(url: string, contentType?: string): string {
 }
 
 async function sha16(bytes: ArrayBuffer): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest).slice(0, 8))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return (await sha256Hex(bytes)).slice(0, 16);
 }
 
 function dataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType: string } {

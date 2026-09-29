@@ -1,6 +1,8 @@
 # HeliosGen 飞牛 NAS 部署
 
-访问地址：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接同一 Tailscale 网络）。
+局域网访问：<http://192.168.1.185:17860/>（设备与 NAS 在同一局域网）。
+
+HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接同一 Tailscale 网络）。
 
 源码：[SegFault42/HeliosGen](https://github.com/SegFault42/HeliosGen)，版本 `1.2.0`，提交 `f4aae3f154474fc73e4e019deabad68fa686552a`。这是基于官方 Next.js 服务的 NAS 适配部署；上游主要发行桌面应用。
 
@@ -11,8 +13,8 @@
 - 数据库、设置、任务状态：`/vol1/1000/HeliosGen/data/db`
 - 上传、生成及创作资产：`/vol1/@team/AIGC 创作/创作资产`（HeliosGen 与 Seek 共用同一批文件）
 - 同步桥接状态：`/vol1/1000/HeliosGen/data/bridge`
-- Docker 镜像：`heliosgen:nas-f4aae3f`，Linux amd64
-- 后端只监听 NAS 回环地址 `127.0.0.1:17860`；Tailscale Serve 在私有 HTTPS 端口 `9443` 代理它。
+- Docker 镜像：`heliosgen:nas-http-20260915`，Linux amd64
+- 后端同时监听 NAS 回环地址 `127.0.0.1:17860` 与局域网地址 `192.168.1.185:17860`；Tailscale Serve 在私有 HTTPS 端口 `9443` 代理回环入口。浏览器里的 `127.0.0.1` 指当前设备，其他局域网设备应使用 NAS 地址。NAS 局域网 IP 变更时需同步更新 Compose 的端口绑定。
 - HeliosGen 主容器以非 root 用户运行；`asset-bridge` 仅以只读方式挂载媒体，监听 inotify 事件并同步两个索引。两者均自动重启并滚动保存日志。
 
 ## 首次使用
@@ -75,7 +77,10 @@ token 备份在 NAS 本地 `/home/wyai/heliosgen/.seek-token.bak` 和本地机�
 - 构建变量 `NEXT_PUBLIC_HELIOS_WEB=1`：外部链接由访问者的浏览器打开。
 - 运行变量 `HELIOS_WEB=1`：停用 NAS 服务器上的桌面 URL 打开接口。
 - 抽帧和裁剪接口支持 NAS 保存的 `/generated/...` 视频路径，并检查路径及符号链接边界。
-- HTTPS 为上传哈希、随机 ID、剪贴板等浏览器功能提供安全上下文。
+- 局域网 HTTP 支持文件上传哈希、工作流媒体导出、创建文件夹/聊天和复制文本。SHA-256 在缺少 Web Crypto 时使用 `@noble/hashes`；UUID 使用 `getRandomValues`；复制文本在按钮点击或快捷键中使用兼容路径，并在失败时明确提示。
+- HTTPS 入口仍然可用。HTTP 兼容不会改变浏览器的安全设置，也不为要求安全上下文的其他浏览器功能提供豁免。
+
+HTTP 兼容回归：`node --test scripts/test-http-hash.mjs scripts/test-browser-id.mjs` 与 `node scripts/test-http-clipboard.mjs`。NAS 原版本及配置备份位于 `/home/wyai/heliosgen-http-backup-20260915`。
 
 验证结果记录在本地 `deployment/deployment.json` 与 `deployment/smoke-results.json`。无 API Key 时不进行付费生成验证。
 

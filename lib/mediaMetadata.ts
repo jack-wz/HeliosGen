@@ -35,3 +35,17 @@ export async function stripMetadata(buffer: Buffer, contentType: string): Promis
   }
   return buffer;
 }
+
+/** Read pixel dimensions from an image buffer and return the aspect ratio
+ *  as a "w:h" string (e.g. "1024:768") for gallery layout without probing. */
+export async function getImageAspectRatio(buffer: Buffer): Promise<string | undefined> {
+  try {
+    const meta = await sharp(buffer).metadata();
+    if (meta.width && meta.height && meta.width > 0 && meta.height > 0) {
+      return `${meta.width}:${meta.height}`;
+    }
+  } catch {
+    // Not an image, or sharp cannot read it — leave undefined.
+  }
+  return undefined;
+}

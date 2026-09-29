@@ -1,8 +1,8 @@
 // Shared node type definitions — imported by both Sidebar and NodePickerMenu
 import React from "react";
-import { MessageSquare, Image, Film, Sparkles, Bot, Clapperboard, StickyNote } from "lucide-react";
+import { MessageSquare, Image, Film, Sparkles, Bot, Clapperboard, StickyNote, Scaling, Eraser, LayoutGrid, ArrowLeftRight, Scissors, Camera } from "lucide-react";
 
-export type NodeCategory = "generators" | "resources";
+export type NodeCategory = "generators" | "resources" | "processors";
 
 export const NODE_META: Record<
   string,
@@ -15,6 +15,14 @@ export const NODE_META: Record<
   assistantNode:      { accent: "#FBBF24", bg: "#1c1000",  bigIcon: <Bot           size={18} strokeWidth={1.7} /> },
   videoGeneratorNode: { accent: "#5EEAD4", bg: "#042f2e",  bigIcon: <Clapperboard  size={18} strokeWidth={1.7} /> },
   commentNode:        { accent: "#FACC15", bg: "#2a2005",  bigIcon: <StickyNote    size={18} strokeWidth={1.7} /> },
+  imageResizeNode:     { accent: "#38bdf8", bg: "#082f49",  bigIcon: <Scaling        size={18} strokeWidth={1.7} /> },
+  removeBackgroundNode:{ accent: "#38bdf8", bg: "#082f49",  bigIcon: <Eraser         size={18} strokeWidth={1.7} /> },
+  splitGridNode:       { accent: "#38bdf8", bg: "#082f49",  bigIcon: <LayoutGrid     size={18} strokeWidth={1.7} /> },
+  imageCompareNode:    { accent: "#38bdf8", bg: "#082f49",  bigIcon: <ArrowLeftRight size={18} strokeWidth={1.7} /> },
+  videoTrimNode:       { accent: "#38bdf8", bg: "#082f49",  bigIcon: <Scissors size={18} strokeWidth={1.7} /> },
+  videoFrameGrabNode:  { accent: "#38bdf8", bg: "#082f49",  bigIcon: <Camera size={18} strokeWidth={1.7} /> },
+  llmGenerateNode: { accent: "#fbbf24", bg: "#422006", bigIcon: <Bot size={18} strokeWidth={1.7} /> },
+  promptConstructorNode: { accent: "#4ade80", bg: "#052e16", bigIcon: <MessageSquare size={18} strokeWidth={1.7} /> },
 };
 
 export const NODES: Array<{
@@ -120,6 +128,44 @@ export const NODES: Array<{
       label: "Comment",
       description: "Free-floating sticky note — drag & resize anywhere",
     },
+
+    /* ── Processors (browser-side, no API cost) ────────────────────────────── */
+    {
+      type: "imageResizeNode",
+      category: "processors",
+      canReceiveConnection: true,
+      icon: <Scaling size={14} strokeWidth={1.5} />,
+      label: "Resize",
+      description: "Resize an image in the browser",
+    },
+    {
+      type: "removeBackgroundNode",
+      category: "processors",
+      canReceiveConnection: true,
+      icon: <Eraser size={14} strokeWidth={1.5} />,
+      label: "Remove BG",
+      description: "Remove image background locally (on-device AI)",
+    },
+    {
+      type: "splitGridNode",
+      category: "processors",
+      canReceiveConnection: true,
+      icon: <LayoutGrid size={14} strokeWidth={1.5} />,
+      label: "Split Grid",
+      description: "Cut a contact sheet into cells",
+    },
+    {
+      type: "imageCompareNode",
+      category: "processors",
+      canReceiveConnection: true,
+      icon: <ArrowLeftRight size={14} strokeWidth={1.5} />,
+      label: "Compare",
+      description: "Side-by-side A/B image slider",
+    },
+    { type: "videoTrimNode", category: "processors", canReceiveConnection: true, icon: <Scissors size={14} strokeWidth={1.5} />, label: "Video Trim", description: "Trim a video by time range" },
+    { type: "videoFrameGrabNode", category: "processors", canReceiveConnection: true, icon: <Camera size={14} strokeWidth={1.5} />, label: "Frame Grab", description: "Extract a frame from video" },
+    { type: "llmGenerateNode", category: "generators", canReceiveConnection: true, icon: <Bot size={14} strokeWidth={1.5} />, label: "LLM Generate", description: "Generate text with an LLM" },
+    { type: "promptConstructorNode", category: "resources", canReceiveConnection: true, icon: <MessageSquare size={14} strokeWidth={1.5} />, label: "Prompt Constructor", description: "Compose a prompt template" },
   ];
 
 const GEN_NODE_SETTINGS: Record<string, string[]> = {
@@ -153,6 +199,14 @@ export const NODE_SIZE: Record<string, { w: number; h: number }> = {
   imageInputNode: { w: 200, h: 160 },
   videoInputNode: { w: 220, h: 180 },
   commentNode: { w: 260, h: 160 },
+  imageResizeNode: { w: 300, h: 380 },
+  removeBackgroundNode: { w: 320, h: 340 },
+  splitGridNode: { w: 320, h: 380 },
+  imageCompareNode: { w: 400, h: 340 },
+  videoTrimNode: { w: 260, h: 190 },
+  videoFrameGrabNode: { w: 240, h: 260 },
+  llmGenerateNode: { w: 300, h: 220 },
+  promptConstructorNode: { w: 280, h: 220 },
 };
 
 export const FALLBACK_SIZE = { w: 280, h: 280 };

@@ -7,6 +7,28 @@ import * as guestDb from "./db";
 export const ASSET_CATEGORIES = ["Characters", "Props", "Environments", "Styles", "Scenes"] as const;
 export type AssetCategory = typeof ASSET_CATEGORIES[number];
 
+/** Stable IDs decoupled from display labels and disk paths. */
+export const CATEGORY_IDS = ["character", "prop", "environment", "visual_style", "scene"] as const;
+export type CategoryId = typeof CATEGORY_IDS[number];
+
+/** Map legacy English display names to stable IDs. */
+export const CATEGORY_LABEL_TO_ID: Record<string, CategoryId> = {
+  "characters": "character",
+  "props": "prop",
+  "environments": "environment",
+  "styles": "visual_style",
+  "scenes": "scene",
+};
+
+/** Map stable IDs to legacy English labels for disk path compatibility. */
+export const CATEGORY_ID_TO_LABEL: Record<string, AssetCategory> = {
+  "character": "Characters",
+  "prop": "Props",
+  "environment": "Environments",
+  "visual_style": "Styles",
+  "scene": "Scenes",
+};
+
 const MIME_BY_EXT: Record<string, string> = {
   ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
   ".gif": "image/gif", ".webp": "image/webp", ".heic": "image/heic",
@@ -17,6 +39,13 @@ const MIME_BY_EXT: Record<string, string> = {
 function inside(root: string, candidate: string): boolean {
   const rel = relative(root, candidate);
   return rel !== "" && rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel);
+}
+
+/** App-generated folders inside the shared media root that are not creative assets. */
+const SYSTEM_DIRS = new Set(["posters", "bgremoval"]);
+
+export function isSystemMediaPath(relativePath: string): boolean {
+  return SYSTEM_DIRS.has(relativePath.split("/")[0]);
 }
 
 export function normalizeCategory(value?: string | null): AssetCategory | null {
@@ -74,8 +103,11 @@ export async function importCreativeAsset(input: {
   prompt?: string | null;
   model?: string | null;
   seekGuid?: string | null;
+  manualCategoryId?: string | null;
+  tags?: string[];
 }): Promise<guestDb.CreativeAsset> {
   const media = await resolveMediaPath(input);
+  if (isSystemMediaPath(media.relativePath)) throw new Error("System media folders are not creative assets");
   const generation = guestDb.findGenerationByMediaUrl(media.url);
   const category = normalizeCategory(input.category) ?? categoryFromPath(media.relativePath);
   const source = input.source ?? (generation ? "generation" : media.relativePath.startsWith("assets/") ? "seek" : "upload");
@@ -85,6 +117,8 @@ export async function importCreativeAsset(input: {
     url: media.url,
     name: input.name?.trim() || basename(media.relativePath),
     category,
+    manual_category_id: input.manualCategoryId ?? null,
+    asset_tags: input.tags ?? [],
     mime_type: media.mimeType,
     source,
     description: input.description ?? null,
@@ -101,6 +135,7 @@ async function walk(root: string, rel = ""): Promise<string[]> {
   const found: string[] = [];
   for (const entry of entries) {
     const child = rel ? `${rel}/${entry.name}` : entry.name;
+    if (!rel && entry.isDirectory() && SYSTEM_DIRS.has(entry.name)) continue;
     if (entry.isDirectory()) found.push(...await walk(root, child));
     else if (entry.isFile() && MIME_BY_EXT[extname(entry.name).toLowerCase()]) found.push(child);
   }

@@ -9,6 +9,8 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cookies } from "next/headers";
 import { DragDropGuard } from "@/components/DragDropGuard";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,15 +46,18 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false";
+  const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} ${doto.variable} antialiased dark`}
       style={{ height: "100%" }}
     >
       <body className="bg-black text-white h-full overflow-hidden">
-        <TooltipProvider>
+        <NextIntlClientProvider messages={messages}>
+          <TooltipProvider>
           <SidebarProvider defaultOpen={sidebarOpen} className="h-full">
             <AppSidebar />
             <SidebarInset style={{ backgroundColor: "transparent" }} className="flex flex-col min-h-0 min-w-0 border-l border-r border-t border-white/[0.08] mx-2 mt-2 rounded-tl-xl rounded-tr-xl">
@@ -65,8 +70,9 @@ export default async function RootLayout({
         {children}
             </SidebarInset>
           </SidebarProvider>
-        </TooltipProvider>
-        <GlobalModals />
+          </TooltipProvider>
+          <GlobalModals />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -14,6 +14,8 @@
 import { jobStore, type JobResult } from "./jobStore";
 import { jobEvents } from "./jobEvents";
 import { mirrorToR2 } from "./storage";
+import { getImageAspectRatio } from "./mediaMetadata";
+import { generateVideoPoster } from "./videoPoster";
 import * as guestDb from "./guest/db";
 
 const BASE = "https://api.kie.ai";
@@ -143,12 +145,31 @@ async function settleSuccess(taskId: string, kind: Kind, kieUrls: string[]): Pro
     storedUrls = kieUrls;
   }
 
+  // For images, compute the actual pixel aspect ratio so the gallery doesn't need
+  // to probe the original. Overrides "auto" or missing requested ratios.
+  let imageAspectRatio: string | undefined;
+  if (kind === "image" && storedUrls[0]?.startsWith("/generated/")) {
+    try {
+      const { readLocalMedia } = await import("./guest/readLocalMedia");
+      const media = await readLocalMedia(storedUrls[0]);
+      if (media) imageAspectRatio = await getImageAspectRatio(media.buffer);
+    } catch {
+      // Skip ratio extraction if the file can't be read.
+    }
+  }
+
+  // For videos, extract the first frame as a poster for thumbnail display
+  let posterUrl: string | undefined;
+  if (kind === "video" && storedUrls[0]?.startsWith("/generated/")) {
+    posterUrl = await generateVideoPoster(storedUrls[0]);
+  }
+
   settle(
     taskId,
     kind,
     kind === "video"
-      ? { status: "done", videoUrl: storedUrls[0] }
-      : { status: "done", imageUrl: storedUrls[0], imageUrls: storedUrls },
+      ? { status: "done", videoUrl: storedUrls[0], posterUrl }
+      : { status: "done", imageUrl: storedUrls[0], imageUrls: storedUrls, aspectRatio: imageAspectRatio },
   );
 }
 
@@ -161,8 +182,9 @@ function settle(taskId: string, kind: Kind, result: JobResult): void {
     guestDb.updateGeneration(
       taskId,
       kind === "video"
-        ? { status: "done", video_url: result.videoUrl }
-        : { status: "done", image_url: result.imageUrl, image_urls: result.imageUrls },
+        ? { status: "done", video_url: result.videoUrl, poster_url: result.posterUrl }
+        : { status: "done", image_url: result.imageUrl, image_urls: result.imageUrls,
+            ...(result.aspectRatio ? { aspect_ratio: result.aspectRatio } : {}) },
     );
   } else if (result.status === "error") {
     guestDb.updateGeneration(taskId, { status: "error", error_msg: result.error });

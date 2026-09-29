@@ -34,13 +34,14 @@ function closestRatio(ratioFloat: number, candidates: string[]): string | null {
 // Node types whose OUTPUT can feed a given input handle
 function sourceNodeTypesFor(targetHandle: string | null): string[] {
   switch (targetHandle) {
-    case "prompt":                         return ["promptNode", "assistantNode"];
+    case "prompt":                         return ["promptNode", "assistantNode", "llmGenerateNode", "promptConstructorNode"];
     case "image":
     case "startFrame":
     case "endFrame":
-    case "resource":                       return ["imageInputNode", "generateNode"];
+    case "resource":                       return ["imageInputNode", "generateNode", "imageResizeNode", "removeBackgroundNode", "splitGridNode"];
     case "videoRef":
     case "referenceVideo":                 return ["videoInputNode"];
+    case "video":                          return ["videoInputNode", "videoGeneratorNode", "videoTrimNode"];
     default:                               return [];
   }
 }
@@ -125,9 +126,17 @@ function targetHandleFor(
   }
   // Single-output nodes — fall back to node-type routing
   if (sourceNodeType === "promptNode" || sourceNodeType === "assistantNode") return "prompt";
-  if (sourceNodeType === "imageInputNode" || sourceNodeType === "generateNode") {
+  const IMAGE_SOURCES = new Set([
+    "imageInputNode", "generateNode",
+    "imageResizeNode", "removeBackgroundNode", "splitGridNode",
+  ]);
+  const IMAGE_PROCESSOR_TARGETS = new Set([
+    "imageResizeNode", "removeBackgroundNode", "splitGridNode", "imageCompareNode",
+  ]);
+  if (sourceNodeType && IMAGE_SOURCES.has(sourceNodeType)) {
     if (targetNodeType === "videoGeneratorNode") return "startFrame";
     if (targetNodeType === "generateNode")       return "image";
+    if (IMAGE_PROCESSOR_TARGETS.has(targetNodeType)) return "image";
   }
   if (sourceNodeType === "videoInputNode") {
     if (targetNodeType === "videoGeneratorNode") return "videoRef";

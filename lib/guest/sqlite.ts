@@ -23,6 +23,10 @@ export function db(): DatabaseSync {
   const database = new DatabaseSync(DB_PATH);
   database.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
   createSchema(database);
+  try { database.exec("ALTER TABLE uploads ADD COLUMN aspect_ratio TEXT"); } catch { /* exists */ }
+  try { database.exec("ALTER TABLE generations ADD COLUMN poster_url TEXT"); } catch { /* exists */ }
+  try { database.exec("ALTER TABLE creative_assets ADD COLUMN manual_category_id TEXT"); } catch { /* exists */ }
+  try { database.exec("ALTER TABLE creative_assets ADD COLUMN asset_tags TEXT"); } catch { /* exists */ }
   _db = database;
   migrateFromJson(database);
   return _db;

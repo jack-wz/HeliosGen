@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import NextImage from "next/image";
+import { videoPosterUrl } from "@/lib/mediaPreview";
 import { useRouter } from "next/navigation";
 import { useWorkflowStore, Space } from "@/lib/store";
 import { makeUGCTemplate } from "@/lib/templates";
@@ -290,11 +291,17 @@ function ThumbnailMosaic({ space }: { space: Space }) {
           <div key={i} className={`wsd-thumb-cell${item ? "" : " wsd-thumb-cell-empty"}`}>
             {item ? (
               item.type === "video" ? (
-                <video
-                  src={item.url}
-                  muted loop playsInline autoPlay preload="metadata"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
+                videoPosterUrl(item.url) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={videoPosterUrl(item.url, null, 160)} alt="" loading="lazy" decoding="async"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                ) : (
+                  <video
+                    src={item.url}
+                    muted playsInline preload="metadata"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                )
               ) : (
                 <NextImage src={item.url} alt="" fill sizes="160px" style={{ objectFit: "cover" }} />
               )

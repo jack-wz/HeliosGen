@@ -10,6 +10,7 @@ import { Maximize2, Minimize2, ShieldAlert, X } from "lucide-react";
 /** Local stand-in for the removed Supabase user type. */
 type User = { id: string };
 import { GalleryItem, getToken, galleryCache } from "@/lib/galleryUtils";
+import { useTranslations } from "next-intl";
 import { useFolderStore } from "@/lib/folderStore";
 import { MediaPickerModal } from "@/components/MediaPickerModal";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -18,6 +19,8 @@ import DotCanvasBackground from "@/components/ui/DotCanvasBackground";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
 import { browserNotify, requestNotificationPermission } from "@/lib/browserNotify";
+import { copyText } from "@/lib/clipboard";
+import { videoPosterUrl } from "@/lib/mediaPreview";
 
 function randomUUID(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -241,10 +244,10 @@ function resizeTextarea(el: HTMLTextAreaElement, maxH = 264) {
 const loadedImageUrls = new Set<string>();
 const naturalRatioCache = new Map<string, string>(); // url → "w / h"
 
-// Concurrency limiter: at most 4 gallery images load simultaneously.
+// Concurrency limiter: at most 8 gallery images load simultaneously.
 const _imgQueue: Array<() => void> = [];
 let _imgActive = 0;
-const IMG_CONCURRENCY = 4;
+const IMG_CONCURRENCY = 8;
 function requestImageSlot(fn: () => void): () => void {
   if (_imgActive < IMG_CONCURRENCY) { _imgActive++; fn(); return () => {}; }
   _imgQueue.push(fn);
@@ -2651,7 +2654,10 @@ function GalleryInner() {
           bump();
         };
         img.onerror = () => { naturalRatioCache.set(item.url, "4 / 3"); bump(); };
-        img.src = probeUrl;
+        // Use a small Next Image thumbnail instead of the original: sharp resizes
+        // to 32px so naturalWidth/Height still reflect the true ratio, but the
+        // transfer drops from megabytes to a few kilobytes.
+        img.src = thumbSrc(probeUrl, 32);
       }
     });
 
@@ -3563,7 +3569,7 @@ function GalleryInner() {
                         const isSlotDragging = draggingId === r.id;
                         return (
                         <div key={r.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (!isMultiTarget || listForSlot.length <= 1 || r.uploading || r.error) return; _reorderDragItem = { id: r.id, listTarget: slot.target as "resource"|"referenceVideo"|"audioRef" }; _reorderOverId = null; setDraggingId(r.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === r.id || _reorderDragItem.listTarget !== slot.target) return; _reorderOverId = r.id; setReorderOverId(r.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== slot.target) return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? r.id; handleReorderDrop(target, slot.target as "resource"|"referenceVideo"|"audioRef"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(hovId); }} onMouseLeave={() => setHoveredRefId(null)} onDragOver={e => { if (slot.mediaKind === "audio" || !e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(dragKey); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => { if (slot.mediaKind !== "audio") handleGalleryItemDrop(e, slot.target as any, slot.mediaKind as "image" | "video"); }} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "#1a1c1f", touchAction: (isMultiTarget && listForSlot.length > 1) ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: r.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === dragKey ? "2.5px solid #2DD4BF" : taggedImages.some(t => t.refId === r.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.12)", boxShadow: dragOverSlotKey === dragKey ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, opacity: isSlotDragging ? 0.3 : undefined, cursor: (isMultiTarget && listForSlot.length > 1 && !r.uploading && !r.error) ? (draggingId === r.id ? "grabbing" : "grab") : undefined }}>
-                          {slot.mediaKind === "image" ? <img src={thumbSrc(r.objectUrl, snapWidth(64))} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : slot.mediaKind === "video" ? <video src={r.objectUrl} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.04)" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>}
+                          {slot.mediaKind === "image" ? <img src={thumbSrc(r.objectUrl, snapWidth(64))} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : slot.mediaKind === "video" ? (videoPosterUrl(r.objectUrl) ? <img src={videoPosterUrl(r.objectUrl, null, 64)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <video src={r.objectUrl} muted playsInline preload="metadata" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />) : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.04)" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>}
                           {hoveredRefId === hovId && !r.uploading && !r.error && slot.mediaKind !== "audio" && (
                             <div onClick={() => { if (_reorderJustDropped || draggingId) { _reorderJustDropped = false; return; } setRefPreview({ url: r.objectUrl, mediaKind: slot.mediaKind }); }} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-in", zIndex: 1 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
                           )}
@@ -5784,6 +5790,7 @@ function GalleryCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const cancelSlotRef = useRef<(() => void) | null>(null);
   const slotReleasedRef = useRef(false);
+  const slotGrantedRef = useRef(false);
   const thumbFailedUrls = useRef<Set<string>>(new Set());
   const [thumbFailRevision, setThumbFailRevision] = useState(0);
   const lockedWidths = useRef<Map<string, number>>(new Map());
@@ -5798,6 +5805,7 @@ function GalleryCard({
   const [cardImgIdx, setCardImgIdx] = useState(0);
   const [naturalRatio, setNaturalRatio] = useState<string | null>(() => naturalRatioCache.get(item.url) ?? null);
   const [isHovered, setIsHovered] = useState(false);
+  const t = useTranslations("gallery");
   const isVideo = item.mediaType === "video";
   const allUrls = item.imageUrls ?? [item.url];
   const displayUrl = allUrls[cardImgIdx] ?? item.url;
@@ -5820,7 +5828,7 @@ function GalleryCard({
           if (isVideo) {
             setShouldLoad(true);
           } else if (!cancelSlotRef.current) {
-            cancelSlotRef.current = requestImageSlot(() => setShouldLoad(true));
+            cancelSlotRef.current = requestImageSlot(() => { slotGrantedRef.current = true; setShouldLoad(true); });
           }
         }
       },
@@ -5831,6 +5839,12 @@ function GalleryCard({
       observer.disconnect();
       cancelSlotRef.current?.();
       cancelSlotRef.current = null;
+      // A card unmounted mid-load (paging, filter change) must hand its slot
+      // back, otherwise leaked slots eventually stall every thumbnail.
+      if (slotGrantedRef.current && !slotReleasedRef.current) {
+        slotReleasedRef.current = true;
+        releaseImageSlot();
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -5962,13 +5976,22 @@ function GalleryCard({
       </div>
       {isVideo ? (
         <>
+          {videoPosterUrl(item.url, item.posterUrl, displayWidth) && !imgLoaded && (
+            <img
+              src={videoPosterUrl(item.url, item.posterUrl, displayWidth)}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", position: "absolute", top: 0, left: 0 }}
+            />
+          )}
           <video
             ref={videoRef}
-            src={shouldLoad ? item.url : undefined}
+            src={shouldLoad && isHovered ? item.url : undefined}
             muted={videoMuted || !isHovered}
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             draggable={false}
             onLoadedData={() => {
               setImgLoaded(true);
@@ -6103,7 +6126,7 @@ function GalleryCard({
           </button>
         )}
         {item.prompt && onCopyPrompt && (
-          <button className="gallery-action-btn" title={copied ? "Copied!" : "Copy prompt"} onClick={handleCopy}>
+          <button className="gallery-action-btn" title={copied ? t("copied") : t("copyPrompt")} onClick={handleCopy}>
             {copied ? (
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 6 9 17l-5-5" />
@@ -6117,7 +6140,7 @@ function GalleryCard({
         )}
         <button
           className="gallery-action-btn"
-          title={downloading ? "Downloading…" : "Download"}
+          title={downloading ? t("downloading") : t("download")}
           onClick={handleDownload}
           disabled={downloading}
           style={{ opacity: downloading ? 0.65 : undefined }}
@@ -6133,7 +6156,7 @@ function GalleryCard({
         {onDelete && (
           <button
             className="gallery-action-btn gallery-delete-btn"
-            title="Delete"
+            title={t("delete")}
             onClick={handleDelete}
             disabled={deleting}
             style={{ opacity: deleting ? 0.65 : undefined }}
@@ -6449,6 +6472,7 @@ function renderLightboxPrompt(
 // ── Lightbox ──────────────────────────────────────────────────────────────────
 
 function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { item: GalleryItem; thumbUrl?: string; onClose: () => void; onCopyPrompt?: (prompt: string, refUrls?: string[], meta?: { model?: string; aspectRatio?: string; quality?: string; azureResolution?: string }) => void; onPrev?: () => void; onNext?: () => void }) {
+  const tGallery = useTranslations("gallery");
   const [visible, setVisible] = useState(false);
   const [fullLoaded, setFullLoaded] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
@@ -6487,13 +6511,17 @@ function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { i
 
   const copyPrompt = () => {
     if (!item.prompt) return;
+    const markCopied = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    };
     if (onCopyPrompt) {
       onCopyPrompt(item.prompt, item.referenceImageUrls, { model: item.model, aspectRatio: item.aspect_ratio, quality: item.quality, azureResolution: item.azure_resolution });
+      markCopied();
     } else {
-      navigator.clipboard.writeText(item.prompt).catch(() => { });
+      void copyText(item.prompt).then(markCopied)
+        .catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error"));
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
   };
 
   const download = async () => {
@@ -6743,7 +6771,7 @@ function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { i
                 onMouseEnter={e => { if (!copied) { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#fff"; } }}
                 onMouseLeave={e => { if (!copied) { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "rgba(255,255,255,0.65)"; } }}
               >
-                {copied ? "Copied!" : "Copy"}
+                {copied ? tGallery("copied") : tGallery("copy")}
               </button>
             </div>
             <div style={{ padding: "0 16px 16px", fontSize: "13px", lineHeight: 1.65, maxHeight: "40vh", overflowY: "auto" }}>
@@ -6758,7 +6786,7 @@ function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { i
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round">
               <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
             </svg>
-            <span style={sectionLabelStyle}>Information</span>
+            <span style={sectionLabelStyle}>{tGallery("information")}</span>
           </div>
           {infoRows.map((row) => (
             <div key={row.label} style={{
@@ -6795,7 +6823,7 @@ function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { i
               <path d="M12 3v13M7 13l5 5 5-5" /><path d="M5 21h14" />
             </svg>
           )}
-          {downloading ? "Downloading…" : "Download"}
+          {downloading ? tGallery("downloading") : tGallery("download")}
         </button>
       </div>
 

@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "image": "图像",
+    "video": "视频",
+    "workflow": "工作流",
+    "assets": "资产",
+    "chat": "对话",
+    "settings": "设置",
+    "allAssets": "全部资产"
+  },
+  "assets": {
+    "title": "全部创作资产",
+    "sharedWith": "与 Seek 共享 · 磁盘单文件",
+    "indexed": "已索引",
+    "uncategorized": "未分类",
+    "searchPlaceholder": "搜索资产、提示词、模型",
+    "selected": "已选",
+    "clear": "清除",
+    "deselectAll": "取消全选",
+    "addToCollection": "加入集合…",
+    "remove": "移除",
+    "newCollection": "新建集合",
+    "newSmartCollection": "新建智能集合",
+    "collections": "集合",
+    "categories": {
+      "characters": "人物",
+      "props": "道具",
+      "environments": "环境",
+      "styles": "风格",
+      "scenes": "场景"
+    }
+  },
+  "gallery": {
+    "loading": "加载中…",
+    "upload": "上传",
+    "generate": "生成",
+    "delete": "删除",
+    "download": "下载",
+    "downloading": "下载中…",
+    "copied": "已复制",
+    "copyPrompt": "复制提示词",
+    "copy": "复制",
+    "addReference": "添加参考",
+    "information": "信息",
+    "retry": "重试",
+    "dismiss": "关闭"
+  },
+  "chat": {
+    "landingTitle": "我在这里帮你打磨更好的提示词。",
+    "landingSubtitle": "给我一个提示词，我来帮你改进。",
+    "placeholders": {
+      "promptJson": "把这个提示词转换成 JSON 格式",
+      "promptCamera": "为这个提示词补充更多镜头细节",
+      "promptGenerate": "生成一个提示词，让一个女孩手捧鲜花",
+      "promptCinematic": "让这个提示词更有电影感并加入灯光细节",
+      "promptPhotorealistic": "把这个提示词改写成写实风格"
+    },
+    "describePlaceholder": "描述你的图像或视频创意…",
+    "sendMessage": "发送消息…",
+    "copyResponse": "复制回复",
+    "copy": "复制",
+    "copied": "已复制",
+    "newChat": "新对话"
+  },
+  "settings": {
+    "title": "设置",
+    "nav": {
+      "api-keys": "API 密钥",
+      "image-models": "图像模型",
+      "video-models": "视频模型",
+      "text-models": "文本模型",
+      "debug": "调试"
+    },
+    "close": "关闭 (Esc)",
+    "save": "保存",
+    "saving": "保存中…",
+    "copy": "复制",
+    "copied": "已复制"
+  }
+}

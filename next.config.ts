@@ -1,5 +1,8 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./app/i18n/request.ts");
 
 // The packaged desktop (Tauri) build runs `next build` with DESKTOP_BUILD=1 and
 // ships the self-contained `.next/standalone` server as a bundled sidecar. Plain
@@ -38,4 +41,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

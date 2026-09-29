@@ -5,6 +5,7 @@ import https from "node:https";
 import http  from "node:http";
 import { lookupAssetHash, storeAssetHash } from "./db";
 import { stripMetadata } from "../mediaMetadata";
+import { getImageAspectRatio } from "../mediaMetadata";
 import { MEDIA_DIR as GENERATED_DIR } from "./paths";
 
 function hashBuffer(buf: Buffer): string {
@@ -33,6 +34,20 @@ export async function uploadBuffer(buffer: Buffer, contentType: string, folder: 
 
   storeAssetHash(hash, url, contentType, buffer.byteLength);
   return url;
+}
+
+/** Store an image and also compute the aspect ratio from pixel dimensions,
+ *  so the gallery can lay out without probing the original file. */
+export async function uploadImageWithRatio(
+  buffer: Buffer,
+  contentType: string,
+  folder: string,
+): Promise<{ url: string; aspectRatio: string | undefined }> {
+  const url = await uploadBuffer(buffer, contentType, folder);
+  const aspectRatio = contentType.startsWith("image/")
+    ? await getImageAspectRatio(buffer)
+    : undefined;
+  return { url, aspectRatio };
 }
 
 function fetchToBuffer(url: string, maxRedirects = 5): Promise<{ buf: Buffer; contentType: string }> {

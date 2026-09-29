@@ -28,6 +28,16 @@ const wrap = (fn) => async (args) => {
 
 const server = new McpServer({ name: "heliosgen", version: "1.0.0" });
 
+server.registerTool("helios_capabilities", { description: "Compact provider, skill and node capability catalog.", inputSchema: {} }, wrap(async () => api.capabilities()));
+server.registerTool("helios_providers", { description: "List providers without revealing API keys.", inputSchema: {} }, wrap(async () => api.providers()));
+server.registerTool("helios_provider_get", { description: "Get provider configuration status without revealing the API key.", inputSchema: { id: z.string() } }, wrap(async ({ id }) => api.providerGet(id)));
+server.registerTool("helios_provider_configure", { description: "Set a provider API key on the server; the key is never returned.", inputSchema: { id: z.string(), apiKey: z.string() } }, wrap(async ({ id, apiKey }) => api.providerKeySet(id, apiKey)));
+server.registerTool("helios_provider_delete_key", { description: "Delete a provider API key from the server.", inputSchema: { id: z.string() } }, wrap(async ({ id }) => api.providerKeyDelete(id)));
+server.registerTool("helios_skills", { description: "List or resolve enabled server-registered skills.", inputSchema: { ids: z.string().optional(), scope: z.string().optional() } }, wrap(async ({ ids, scope }) => api.skills({ ids, scope })));
+server.registerTool("helios_workflow_summary", { description: "Return a compact workflow summary.", inputSchema: { id: z.string() } }, wrap(async ({ id }) => api.workflowAction(id, "summary")));
+server.registerTool("helios_workflow_validate", { description: "Validate workflow node and edge references.", inputSchema: { id: z.string() } }, wrap(async ({ id }) => api.workflowAction(id, "validate")));
+server.registerTool("helios_workflow_patch", { description: "Apply incremental node/edge JSON patches to a workflow.", inputSchema: { id: z.string(), patch: z.array(z.object({ op: z.enum(["add", "replace", "remove"]), path: z.string(), value: z.unknown().optional() })) } }, wrap(async ({ id, patch }) => api.workflowAction(id, "patch", patch)));
+
 server.registerTool(
   "helios_models",
   {

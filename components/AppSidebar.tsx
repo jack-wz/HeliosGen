@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import {
   Sidebar,
   SidebarContent,
@@ -539,6 +540,7 @@ interface AllAssetsRowProps {
 }
 
 const AllAssetsRow = React.memo(function AllAssetsRow({ isActive, count, onSelect, isGenerating, hasUnseen }: AllAssetsRowProps) {
+  const tNav = useTranslations("nav");
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [menuPos, setMenuPos] = React.useState<{ x: number; y: number } | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -576,7 +578,7 @@ const AllAssetsRow = React.memo(function AllAssetsRow({ isActive, count, onSelec
           "flex-1 text-[12px] truncate leading-tight",
           isActive ? "text-white/90" : "text-white/55"
         )}>
-          All assets
+          {tNav("allAssets")}
         </span>
         {count > 0 && (
           <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>
@@ -664,6 +666,7 @@ function CreditIcon({ size = 12 }: { size?: number }) {
 
 // ── Sidebar component ─────────────────────────────────────────────────────────
 export function AppSidebar() {
+  const tNav = useTranslations("nav");
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -790,12 +793,12 @@ export function AppSidebar() {
     disabled?: boolean;
     onClick?: (event: React.MouseEvent) => void;
   }> = [
-    { label: "Image", href: `/gallery?tab=images${folderParam}`, icon: ImageIcon, active: pathname === "/gallery" && tab === "images" },
-    { label: "Video", href: `/gallery?tab=videos${folderParam}`, icon: VideoIcon, active: pathname === "/gallery" && tab === "videos" },
-    { label: "Workflow", href: "/workflow", icon: Workflow, active: pathname === "/workflow" || (pathname.startsWith("/workflow/") && pathname !== "/workflow") },
-    { label: "Assets", href: "/assets", icon: Package, active: pathname === "/assets" },
-    { label: "Chat", href: "/chat", icon: MessageSquare, active: pathname === "/chat" },
-    { label: "Settings", href: "#", icon: Settings, active: false, onClick: (e: React.MouseEvent) => { e.preventDefault(); setSettingsOpen(true); } },
+    { label: tNav("image"), href: `/gallery?tab=images${folderParam}`, icon: ImageIcon, active: pathname === "/gallery" && tab === "images" },
+    { label: tNav("video"), href: `/gallery?tab=videos${folderParam}`, icon: VideoIcon, active: pathname === "/gallery" && tab === "videos" },
+    { label: tNav("workflow"), href: "/workflow", icon: Workflow, active: pathname === "/workflow" || (pathname.startsWith("/workflow/") && pathname !== "/workflow") },
+    { label: tNav("assets"), href: "/assets", icon: Package, active: pathname === "/assets" },
+    { label: tNav("chat"), href: "/chat", icon: MessageSquare, active: pathname === "/chat" },
+    { label: tNav("settings"), href: "#", icon: Settings, active: false, onClick: (e: React.MouseEvent) => { e.preventDefault(); setSettingsOpen(true); } },
   ];
 
   const itemCls = (active: boolean, disabled?: boolean) => cn(

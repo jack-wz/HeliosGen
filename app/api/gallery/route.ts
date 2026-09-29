@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
     imageUrls?: string[];
     mediaType: "image" | "video";
     prompt?: string;
+    posterUrl?: string;
     model?: string;
     aspect_ratio?: string;
     quality?: string;
@@ -31,6 +32,7 @@ export async function GET(req: NextRequest) {
         url:                (mediaType === "video" ? g.video_url : g.image_url) as string,
         imageUrls:          g.image_urls?.length ? g.image_urls : undefined,
         mediaType:          mediaType as "image" | "video",
+        posterUrl:          g.poster_url   ?? undefined,
         prompt:             g.prompt       ?? undefined,
         model:              g.model            ?? undefined,
         aspect_ratio:       g.aspect_ratio     ?? undefined,
@@ -43,10 +45,11 @@ export async function GET(req: NextRequest) {
     : [];
 
   const uploadItems: Item[] = (!source || source === "upload")
-    ? guestDb.getUploads(GUEST_USER_ID, mediaType).map((u) => ({
+      ? guestDb.getUploads(GUEST_USER_ID, mediaType).map((u) => ({
         id:        u.id,
         url:       u.r2_url,
         mediaType: (u.mime_type?.startsWith("video/") ? "video" : "image") as "image" | "video",
+        aspect_ratio: u.aspect_ratio ?? undefined,
         source:    "upload" as const,
         created_at: u.created_at,
       }))

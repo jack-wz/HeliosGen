@@ -1,10 +1,13 @@
-/**
- * Compute a SHA-256 hex digest using the Web Crypto API.
- * Works in the browser and in Node.js 18+ (global `crypto.subtle`).
- */
+import { sha256 } from "@noble/hashes/sha2.js";
+
+/** Compute the same SHA-256 digest on HTTPS, localhost, and plain HTTP LAN origins. */
 export async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", buffer);
-  return Array.from(new Uint8Array(digest))
+  // SubtleCrypto requires a secure context; hashing media is also needed on LAN HTTP.
+  const subtle = globalThis.crypto?.subtle;
+  const digest = subtle
+    ? new Uint8Array(await subtle.digest("SHA-256", buffer))
+    : sha256(new Uint8Array(buffer));
+  return Array.from(digest)
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
