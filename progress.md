@@ -69,6 +69,9 @@
 
 ### 遗留
 - Phase 2 四个节点的 NAS 实测未做（节点代码已在线上，只是没点过）
+- 2026-09-29 二次部署（含 review 修复）：同步 → build（确认重新编译）→ `up -d --force-recreate --no-deps heliosgen`，asset-bridge 未受影响
+- 线上实测：SSRF 拦截生效（`http://127.0.0.1:3000/2.webp`、`/api/workflows`、`169.254.169.254` 全部拒绝；公网 URL 正常未误伤）；`currentVersion` 1.2.1 且无误报横幅；hero 图 46KB；169 资产 / 20 张图库图完好；asset-bridge `helios=169 seek=169`
+- 回滚点：镜像 `heliosgen:rollback-20260929-2`、源码 `/home/wyai/heliosgen-src-backup-20260929-2.tar.gz`
 - 2026-09-29 已重新部署：同步源码（tar over ssh，排除 .env.sync / secrets / node_modules / .next / data）→ build → `up -d --force-recreate --no-deps heliosgen`，asset-bridge 未受影响（Up 4 days，reconcile helios=169 seek=169）
 - 部署后实测：`/api/providers` 不再回显 `secretRef`；nested/top-level `configured` 一致；15 节点 / 8 provider / 7 skill；`lang=zh-CN`；169 条资产与两张测试图完好；上游音频 MIME 修复生效
 - 回滚点：镜像 `heliosgen:rollback-20260929`、源码 `/home/wyai/heliosgen-src-backup-20260929.tar.gz`

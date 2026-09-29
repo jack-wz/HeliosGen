@@ -8,7 +8,9 @@ HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接�
 
 > 部署状态（2026-09-29 实测）：NAS 已重建至本分支当前状态。`/api/capabilities` 返回 15 种节点（含 8 个新节点）、8 个 provider、7 个 skill；`/api/providers`、`/api/skills`、`/api/media-poster` 在线；页面 `<html lang="zh-CN">`；上游 `99dd5b1`（音频 MIME 修复）与 provider 修复均已生效（`/api/providers` 不再回显 `secretRef`）。
 >
-> 回滚：镜像 `heliosgen:rollback-20260929`（重建前版本），源码备份 `/home/wyai/heliosgen-src-backup-20260929.tar.gz`。重建时只 recreate `heliosgen` 服务（`--no-deps`），`asset-bridge` 不受影响。
+> 同批上线的还有：`/api/fetch-url` 的 SSRF 防护（实测内网/回环/元数据地址一律拒绝，公网 URL 正常）、非 Docker 构建的版本号修复（`0.0.0` → `1.2.1`，误报更新横幅消失）、hero 图按显示尺寸重编码（4 张 4,952KB → 46KB）。
+>
+> 回滚：镜像 `heliosgen:rollback-20260929-2`（本次重建前）与 `heliosgen:rollback-20260929`（更早一版）；源码备份 `/home/wyai/heliosgen-src-backup-20260929-2.tar.gz` 与 `...-20260929.tar.gz`。重建时只 recreate `heliosgen` 服务（`--no-deps`），`asset-bridge` 不受影响。
 
 ## 位置与运行方式
 
