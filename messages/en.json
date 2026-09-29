@@ -76,5 +76,21 @@
     "saving": "Saving…",
     "copy": "Copy",
     "copied": "Copied"
+  },
+  "dashboard": {
+    "heroTitle1": "Build AI workflows",
+    "heroTitle2": "and generate stunning media",
+    "myWorkflows": "My Workflows",
+    "import": "Import",
+    "importing": "Importing…",
+    "newWorkflow": "New workflow",
+    "startFromScratch": "Start from scratch",
+    "open": "Open",
+    "rename": "Rename",
+    "duplicate": "Duplicate",
+    "delete": "Delete",
+    "more": "More",
+    "resetTemplate": "Reset template",
+    "workspaceNoun": "{count, plural, one {workspace} other {workspaces}}"
   }
 }

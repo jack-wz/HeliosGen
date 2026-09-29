@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import NextImage from "next/image";
+import { useTranslations } from "next-intl";
 import { videoPosterUrl } from "@/lib/mediaPreview";
 import { useRouter } from "next/navigation";
 import { useWorkflowStore, Space } from "@/lib/store";
@@ -206,6 +207,7 @@ const TEMPLATE_PREVIEWS = [
 ];
 
 function TemplateCard({ onLoad, onReset }: { onLoad: () => void; onReset: (e: React.MouseEvent) => void }) {
+  const t = useTranslations("dashboard");
   return (
     <div
       className="wsd-tmpl"
@@ -233,7 +235,7 @@ function TemplateCard({ onLoad, onReset }: { onLoad: () => void; onReset: (e: Re
           </div>
           <button
             onClick={onReset}
-            title="Reset template"
+            title={t("resetTemplate")}
             style={{
               appearance: "none", border: "1px solid rgba(99,102,241,0.25)", background: "rgba(99,102,241,0.08)",
               borderRadius: "7px", width: "28px", height: "28px", display: "grid", placeItems: "center",
@@ -333,6 +335,7 @@ interface CardMenuProps {
 }
 
 function CardMenu({ spaceId, onOpen, onStartRename, onDelete, onClose }: CardMenuProps) {
+  const t = useTranslations("dashboard");
   const duplicateSpace = useWorkflowStore((s) => s.duplicateSpace);
   const spaces = useWorkflowStore((s) => s.spaces);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -390,12 +393,12 @@ function CardMenu({ spaceId, onOpen, onStartRename, onDelete, onClose }: CardMen
         zIndex: 100,
       }}
     >
-      {item("Open", <OpenIcon />, () => { onClose(); onOpen(); })}
+      {item(t("open"), <OpenIcon />, () => { onClose(); onOpen(); })}
       <div style={{ height: "1px", background: "rgba(255,255,255,0.07)", margin: "0 10px" }} />
-      {item("Rename", <RenameIcon />, () => { onClose(); onStartRename(); })}
-      {item("Duplicate", <DuplicateIcon />, () => { duplicateSpace(spaceId); onClose(); })}
+      {item(t("rename"), <RenameIcon />, () => { onClose(); onStartRename(); })}
+      {item(t("duplicate"), <DuplicateIcon />, () => { duplicateSpace(spaceId); onClose(); })}
       <div style={{ height: "1px", background: "rgba(255,255,255,0.07)", margin: "0 10px" }} />
-      {item("Delete", <DeleteIcon />, () => { onClose(); onDelete(); }, true, spaces.length <= 1)}
+      {item(t("delete"), <DeleteIcon />, () => { onClose(); onDelete(); }, true, spaces.length <= 1)}
     </div>
   );
 }
@@ -477,6 +480,7 @@ function DeleteConfirmModal({
 
 
 function SpaceCard({ space, onOpen }: { space: Space; onOpen: () => void }) {
+  const t = useTranslations("dashboard");
   const [menuOpen, setMenuOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [draft, setDraft] = useState(space.name);
@@ -510,7 +514,7 @@ function SpaceCard({ space, onOpen }: { space: Space; onOpen: () => void }) {
         <div style={{ position: "relative" }}>
           <button
             className="wsd-act"
-            aria-label="More"
+            aria-label={t("more")}
             onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
           >
             <MoreHorizIcon />
@@ -593,6 +597,7 @@ function SpaceCard({ space, onOpen }: { space: Space; onOpen: () => void }) {
 // ── Create card ───────────────────────────────────────────────────────────────
 
 function CreateCard({ onCreate }: { onCreate: () => void }) {
+  const t = useTranslations("dashboard");
   return (
     <div
       className="wsd-new"
@@ -615,14 +620,14 @@ function CreateCard({ onCreate }: { onCreate: () => void }) {
         display: "flex", flexDirection: "column", gap: "10px",
       }}>
         <div style={{ fontSize: "15px", fontWeight: 600, color: "#fff", letterSpacing: "-0.015em" }}>
-          New workflow
+          {t("newWorkflow")}
         </div>
         <div style={{
           display: "flex", alignItems: "center", gap: "6px",
           fontSize: "10px", fontWeight: 500, letterSpacing: "0.04em",
           color: "rgba(255,255,255,0.25)", textTransform: "uppercase",
         }}>
-          <span>Start from scratch</span>
+          <span>{t("startFromScratch")}</span>
         </div>
       </div>
     </div>
@@ -632,6 +637,7 @@ function CreateCard({ onCreate }: { onCreate: () => void }) {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 export default function WorkflowDashboard() {
+  const t = useTranslations("dashboard");
   const router = useRouter();
   const spaces = useWorkflowStore((s) => s.spaces);
   const createSpace = useWorkflowStore((s) => s.createSpace);
@@ -739,7 +745,7 @@ export default function WorkflowDashboard() {
               fontSize: "28px", fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em",
               color: "#ffffff",
             }}>
-              My Workflows
+              {t("myWorkflows")}
             </h1>
             <div style={{
               marginTop: "10px",
@@ -749,7 +755,7 @@ export default function WorkflowDashboard() {
               letterSpacing: "0.06em", textTransform: "uppercase",
             }}>
               <b style={{ color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>{sorted.length}</b>
-              <span>workspace{sorted.length !== 1 ? "s" : ""}</span>
+              <span>{t("workspaceNoun", { count: sorted.length })}</span>
             </div>
           </div>
 
@@ -767,11 +773,11 @@ export default function WorkflowDashboard() {
               disabled={importing}
             >
               {importing ? <SpinnerIcon /> : <ImportIcon />}
-              {importing ? "Importing…" : "Import"}
+              {importing ? t("importing") : t("import")}
             </button>
             <button className="wsd-new-btn" onClick={handleCreate}>
               <PlusIcon />
-              New workflow
+              {t("newWorkflow")}
             </button>
           </div>
         </section>

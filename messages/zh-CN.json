@@ -76,5 +76,21 @@
     "saving": "保存中…",
     "copy": "复制",
     "copied": "已复制"
+  },
+  "dashboard": {
+    "heroTitle1": "构建 AI 工作流",
+    "heroTitle2": "生成惊艳的媒体作品",
+    "myWorkflows": "我的工作流",
+    "import": "导入",
+    "importing": "导入中…",
+    "newWorkflow": "新建工作流",
+    "startFromScratch": "从零开始",
+    "open": "打开",
+    "rename": "重命名",
+    "duplicate": "创建副本",
+    "delete": "删除",
+    "more": "更多",
+    "resetTemplate": "重置模板",
+    "workspaceNoun": "{count, plural, other {个工作区}}"
   }
 }
