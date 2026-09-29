@@ -6,6 +6,7 @@
 import { useMemo, useState } from "react";
 import { Handle, Position, NodeProps, Node } from "@xyflow/react";
 import { LayoutGrid } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { resolveInputs } from "@/lib/executor";
 import { splitWithDimensions } from "@/lib/gridSplitter";
@@ -20,6 +21,7 @@ function clampGrid(n: number): number {
 }
 
 export default function SplitGridNode({ id, data, selected }: NodeProps<SplitGridNodeType>) {
+  const t = useTranslations("nodes");
   const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
   const nodes = useWorkflowStore((s) => s.nodes);
   const edges = useWorkflowStore((s) => s.edges);
@@ -92,18 +94,18 @@ export default function SplitGridNode({ id, data, selected }: NodeProps<SplitGri
 
       <div className="p-2 flex flex-col gap-2">
         <div className="flex items-center gap-1 text-[10px] text-neutral-400 nodrag">
-          <span>Rows</span>
-          <input type="number" min={1} max={MAX_GRID} id={`${id}-rows`} name="rows" aria-label="Rows" className={inputCls} value={rows}
+          <span>{t("rows")}</span>
+          <input type="number" min={1} max={MAX_GRID} id={`${id}-rows`} name="rows" aria-label={t("ariaRows")} className={inputCls} value={rows}
             onChange={(e) => setGrid({ gridRows: clampGrid(Number(e.target.value)) })} />
-          <span>Cols</span>
-          <input type="number" min={1} max={MAX_GRID} id={`${id}-cols`} name="cols" aria-label="Columns" className={inputCls} value={cols}
+          <span>{t("cols")}</span>
+          <input type="number" min={1} max={MAX_GRID} id={`${id}-cols`} name="cols" aria-label={t("ariaColumns")} className={inputCls} value={cols}
             onChange={(e) => setGrid({ gridCols: clampGrid(Number(e.target.value)) })} />
           <button
             onClick={run}
             disabled={!upstreamImage || running}
             className="ml-auto px-3 py-1 bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed rounded text-white text-xs font-medium transition-colors"
           >
-            {running ? "Splitting…" : "Split"}
+            {running ? t("splitting") : t("split")}
           </button>
         </div>
 
@@ -132,7 +134,7 @@ export default function SplitGridNode({ id, data, selected }: NodeProps<SplitGri
         ) : (
           <div className="h-24 bg-neutral-950/60 rounded flex items-center justify-center">
             <span className="text-[10px] text-neutral-500 text-center px-4">
-              {upstreamImage ? "Split, then click a cell to use it as output" : "Connect an image"}
+              {upstreamImage ? t("splitHint") : t("connectImage")}
             </span>
           </div>
         )}

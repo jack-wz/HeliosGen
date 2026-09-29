@@ -4,6 +4,7 @@
 import { useMemo, useState } from "react";
 import { Handle, Position, NodeProps, Node } from "@xyflow/react";
 import { Eraser } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { resolveInputs } from "@/lib/executor";
 import { removeImageBackground, type BackgroundRemovalModel } from "@/lib/backgroundRemoval";
@@ -11,8 +12,10 @@ import { persistNodeImage } from "@/lib/nodeOutput";
 
 type RemoveBgNodeType = Node<NodeData, "removeBackgroundNode">;
 
-function formatModelLabel(m: BackgroundRemovalModel): string {
-  return MODEL_OPTIONS.find((o) => o.value === m)?.label ?? m;
+/** Model tiers are labelled at render time so they follow the active locale. */
+function formatModelLabel(m: BackgroundRemovalModel, t: (key: string) => string): string {
+  const opt = MODEL_OPTIONS.find((o) => o.value === m);
+  return opt ? t(opt.labelKey) : m;
 }
 
 const CHECKERBOARD: React.CSSProperties = {
@@ -23,13 +26,14 @@ const CHECKERBOARD: React.CSSProperties = {
   backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
 };
 
-const MODEL_OPTIONS: { value: BackgroundRemovalModel; label: string }[] = [
-  { value: "isnet_quint8", label: "Fast" },
-  { value: "isnet_fp16", label: "Balanced" },
-  { value: "isnet", label: "Quality" },
+const MODEL_OPTIONS: { value: BackgroundRemovalModel; labelKey: string }[] = [
+  { value: "isnet_quint8", labelKey: "modelFast" },
+  { value: "isnet_fp16", labelKey: "modelBalanced" },
+  { value: "isnet", labelKey: "modelQuality" },
 ];
 
 export default function RemoveBackgroundNode({ id, data, selected }: NodeProps<RemoveBgNodeType>) {
+  const t = useTranslations("nodes");
   const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
   const nodes = useWorkflowStore((s) => s.nodes);
   const edges = useWorkflowStore((s) => s.edges);
@@ -84,7 +88,7 @@ export default function RemoveBackgroundNode({ id, data, selected }: NodeProps<R
 
       <div className="flex items-center gap-1.5 px-3 py-2 border-b border-neutral-800 text-xs font-semibold">
         <Eraser size={13} className="text-sky-400" />
-        Remove Background
+        {t("removeBgTitle")}
       </div>
 
       <div className="p-2 flex flex-col gap-2">
@@ -95,14 +99,14 @@ export default function RemoveBackgroundNode({ id, data, selected }: NodeProps<R
           ) : (
             <div className="absolute inset-0 flex items-center justify-center border border-dashed border-neutral-600 rounded">
               <span className="text-[10px] text-neutral-400 text-center px-4">
-                {upstreamImage ? "Run to remove the background" : "Connect an image input"}
+                {upstreamImage ? t("removeBgRun") : t("removeBgConnect")}
               </span>
             </div>
           )}
           {running && (
             <div className="absolute inset-0 bg-neutral-900/70 flex flex-col items-center justify-center gap-1">
               <span className="text-white text-xs">
-                {progress > 0 ? "Processing… " + progress + "%" : "Loading model…"}
+                {progress > 0 ? t("processing") + " " + progress + "%" : t("loadingModel")}
               </span>
             </div>
           )}
@@ -115,14 +119,14 @@ export default function RemoveBackgroundNode({ id, data, selected }: NodeProps<R
               onClick={() => updateNodeData(id, { bgModel: option.value })}
               className={tabCls(model === option.value)}
             >
-              {option.label}
+              {t(option.labelKey)}
             </button>
           ))}
         </div>
 
         {data.imageUrl && !running && (
           <div className="text-[10px] text-neutral-500">
-            Output produced with {formatModelLabel(data.bgModel ?? "isnet_fp16")} — switch model and re-run to compare.
+            {t("removeBgOutputNote", { model: formatModelLabel(data.bgModel ?? "isnet_fp16", t) })}
           </div>
         )}
 
@@ -132,7 +136,7 @@ export default function RemoveBackgroundNode({ id, data, selected }: NodeProps<R
             disabled={!upstreamImage || running}
             className="nodrag px-3 py-1 bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed rounded text-white text-xs font-medium transition-colors"
           >
-            {running ? "Processing…" : "Remove BG"}
+            {running ? t("processing") : t("removeBgRunBtn")}
           </button>
         </div>
 

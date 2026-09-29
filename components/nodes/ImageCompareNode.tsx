@@ -4,6 +4,7 @@
 import { useMemo } from "react";
 import { Handle, Position, NodeProps, Node } from "@xyflow/react";
 import { ArrowLeftRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ReactCompareSlider, ReactCompareSliderImage } from "react-compare-slider";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { resolveInputs } from "@/lib/executor";
@@ -11,6 +12,7 @@ import { resolveInputs } from "@/lib/executor";
 type CompareNodeType = Node<NodeData, "imageCompareNode">;
 
 export default function ImageCompareNode({ id, selected }: NodeProps<CompareNodeType>) {
+  const t = useTranslations("nodes");
   const nodes = useWorkflowStore((s) => s.nodes);
   const edges = useWorkflowStore((s) => s.edges);
 
@@ -51,7 +53,7 @@ export default function ImageCompareNode({ id, selected }: NodeProps<CompareNode
         ) : (
           <div className="h-40 bg-neutral-950/60 rounded flex items-center justify-center">
             <span className="text-[10px] text-neutral-500 text-center px-4">
-              {imageA ? "Connect a second image to compare" : "Connect two images to compare them"}
+              {imageA ? t("compareConnectSecond") : t("compareConnectBoth")}
             </span>
           </div>
         )}
