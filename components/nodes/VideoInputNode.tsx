@@ -291,7 +291,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
       setCapturing(false);
       updateNodeData(id, { extractingFrame: false });
     }
-  }, [id, updateNodeData, edges, nodes]);
+  }, [id, updateNodeData, edges, nodes, t]);
 
   // Auto-open picker when connected; close picker + unlock when edge is cut
   const imagePickEdges = edges.filter((e) => e.source === id && e.sourceHandle === "imagePickOut");
@@ -356,7 +356,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
       activeExtRef.current--;
       if (activeExtRef.current === 0) updateNodeData(id, { extractingFrame: false });
     }
-  }, [id, updateNodeData, addToast]);
+  }, [id, updateNodeData, addToast, t]);
 
   useEffect(() => {
     if (!startFrameKey) {
@@ -431,7 +431,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
     } finally {
       setUploading(false);
     }
-  }, [id, updateNodeData]);
+  }, [id, updateNodeData, t]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

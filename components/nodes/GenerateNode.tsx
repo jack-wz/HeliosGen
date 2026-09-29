@@ -553,7 +553,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
     document.addEventListener("visibilitychange", onVisible);
 
     return () => { cancelled = true; clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
-  }, [data.taskId, status, id, updateNodeData]);
+  }, [data.taskId, status, id, updateNodeData, t]);
 
   const promptConnected = edges.some((e) => e.target === id && e.targetHandle === "prompt");
   const imageConnected = edges.some((e) => e.target === id && e.targetHandle === "image");
@@ -725,7 +725,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
         setLoading(false);
       }
     }, 3000);
-  }, [id, nodes, edges, model, aspectRatio, quality, data.azureQuality, data.azureCustomWidth, data.azureCustomHeight, debugMode, connectedPromptNodeId, updateNodeData, flashEdgeError, kieKeySet, addToast]);
+  }, [id, nodes, edges, model, aspectRatio, quality, data.azureQuality, data.azureCustomWidth, data.azureCustomHeight, debugMode, connectedPromptNodeId, updateNodeData, flashEdgeError, kieKeySet, addToast, t]);
 
   const handleGenerateBatch = useCallback(() => {
     generate();

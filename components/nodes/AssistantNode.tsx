@@ -199,7 +199,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
       setLoading(false);
       abortRef.current = null;
     }
-  }, [busy, hasPrompt, localPrompt, id, updateNodeData]);
+  }, [busy, hasPrompt, localPrompt, id, updateNodeData, t]);
 
   const handleCancel = useCallback(() => {
     abortRef.current?.abort();

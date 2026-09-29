@@ -168,7 +168,7 @@ export function QuickAssist() {
     } finally {
       setStreaming(false);
     }
-  }, [messages, streaming, model, sessionId, createSession]);
+  }, [messages, streaming, model, sessionId, createSession, t]);
 
   function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); }

@@ -608,7 +608,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
   const handleCopyToClipboard = useCallback(() => {
     const text = (data.prompt as string) ?? "";
     void copyText(text).catch(() => useWorkflowStore.getState().addToast(t("copyFailed"), "error"));
-  }, [data.prompt]);
+  }, [data.prompt, t]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (

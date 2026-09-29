@@ -506,7 +506,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
     es.onerror = () => es.close();
 
     return () => es.close();
-  }, [data.taskId, status, id, updateNodeData]);
+  }, [data.taskId, status, id, updateNodeData, t]);
 
   const activeHandles = new Set<string>(cfg.handles);
 
@@ -702,7 +702,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       activeVGExtRef.current--;
       if (activeVGExtRef.current === 0) updateNodeData(id, { extractingFrame: false });
     }
-  }, [id, updateNodeData, addToast]);
+  }, [id, updateNodeData, addToast, t]);
 
   useEffect(() => {
     if (!sfVGKey) {
@@ -776,7 +776,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       setCapturing(false);
       updateNodeData(id, { extractingFrame: false });
     }
-  }, [id, updateNodeData, edges, nodes]);
+  }, [id, updateNodeData, edges, nodes, t]);
 
   const textEdge = edges.find((e) => e.target === id && e.targetHandle === "prompt");
   const textNode = textEdge ? nodes.find((n) => n.id === textEdge.source) : undefined;
@@ -1077,7 +1077,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       }
     }, 3000);
   }, [id, nodes, edges, prompt, sound, seed, duration, aspectRatio, videoModelId, veoMode, isVeo,
-    mode, resolution, cfg, debugMode, textEdge, updateNodeData, flashEdgeError, kieKeySet, addToast]);
+    mode, resolution, cfg, debugMode, textEdge, updateNodeData, flashEdgeError, kieKeySet, addToast, t]);
 
   const handleGenerateBatch = useCallback(() => {
     generate();

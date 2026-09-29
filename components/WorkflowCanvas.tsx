@@ -666,7 +666,7 @@ export default function WorkflowCanvas() {
     const sentinel = `__rf_nodes_${Date.now()}__`;
     nodeSentinelRef.current = sentinel;
     void copyText(sentinel).catch(() => useWorkflowStore.getState().addToast(tNodes("copyFailed"), "error"));
-  }, [nodes, edges]);
+  }, [nodes, edges, tNodes]);
 
   const handlePaste = useCallback(() => {
     if (!clipboardRef.current) return;
@@ -1011,7 +1011,7 @@ export default function WorkflowCanvas() {
     } finally {
       setExporting(false);
     }
-  }, []);
+  }, [tCanvas]);
 
   // ── Alignment snap guides ─────────────────────────────────────────────────────
   const [snapGuides, setSnapGuides] = useState<SnapGuide[]>([]);
@@ -1476,7 +1476,7 @@ export default function WorkflowCanvas() {
 
     push(tCanvas("complete"));
     setIsRunning(false);
-  }, [nodes, edges, updateNodeData, setIsRunning, debugMode, push, kieKeySet, addToast]);
+  }, [nodes, edges, updateNodeData, setIsRunning, debugMode, push, kieKeySet, addToast, tCanvas]);
   // Latest-ref pattern: the shortcut handler above needs the current runAll
   // without re-subscribing on every change.
   // eslint-disable-next-line react-hooks/immutability
