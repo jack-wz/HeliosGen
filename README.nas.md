@@ -107,12 +107,38 @@ docker compose --env-file .env.sync -f compose.nas.yaml logs --tail=100
 docker compose --env-file .env.sync -f compose.nas.yaml restart
 ```
 
-根据当前目录源码重新构建并启动：
+### 构建方式（**优先在别处构建，不要在这台 NAS 上 build**）
+
+> **2026-09-30 事故**：在这台 NAS 上执行 `docker compose build` 时，主机被压到 load **158**、**8GB swap 全部用尽**、`kswapd0` 占 30% CPU，`heliosgen` 变 unhealthy，Tailscale 也断开。原因是**累积内存压力**——该机同时运行 6+ 个服务（`xhs-rss-server` 1.1GB、`dockerd` 622MB、`WeKnora` 504MB、多个 `bun` 各 ~335MB），所有进程 RSS 合计 **15.1GB** 已超过 15GB 物理内存。Next.js 生产构建需要 ~2GB，是压垮的最后一根稻草。处置：kill 卡死的构建 + `restart heliosgen`（未碰 asset-bridge），load 由 158 回落至 3。
+
+**推荐流程**：在开发机构建 `linux/amd64` 镜像再传过去，完全不占用 NAS 资源。
 
 ```sh
-docker compose --env-file .env.sync -f compose.nas.yaml build
-docker compose --env-file .env.sync -f compose.nas.yaml up -d
+# 1) 开发机（Docker Desktop 需运行）
+docker buildx build --platform linux/amd64 -f Dockerfile.nas \
+  --build-arg APP_VERSION=1.2.1 -t heliosgen:nas-http-20260915 --load .
+docker save heliosgen:nas-http-20260915 | gzip -1 > /tmp/heliosgen-amd64.tar.gz
+
+# 2) NAS：先建回滚点，再加载、重建容器
+docker tag heliosgen:nas-http-20260915 heliosgen:rollback-<日期>
+cat /tmp/heliosgen-amd64.tar.gz | ssh wyai@192.168.1.185 'cat > /tmp/i.tar.gz'
+docker load -i /tmp/i.tar.gz
+docker compose --env-file .env.sync -f compose.nas.yaml up -d --force-recreate --no-deps heliosgen
 ```
+
+镜像约 472MB（压缩 447MB），局域网传输约 10 秒。
+
+**若坚持在 NAS 上构建**，先确认资源充足：
+
+```sh
+uptime                     # 1 分钟 load 应 < 20
+free -h                    # available 应 > 3Gi
+docker ps --format '{{.Names}} {{.Status}}' | grep -c unhealthy   # 应为 0
+```
+
+不满足就先别构建。构建后若卡住（`next build` 进程 CPU 长期 ~0%），kill 该进程并 `restart heliosgen`。
+
+**只重建 heliosgen**，不要用 `up -d`（会连带重建 `asset-bridge`），更不要 `down`。
 
 服务停止后分别备份 `/vol1/1000/HeliosGen/data` 与 `/vol1/@team/AIGC 创作/创作资产`。不要只复制正在写入的 `guest.db`。
 
