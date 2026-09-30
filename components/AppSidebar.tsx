@@ -288,7 +288,7 @@ const FolderRow = React.memo(function FolderRow({
   return (
     <React.Fragment>
       {drop === "before" && (
-        <div style={{ height: 1, background: "#2DD4BF", margin: "1px 8px", borderRadius: 1, pointerEvents: "none" }} />
+        <div style={{ height: 1, background: "var(--primary)", margin: "1px 8px", borderRadius: 1, pointerEvents: "none" }} />
       )}
       <div
         draggable
@@ -387,7 +387,7 @@ const FolderRow = React.memo(function FolderRow({
             <defs>
               <linearGradient id="fg-spin" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor="#3B82F6" />
-                <stop offset="100%" stopColor="#2DD4BF" />
+                <stop offset="100%" stopColor="var(--primary)" />
               </linearGradient>
             </defs>
           </svg>
@@ -395,7 +395,7 @@ const FolderRow = React.memo(function FolderRow({
         {!isRenaming && !isGenerating && hasUnseen && (
           <span style={{
             width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
-            background: "linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%)",
+            background: "linear-gradient(135deg, #3B82F6 0%, var(--primary) 100%)",
             boxShadow: "0 0 5px rgba(45,212,191,0.6)",
           }} />
         )}
@@ -500,7 +500,7 @@ const FolderRow = React.memo(function FolderRow({
       )}
 
       {drop === "after" && (
-        <div style={{ height: 1, background: "#2DD4BF", margin: "1px 8px", borderRadius: 1, pointerEvents: "none" }} />
+        <div style={{ height: 1, background: "var(--primary)", margin: "1px 8px", borderRadius: 1, pointerEvents: "none" }} />
       )}
       {isExpanded && (hasChildren || isCreatingHere) && (
         <>
@@ -592,7 +592,7 @@ const AllAssetsRow = React.memo(function AllAssetsRow({ isActive, count, onSelec
             <defs>
               <linearGradient id="fg-spin-all" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor="#3B82F6" />
-                <stop offset="100%" stopColor="#2DD4BF" />
+                <stop offset="100%" stopColor="var(--primary)" />
               </linearGradient>
             </defs>
           </svg>
@@ -600,7 +600,7 @@ const AllAssetsRow = React.memo(function AllAssetsRow({ isActive, count, onSelec
         {!isGenerating && hasUnseen && (
           <span style={{
             width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
-            background: "linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%)",
+            background: "linear-gradient(135deg, #3B82F6 0%, var(--primary) 100%)",
             boxShadow: "0 0 5px rgba(45,212,191,0.6)",
           }} />
         )}

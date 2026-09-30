@@ -253,7 +253,7 @@ export function QuickAssist() {
             ) : (
               messages.map((m, i) => (
                 <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: m.role === "user" ? "flex-end" : "flex-start" }}>
-                  <div style={{ maxWidth: "85%", padding: "9px 13px", borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", background: m.role === "user" ? "rgba(45,212,191,0.15)" : "rgba(255,255,255,0.06)", border: m.role === "user" ? "1px solid rgba(45,212,191,0.25)" : "1px solid rgba(255,255,255,0.07)", fontSize: "13px", color: m.role === "user" ? "#FFFFFF" : "rgba(255,255,255,0.85)", lineHeight: 1.55, letterSpacing: "-0.01em", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                  <div style={{ maxWidth: "85%", padding: "9px 13px", borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", background: m.role === "user" ? "rgba(45,212,191,0.15)" : "rgba(255,255,255,0.06)", border: m.role === "user" ? "1px solid rgba(45,212,191,0.25)" : "1px solid rgba(255,255,255,0.07)", fontSize: "13px", color: m.role === "user" ? "var(--foreground)" : "rgba(255,255,255,0.85)", lineHeight: 1.55, letterSpacing: "-0.01em", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                     {m.content}
                     {m.streaming && (
                       m.content

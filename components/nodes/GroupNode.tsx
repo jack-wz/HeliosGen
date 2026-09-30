@@ -31,7 +31,7 @@ const GROUP_COLORS = [
   "#3b82f6", // Blue (default)
   "#0D9488", // Blue-600
   "#ec4899", // Pink
-  "#ef4444", // Red
+  "var(--destructive)", // Red
   "#f97316", // Orange
   "#eab308", // Yellow
   "#22c55e", // Green
@@ -133,7 +133,7 @@ function InlineWarning({ messages }: { messages: string[] }) {
       onMouseLeave={() => setVisible(false)}
     >
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style={{ display: "block", cursor: "default" }}>
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" fill="#ef4444" />
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" fill="var(--destructive)" />
         <line x1="12" y1="9" x2="12" y2="13" stroke="white" strokeWidth="2" strokeLinecap="round" />
         <line x1="12" y1="17" x2="12.01" y2="17" stroke="white" strokeWidth="2" strokeLinecap="round" />
       </svg>
@@ -157,7 +157,7 @@ function InlineWarning({ messages }: { messages: string[] }) {
         >
           {messages.map((msg, i) => (
             <span key={i} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ color: "#ef4444", fontSize: 7 }}>●</span>
+              <span style={{ color: "var(--destructive)", fontSize: 7 }}>●</span>
               {msg}
             </span>
           ))}

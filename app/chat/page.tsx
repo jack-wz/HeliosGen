@@ -493,7 +493,7 @@ function ChatWindow({
                 background: m.role === "user" ? "rgba(45,212,191,0.15)" : "rgba(255,255,255,0.06)",
                 border: m.role === "user" ? "1px solid rgba(45,212,191,0.25)" : "1px solid rgba(255,255,255,0.07)",
                 fontSize: "14px", lineHeight: 1.6,
-                color: m.role === "user" ? "#FFFFFF" : "rgba(255,255,255,0.88)",
+                color: m.role === "user" ? "var(--foreground)" : "rgba(255,255,255,0.88)",
                 whiteSpace: "pre-wrap", wordBreak: "break-word",
               }}>
                 {m.content}

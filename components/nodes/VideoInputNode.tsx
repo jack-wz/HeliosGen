@@ -14,9 +14,9 @@ const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
 const IMAGE_HANDLES = new Set(["startFrame", "endFrame", "resource", "image"]);
 
 const VIDEO_SRC_COLORS: Record<string, string> = {
-  image: "#2DD4BF",
-  video: "#22d3ee",
-  audio: "#5EEAD4",
+  image: "var(--primary)",
+  video: "var(--role-video)",
+  audio: "var(--role-audio)",
 };
 
 // labelKey rather than label: this is module scope, so it cannot call a hook.
@@ -1081,7 +1081,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                         style={{
                           left:   `${(localTrimStart / videoDuration) * 100}%`,
                           right:  `${100 - (localTrimEnd / videoDuration) * 100}%`,
-                          border: "1.5px solid #FBBF24",
+                          border: "1.5px solid var(--role-assistant)",
                         }}
                         onPointerDown={startSelectionDrag}
                       />
@@ -1133,7 +1133,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => { e.stopPropagation(); applyTrim(); }}
                     className="nodrag h-5 px-2 rounded-full text-black text-[11px] font-semibold flex items-center cursor-pointer"
-                    style={{ background: "#FBBF24" }}
+                    style={{ background: "var(--role-assistant)" }}
                   >{tGeneric("apply")}</button>
                 </div>
               </div>
@@ -1293,9 +1293,9 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
             <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 pointer-events-none">
               <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style={{ animation: "spin 0.9s linear infinite" }}>
                 <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
-                <path d="M11 3A8 8 0 0 1 19 11" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M11 3A8 8 0 0 1 19 11" stroke="var(--role-video)" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
-              <span className="text-[11px] text-[#22d3ee]">{tGeneric("uploading")}</span>
+              <span className="text-[11px] text-[var(--role-video)]">{tGeneric("uploading")}</span>
             </div>
           )}
 
@@ -1305,7 +1305,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
               <div className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-black/60 backdrop-blur-sm border border-white/10">
                 <svg width="11" height="11" viewBox="0 0 22 22" fill="none" style={{ animation: "spin 0.9s linear infinite" }}>
                   <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
-                  <path d="M11 3A8 8 0 0 1 19 11" stroke="#2DD4BF" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M11 3A8 8 0 0 1 19 11" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
                 <span className="text-[11px] text-primary">{t("extractingFrame")}</span>
               </div>
@@ -1396,11 +1396,11 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
           onDrop={onDrop}
           onDragOver={(e) => e.preventDefault()}
           onClick={() => { fileRef.current?.click(); }}
-          className="border border-dashed border-[#22d3ee]/20 hover:border-[#22d3ee]/40 rounded-md cursor-pointer transition-colors py-8 text-center"
+          className="border border-dashed border-[var(--role-video)]/20 hover:border-[var(--role-video)]/40 rounded-md cursor-pointer transition-colors py-8 text-center"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="1.5" strokeLinecap="round" className="mx-auto mb-2 opacity-40">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--role-video)" strokeWidth="1.5" strokeLinecap="round" className="mx-auto mb-2 opacity-40">
             <rect width="18" height="14" x="3" y="5" rx="2" />
-            <path d="m16 10-4-2.5v5L16 10z" fill="#22d3ee" stroke="none" />
+            <path d="m16 10-4-2.5v5L16 10z" fill="var(--role-video)" stroke="none" />
           </svg>
           <p className="text-[12px] text-muted-foreground">{t("dropVideoPrefix")}{" "}<span className="underline underline-offset-2 text-white">{t("browse")}</span></p>
           <p className="text-[11px] text-[#4A4A45] mt-1">{t("max100mb")}</p>

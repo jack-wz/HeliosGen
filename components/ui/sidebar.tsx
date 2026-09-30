@@ -191,7 +191,7 @@ function Sidebar({
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-              backgroundColor: "#0B0E14",
+              backgroundColor: "var(--background)",
               zIndex: 9999,
             } as React.CSSProperties
           }

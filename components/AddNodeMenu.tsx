@@ -401,7 +401,7 @@ export default function AddNodeMenu({ anchorRect, onClose }: AddNodeMenuProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search nodes…"
-            style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "rgba(255,255,255,0.82)", fontSize: "13px", caretColor: "#2DD4BF" }}
+            style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "rgba(255,255,255,0.82)", fontSize: "13px", caretColor: "var(--primary)" }}
           />
           {query && (
             <button onClick={() => setQuery("")} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.3)", padding: 0, lineHeight: 1 }}>
@@ -433,7 +433,7 @@ export default function AddNodeMenu({ anchorRect, onClose }: AddNodeMenuProps) {
                       id="upload"
                       label="Upload"
                       description="Image or video — auto-detects type"
-                      accent="#34d399"
+                      accent="var(--role-source)"
                       bg="#052e16"
                       icon={<Upload size={18} strokeWidth={1.8} />}
                       onClick={() => fileInputRef.current?.click()}

@@ -124,7 +124,7 @@ export default function CanvasToolbar({
           border: "none", cursor: "pointer", flexShrink: 0,
           transition: "background 150ms, box-shadow 150ms, color 150ms",
           background: addHovered ? "rgba(45,212,191,0.18)" : "rgba(45,212,191,0.10)",
-          color: addHovered ? "#2DD4BF" : "rgba(45,212,191,0.7)",
+          color: addHovered ? "var(--primary)" : "rgba(45,212,191,0.7)",
           boxShadow: addHovered ? "0 0 14px rgba(45,212,191,0.25)" : "none",
         }}
       >
@@ -168,7 +168,7 @@ export default function CanvasToolbar({
             ? "rgba(239,68,68,0.15)"
             : runHovered && canRun ? "rgba(59,130,246,0.20)" : "rgba(59,130,246,0.10)",
           color: isRunning
-            ? "#F87171"
+            ? "var(--danger-soft)"
             : canRun ? (runHovered ? "#93C5FD" : "rgba(96,165,250,0.9)") : "rgba(255,255,255,0.2)",
           opacity: canRun || isRunning ? 1 : 0.5,
         }}

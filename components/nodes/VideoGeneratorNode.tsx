@@ -44,19 +44,19 @@ const CONNECTABLE_FOR_TYPE: Record<string, Set<string>> = {
 const HANDLE_SPACING = 38; // px between handles
 
 const HANDLE_COLORS: Record<string, string> = {
-  prompt: "#2DD4BF",
-  startFrame: "#2DD4BF",
-  endFrame: "#2DD4BF",
-  resource: "#fb923c",
-  videoRef: "#22d3ee",
-  referenceVideo: "#38bdf8",
-  audioRef: "#5EEAD4",
+  prompt: "var(--primary)",
+  startFrame: "var(--primary)",
+  endFrame: "var(--primary)",
+  resource: "var(--role-resource)",
+  videoRef: "var(--role-video)",
+  referenceVideo: "var(--role-refvideo)",
+  audioRef: "var(--role-audio)",
 };
 
 const SOURCE_HANDLE_COLORS: Record<string, string> = {
-  image: "#2DD4BF",
-  video: "#22d3ee",
-  audio: "#5EEAD4",
+  image: "var(--primary)",
+  video: "var(--role-video)",
+  audio: "var(--role-audio)",
 };
 
 const SOURCE_HANDLES = [
@@ -74,7 +74,7 @@ const sourceHandleCenterOffset = (i: number) => (i - (SOURCE_HANDLES.length - 1)
 const STATUS_DOT: Record<string, string> = {
   idle: "bg-[#1E1E1E]",
   running: "bg-amber-400 animate-pulse",
-  done: "bg-[#34d399]",
+  done: "bg-[var(--role-source)]",
   error: "bg-red-500",
 };
 
@@ -1330,12 +1330,12 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                         <circle cx="12" cy="16" r="1" fill="#c04040" />
                       </svg>
                       {(entry.error === "moderation_blocked" || entry.error?.includes?.("moderation_blocked") || entry.error?.includes?.("flagged as sensitive")) ? (
-                        <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#f87171]">
+                        <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--danger-soft)]">
                           <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
                           <span>{t("nsfwDetected")}</span>
                         </div>
                       ) : (
-                        <p className="text-[11px] text-[#f87171] leading-snug break-words w-full">{entry.error}</p>
+                        <p className="text-[11px] text-[var(--danger-soft)] leading-snug break-words w-full">{entry.error}</p>
                       )}
                       <button
                         onMouseDown={(e) => e.stopPropagation()}
@@ -1395,12 +1395,12 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 const msg = (data.errorMsg as string) ?? t("generationFailed");
                 const isNsfw = msg === "moderation_blocked" || msg.includes("moderation_blocked") || msg.includes("flagged as sensitive");
                 return isNsfw ? (
-                  <div className="flex items-center gap-1.5 text-[#f87171] text-[11px]">
+                  <div className="flex items-center gap-1.5 text-[var(--danger-soft)] text-[11px]">
                     <ShieldBan size={12} strokeWidth={1.5} className="shrink-0" />
                     <span>{t("nsfwDetected")}</span>
                   </div>
                 ) : (
-                  <p className="text-[#f87171] text-[11px] leading-[1.5] break-words">{msg}</p>
+                  <p className="text-[var(--danger-soft)] text-[11px] leading-[1.5] break-words">{msg}</p>
                 );
               })()}
             </div>
@@ -1615,10 +1615,10 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               ) : (
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ animation: "spin 0.9s linear infinite", flexShrink: 0 }}>
                   <circle cx="5" cy="5" r="4" stroke="rgba(45,212,191,0.25)" strokeWidth="1.5" />
-                  <path d="M5 1 A4 4 0 0 1 9 5" stroke="#2DD4BF" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M5 1 A4 4 0 0 1 9 5" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               )}
-              <span className="text-[12px] font-medium" style={{ color: isPending ? "#888" : "#2DD4BF" }}>
+              <span className="text-[12px] font-medium" style={{ color: isPending ? "#888" : "var(--primary)" }}>
                 {isPending ? t("pending") : t("generating")}
               </span>
             </div>
@@ -1916,7 +1916,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     className="flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors"
                     style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
                   >
-                    <ToggleSwitch on={sound} activeColor="#2dd4bf" />
+                    <ToggleSwitch on={sound} activeColor="var(--primary)" />
                     <span className="text-[12px] text-white/70">{t("sound")}</span>
                   </button>
                 )}
@@ -1936,7 +1936,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     }}
                     className="flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors"
                     style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}
-                  >                  <ToggleSwitch on={veoMode === "references"} activeColor="#fb923c" />
+                  >                  <ToggleSwitch on={veoMode === "references"} activeColor="var(--role-resource)" />
                     <span className="text-[12px] text-white/70">{veoMode === "references" ? t("references") : t("frames")}</span>
                   </button>
                 )}
@@ -1967,7 +1967,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                 {/* Img ref indicator */}
                 {activeHandles.has("resource") && hasResource && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded-full" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#fb923c] shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--role-resource)] shrink-0" />
                     <span className="text-[11px] text-white/60">{t("imgRef")}</span>
                   </div>
                 )}

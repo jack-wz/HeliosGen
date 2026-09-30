@@ -132,7 +132,7 @@ const CSS = `
   .wsd-plus-orb {
     position: relative; z-index: 1;
     width: 64px; height: 64px; border-radius: 50%;
-    background: linear-gradient(135deg, #0D9488 0%, #2DD4BF 100%);
+    background: linear-gradient(135deg, #0D9488 0%, var(--primary) 100%);
     display: grid; place-items: center;
     color: white;
     box-shadow: 0 0 0 1px rgba(255,255,255,0.15) inset;
@@ -143,7 +143,7 @@ const CSS = `
     appearance: none; border: 0; cursor: pointer;
     display: inline-flex; align-items: center; gap: 8px;
     padding: 9px 16px;
-    background: linear-gradient(135deg, #0D9488 0%, #2DD4BF 100%);
+    background: linear-gradient(135deg, #0D9488 0%, var(--primary) 100%);
     color: white; font-size: 12px; font-weight: 600; border-radius: 10px;
     transition: filter 140ms ease, transform 140ms ease;
     white-space: nowrap; font-family: inherit;
@@ -371,7 +371,7 @@ function CardMenu({ spaceId, onOpen, onStartRename, onDelete, onClose }: CardMen
       style={{
         display: "flex", alignItems: "center", gap: "10px", width: "100%",
         padding: "8px 12px", background: "transparent", border: "none",
-        color: disabled ? "rgba(255,255,255,0.2)" : danger ? "#f87171" : "rgba(255,255,255,0.85)",
+        color: disabled ? "rgba(255,255,255,0.2)" : danger ? "var(--danger-soft)" : "rgba(255,255,255,0.85)",
         fontSize: "13px", fontWeight: 450, cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1, fontFamily: "inherit", textAlign: "left",
         transition: "background 120ms",
@@ -379,7 +379,7 @@ function CardMenu({ spaceId, onOpen, onStartRename, onDelete, onClose }: CardMen
       onMouseEnter={(e) => { if (!disabled) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
     >
-      <span style={{ color: disabled ? "rgba(255,255,255,0.2)" : danger ? "#f87171" : "rgba(255,255,255,0.4)", flexShrink: 0 }}>
+      <span style={{ color: disabled ? "rgba(255,255,255,0.2)" : danger ? "var(--danger-soft)" : "rgba(255,255,255,0.4)", flexShrink: 0 }}>
         {icon}
       </span>
       {label}
@@ -395,7 +395,7 @@ function CardMenu({ spaceId, onOpen, onStartRename, onDelete, onClose }: CardMen
         top: "calc(100% + 6px)",
         right: 0,
         width: "186px",
-        background: "#131720",
+        background: "var(--surface-hover)",
         border: "1px solid rgba(255,255,255,0.1)",
         borderRadius: "12px",
         boxShadow: "0 16px 48px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.4)",
@@ -445,7 +445,7 @@ function DeleteConfirmModal({
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#131720",
+          background: "var(--surface-hover)",
           border: "1px solid rgba(255,255,255,0.1)",
           borderRadius: "16px", padding: "24px", width: "320px",
           boxShadow: "0 24px 64px rgba(0,0,0,0.8)",
@@ -473,7 +473,7 @@ function DeleteConfirmModal({
             onClick={onConfirm}
             style={{
               padding: "8px 16px", borderRadius: "8px", border: "none",
-              background: "#ef4444", color: "#fff", fontSize: "13px", fontWeight: 600,
+              background: "var(--destructive)", color: "#fff", fontSize: "13px", fontWeight: 600,
               cursor: "pointer", fontFamily: "inherit",
             }}
           >
@@ -734,7 +734,7 @@ export default function WorkflowDashboard() {
         minHeight: 0,
         overflowY: "auto",
         position: "relative",
-        background: "#0B0E14",
+        background: "var(--background)",
       }}
     >
       <DotCanvasBackground />
@@ -754,7 +754,7 @@ export default function WorkflowDashboard() {
             <h1 style={{
               margin: 0,
               fontSize: "28px", fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em",
-              color: "#ffffff",
+              color: "var(--foreground)",
             }}>
               {t("myWorkflows")}
             </h1>

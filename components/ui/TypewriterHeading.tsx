@@ -36,7 +36,7 @@ export default function TypewriterHeading({
       maxWidth: "600px",
     }}>
       <span style={{
-        background: "linear-gradient(to bottom, #ffffff, #2DD4BF)",
+        background: "linear-gradient(to bottom, var(--foreground), var(--primary))",
         WebkitBackgroundClip: "text",
         WebkitTextFillColor: "transparent",
         backgroundClip: "text",

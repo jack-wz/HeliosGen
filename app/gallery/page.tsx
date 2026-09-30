@@ -171,7 +171,7 @@ function splitByMentions(
     nodes.push(
       <span
         key={k++}
-        style={{ color: "#2DD4BF", fontWeight: 500, cursor: "text", pointerEvents: "auto", userSelect: "none", background: "rgba(119,229,68,0.15)", boxShadow: "0 0 0 3px rgba(119,229,68,0.15)", borderRadius: "3px" }}
+        style={{ color: "var(--primary)", fontWeight: 500, cursor: "text", pointerEvents: "auto", userSelect: "none", background: "rgba(119,229,68,0.15)", boxShadow: "0 0 0 3px rgba(119,229,68,0.15)", borderRadius: "3px" }}
         onMouseEnter={e => onEnter(tag, e.currentTarget.getBoundingClientRect())}
         onMouseLeave={onLeave}
         onMouseDown={e => { e.preventDefault(); onMouseDown(tag); }}
@@ -212,7 +212,7 @@ function renderGalleryMentions(
       <span
         key={key++}
         style={{
-          color: "#2DD4BF",
+          color: "var(--primary)",
           fontWeight: 500,
           cursor: "text",
           pointerEvents: "auto",
@@ -395,10 +395,10 @@ function PendingGenTile({ pg, onCancel }: { pg: PendingGen; onCancel: () => void
           ) : (
             <svg width="9" height="9" viewBox="0 0 10 10" fill="none" style={{ animation: "spin 0.9s linear infinite", flexShrink: 0 }}>
               <circle cx="5" cy="5" r="4" stroke="rgba(45,212,191,0.25)" strokeWidth="1.5" />
-              <path d="M5 1 A4 4 0 0 1 9 5" stroke="#2DD4BF" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M5 1 A4 4 0 0 1 9 5" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           )}
-          <span style={{ fontSize: "11px", color: pg.prePending ? "#888" : "#2DD4BF", fontWeight: 500 }}>
+          <span style={{ fontSize: "11px", color: pg.prePending ? "#888" : "var(--primary)", fontWeight: 500 }}>
             {pg.prePending ? "Pending" : "Generating…"}
           </span>
         </div>
@@ -487,13 +487,13 @@ function GalleryLoggedOut({ tab }: { tab: Tab }) {
   }, [names]);
 
   return (
-    <div style={{ flex: 1, background: "#0B0E14", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ flex: 1, background: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "clamp(12px,2.5vh,32px)", alignItems: "center", width: "100%", position: "relative" }}>
         {tab === "videos" ? <><VideoFan blur /><VideoFan /></> : <><EmptyFan blur /><EmptyFan /></>}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "8px" }}>
           <div style={{ fontFamily: "var(--font-grotesk, sans-serif)", fontWeight: 700, fontSize: "clamp(20px,min(3vw,4.5vh),36px)", lineHeight: 1, letterSpacing: "-0.56px", textTransform: "uppercase" }}>
             <p style={{ color: "#fff", margin: 0 }}>Start creating with</p>
-            <p style={{ color: "#2DD4BF", margin: 0, transition: "opacity 380ms ease, transform 380ms ease", opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(6px)" }}>
+            <p style={{ color: "var(--primary)", margin: 0, transition: "opacity 380ms ease, transform 380ms ease", opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(6px)" }}>
               {names[idx]}
             </p>
           </div>
@@ -2683,11 +2683,11 @@ function GalleryInner() {
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  if (!authLoaded) return <div style={{ flex: 1, background: "#0B0E14" }} />;
+  if (!authLoaded) return <div style={{ flex: 1, background: "var(--background)" }} />;
 
 
   return (
-    <div style={{ flex: 1, background: "#0B0E14", display: "flex", flexDirection: "column", overflow: "hidden", color: "#fff", position: "relative" }}>
+    <div style={{ flex: 1, background: "var(--background)", display: "flex", flexDirection: "column", overflow: "hidden", color: "#fff", position: "relative" }}>
       <DotCanvasBackground />
 
       {/* ── Sub-navbar ── */}
@@ -2697,7 +2697,7 @@ function GalleryInner() {
         justifyContent: "space-between",
         padding: "0 14px",
         height: "44px",
-        background: "#0B0E14",
+        background: "var(--background)",
         borderBottom: "1px solid rgba(255,255,255,0.05)",
         flexShrink: 0,
         position: "relative",
@@ -2722,7 +2722,7 @@ function GalleryInner() {
                 borderRadius: "8px",
                 border: "none",
                 background: sourceFilter === src ? "rgba(255,255,255,0.08)" : "transparent",
-                color: sourceFilter === src ? "#ffffff" : "rgba(255,255,255,0.38)",
+                color: sourceFilter === src ? "var(--foreground)" : "rgba(255,255,255,0.38)",
                 fontSize: "13px",
                 fontWeight: sourceFilter === src ? 500 : 400,
                 cursor: "pointer",
@@ -2864,7 +2864,7 @@ function GalleryInner() {
                                 background: "rgba(30,10,10,0.6)",
                                 display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                               }}>
-                                <ShieldAlert size={18} strokeWidth={1.75} style={{ color: "#f87171" }} />
+                                <ShieldAlert size={18} strokeWidth={1.75} style={{ color: "var(--danger-soft)" }} />
                               </div>
                               {/* Tag */}
                               <span style={{
@@ -2990,7 +2990,7 @@ function GalleryInner() {
                     );
                   }
                   return (
-                    <div key={layoutItem.item.id} data-item-id={layoutItem.item.id} style={{ width: layoutItem.width, flex: "0 0 auto", height: "100%", overflow: "hidden", background: selectedIds.has(layoutItem.item.id) ? "#ffffff" : "transparent", transition: "background 180ms ease" }}>
+                    <div key={layoutItem.item.id} data-item-id={layoutItem.item.id} style={{ width: layoutItem.width, flex: "0 0 auto", height: "100%", overflow: "hidden", background: selectedIds.has(layoutItem.item.id) ? "var(--foreground)" : "transparent", transition: "background 180ms ease" }}>
                       <GalleryCard
                         item={layoutItem.item}
                         displayWidth={layoutItem.width}
@@ -3036,7 +3036,7 @@ function GalleryInner() {
           top: marqueeRect.y,
           width: marqueeRect.w,
           height: marqueeRect.h,
-          border: "2px solid #2dd4bf",
+          border: "2px solid var(--primary)",
           background: "rgba(45,212,191,0.08)",
           borderRadius: 3,
           pointerEvents: "none",
@@ -3112,7 +3112,7 @@ function GalleryInner() {
             fontSize: "13px", fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
             transition: "background 140ms, color 140ms",
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.15)"; e.currentTarget.style.color = "#f87171"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.15)"; e.currentTarget.style.color = "var(--danger-soft)"; }}
           onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.color = "rgba(255,255,255,0.85)"; }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -3132,7 +3132,7 @@ function GalleryInner() {
                   display: "flex", alignItems: "center", gap: "7px",
                   padding: "7px 14px", borderRadius: "10px", border: "none",
                   background: folderPickerOpen ? "rgba(45,212,191,0.12)" : "rgba(255,255,255,0.07)",
-                  color: folderPickerOpen ? "#2DD4BF" : "rgba(255,255,255,0.85)",
+                  color: folderPickerOpen ? "var(--primary)" : "rgba(255,255,255,0.85)",
                   fontSize: "13px", fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
                   transition: "background 140ms, color 140ms",
                 }}
@@ -3234,7 +3234,7 @@ function GalleryInner() {
                               </div>
 
                               {/* Folder icon */}
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={allChecked ? "#2DD4BF" : someChecked ? "rgba(45,212,191,0.5)" : "rgba(255,255,255,0.35)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transition: "stroke 150ms" }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={allChecked ? "var(--primary)" : someChecked ? "rgba(45,212,191,0.5)" : "rgba(255,255,255,0.35)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transition: "stroke 150ms" }}>
                                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                               </svg>
 
@@ -3262,13 +3262,13 @@ function GalleryInner() {
                                 }}
                               >
                                 {allChecked && (
-                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0B0E14" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--background)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M20 6 9 17l-5-5"/>
                                   </svg>
                                 )}
                                 {someChecked && !allChecked && (
                                   <svg width="10" height="2" viewBox="0 0 10 2" fill="none">
-                                    <rect width="10" height="2" rx="1" fill="#0B0E14"/>
+                                    <rect width="10" height="2" rx="1" fill="var(--background)"/>
                                   </svg>
                                 )}
                               </div>
@@ -3348,7 +3348,7 @@ function GalleryInner() {
             border: "1px solid rgba(248,113,113,0.2)",
             borderRadius: "10px",
             fontSize: "12px",
-            color: "#f87171",
+            color: "var(--danger-soft)",
           }}>
             {genError}
           </div>
@@ -3451,15 +3451,15 @@ function GalleryInner() {
                   const isHovered = hoveredRefId === img.id;
                   const isDragging = draggingId === img.id;
                   return (
-                    <div key={img.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (refImages.length <= 1 || img.uploading || img.error) return; _reorderDragItem = { id: img.id, listTarget: "refImage" }; _reorderOverId = null; setDraggingId(img.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === img.id || _reorderDragItem.listTarget !== "refImage") return; _reorderOverId = img.id; setReorderOverId(img.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== "refImage") return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? img.id; handleReorderDrop(target, "refImage"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(img.id); }} onMouseLeave={() => setHoveredRefId(null)} onClick={() => { if (_reorderJustDropped) { _reorderJustDropped = false; return; } if (!img.uploading && !img.error && !draggingId) setRefPreview({ url: img.objectUrl, mediaKind: "image" }); }} onDragOver={e => { if (!e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(`refimg-filled-${img.id}`); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => handleGalleryItemDrop(e, "refImage", "image")} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", background: "#1A1C1F", flexShrink: 0, touchAction: refImages.length > 1 ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: img.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === `refimg-filled-${img.id}` ? "2.5px solid #2DD4BF" : taggedImages.some(t => t.refId === img.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.08)", boxShadow: dragOverSlotKey === `refimg-filled-${img.id}` ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, cursor: (!img.uploading && !img.error) ? (refImages.length > 1 ? (draggingId === img.id ? "grabbing" : "grab") : "zoom-in") : "default", animation: isRemoving ? "none" : (isDragging ? "none" : "refImgIn 260ms cubic-bezier(0.16,1,0.3,1) backwards"), opacity: isDragging ? 0.3 : undefined, ...(isRemoving ? { transition: "opacity 170ms, transform 170ms", opacity: 0, transform: "translateY(-10px) scale(0.92)" } : {}) }}>
+                    <div key={img.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (refImages.length <= 1 || img.uploading || img.error) return; _reorderDragItem = { id: img.id, listTarget: "refImage" }; _reorderOverId = null; setDraggingId(img.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === img.id || _reorderDragItem.listTarget !== "refImage") return; _reorderOverId = img.id; setReorderOverId(img.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== "refImage") return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? img.id; handleReorderDrop(target, "refImage"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(img.id); }} onMouseLeave={() => setHoveredRefId(null)} onClick={() => { if (_reorderJustDropped) { _reorderJustDropped = false; return; } if (!img.uploading && !img.error && !draggingId) setRefPreview({ url: img.objectUrl, mediaKind: "image" }); }} onDragOver={e => { if (!e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(`refimg-filled-${img.id}`); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => handleGalleryItemDrop(e, "refImage", "image")} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", background: "#1A1C1F", flexShrink: 0, touchAction: refImages.length > 1 ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: img.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === `refimg-filled-${img.id}` ? "2.5px solid var(--primary)" : taggedImages.some(t => t.refId === img.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.08)", boxShadow: dragOverSlotKey === `refimg-filled-${img.id}` ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, cursor: (!img.uploading && !img.error) ? (refImages.length > 1 ? (draggingId === img.id ? "grabbing" : "grab") : "zoom-in") : "default", animation: isRemoving ? "none" : (isDragging ? "none" : "refImgIn 260ms cubic-bezier(0.16,1,0.3,1) backwards"), opacity: isDragging ? 0.3 : undefined, ...(isRemoving ? { transition: "opacity 170ms, transform 170ms", opacity: 0, transform: "translateY(-10px) scale(0.92)" } : {}) }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={thumbSrc(img.objectUrl, snapWidth(64))} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                       {isHovered && !img.uploading && !img.error && (
                         <div onClick={e => { if (_reorderJustDropped || draggingId) { _reorderJustDropped = false; e.stopPropagation(); return; } e.stopPropagation(); setRefPreview({ url: img.objectUrl, mediaKind: "image" }); }} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-in" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
                       )}
                       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "8px 4px 3px", background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)", textAlign: "center" }}><span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.04em", color: "rgba(255,255,255,0.85)", textTransform: "uppercase" }}>Image</span></div>
-                      {img.uploading && (<div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ width: "14px", height: "14px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.2)", borderTopColor: "#2DD4BF", display: "inline-block", animation: "spin 0.75s linear infinite" }} /></div>)}
-                      {img.error && (<div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg></div>)}
+                      {img.uploading && (<div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ width: "14px", height: "14px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.2)", borderTopColor: "var(--primary)", display: "inline-block", animation: "spin 0.75s linear infinite" }} /></div>)}
+                      {img.error && (<div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger-soft)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg></div>)}
                       <button onClick={e => { e.stopPropagation(); removeImage(img.id); }} style={{ position: "absolute", top: "3px", right: "3px", width: "16px", height: "16px", borderRadius: "50%", background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, fontSize: "10px", zIndex: 2 }}>
 <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>
                     </div>
@@ -3472,9 +3472,9 @@ function GalleryInner() {
                     onDragOver={e => { if (!e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey("refImage-add"); }}
                     onDragLeave={() => setDragOverSlotKey(null)}
                     onDrop={e => handleGalleryItemDrop(e, "refImage", "image")}
-                    style={{ width: "64px", height: "64px", borderRadius: "8px", border: dragOverSlotKey === "refImage-add" ? "2.5px solid #2DD4BF" : "1.5px dashed rgba(255,255,255,0.2)", boxShadow: dragOverSlotKey === "refImage-add" ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, background: dragOverSlotKey === "refImage-add" ? "rgba(45,212,191,0.07)" : "rgba(255,255,255,0.03)", cursor: submitting ? "not-allowed" : "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px", color: dragOverSlotKey === "refImage-add" ? "#2DD4BF" : "rgba(255,255,255,0.45)", flexShrink: 0, transition: "all 140ms" }}>
+                    style={{ width: "64px", height: "64px", borderRadius: "8px", border: dragOverSlotKey === "refImage-add" ? "2.5px solid var(--primary)" : "1.5px dashed rgba(255,255,255,0.2)", boxShadow: dragOverSlotKey === "refImage-add" ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, background: dragOverSlotKey === "refImage-add" ? "rgba(45,212,191,0.07)" : "rgba(255,255,255,0.03)", cursor: submitting ? "not-allowed" : "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px", color: dragOverSlotKey === "refImage-add" ? "var(--primary)" : "rgba(255,255,255,0.45)", flexShrink: 0, transition: "all 140ms" }}>
                     <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.04em" }}>IMAGE</span>
-                    <span style={{ fontSize: "8px", color: dragOverSlotKey === "refImage-add" ? "#2DD4BF" : "rgba(255,255,255,0.3)" }}>
+                    <span style={{ fontSize: "8px", color: dragOverSlotKey === "refImage-add" ? "var(--primary)" : "rgba(255,255,255,0.3)" }}>
                       {maxImgs - refImages.length} left
                     </span>
 
@@ -3568,7 +3568,7 @@ function GalleryInner() {
                         const listForSlot = slot.target === "resource" ? vidResources : slot.target === "referenceVideo" ? vidRefVideos : vidRefAudios;
                         const isSlotDragging = draggingId === r.id;
                         return (
-                        <div key={r.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (!isMultiTarget || listForSlot.length <= 1 || r.uploading || r.error) return; _reorderDragItem = { id: r.id, listTarget: slot.target as "resource"|"referenceVideo"|"audioRef" }; _reorderOverId = null; setDraggingId(r.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === r.id || _reorderDragItem.listTarget !== slot.target) return; _reorderOverId = r.id; setReorderOverId(r.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== slot.target) return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? r.id; handleReorderDrop(target, slot.target as "resource"|"referenceVideo"|"audioRef"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(hovId); }} onMouseLeave={() => setHoveredRefId(null)} onDragOver={e => { if (slot.mediaKind === "audio" || !e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(dragKey); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => { if (slot.mediaKind !== "audio") handleGalleryItemDrop(e, slot.target as any, slot.mediaKind as "image" | "video"); }} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "#1a1c1f", touchAction: (isMultiTarget && listForSlot.length > 1) ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: r.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === dragKey ? "2.5px solid #2DD4BF" : taggedImages.some(t => t.refId === r.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.12)", boxShadow: dragOverSlotKey === dragKey ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, opacity: isSlotDragging ? 0.3 : undefined, cursor: (isMultiTarget && listForSlot.length > 1 && !r.uploading && !r.error) ? (draggingId === r.id ? "grabbing" : "grab") : undefined }}>
+                        <div key={r.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (!isMultiTarget || listForSlot.length <= 1 || r.uploading || r.error) return; _reorderDragItem = { id: r.id, listTarget: slot.target as "resource"|"referenceVideo"|"audioRef" }; _reorderOverId = null; setDraggingId(r.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === r.id || _reorderDragItem.listTarget !== slot.target) return; _reorderOverId = r.id; setReorderOverId(r.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== slot.target) return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? r.id; handleReorderDrop(target, slot.target as "resource"|"referenceVideo"|"audioRef"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(hovId); }} onMouseLeave={() => setHoveredRefId(null)} onDragOver={e => { if (slot.mediaKind === "audio" || !e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(dragKey); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => { if (slot.mediaKind !== "audio") handleGalleryItemDrop(e, slot.target as any, slot.mediaKind as "image" | "video"); }} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "#1a1c1f", touchAction: (isMultiTarget && listForSlot.length > 1) ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: r.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === dragKey ? "2.5px solid var(--primary)" : taggedImages.some(t => t.refId === r.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.12)", boxShadow: dragOverSlotKey === dragKey ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, opacity: isSlotDragging ? 0.3 : undefined, cursor: (isMultiTarget && listForSlot.length > 1 && !r.uploading && !r.error) ? (draggingId === r.id ? "grabbing" : "grab") : undefined }}>
                           {slot.mediaKind === "image" ? <img src={thumbSrc(r.objectUrl, snapWidth(64))} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : slot.mediaKind === "video" ? (videoPosterUrl(r.objectUrl) ? (
                             // eslint-disable-next-line @next/next/no-img-element -- runtime workflow media
                             <img src={videoPosterUrl(r.objectUrl, null, 64)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -3583,9 +3583,9 @@ function GalleryInner() {
                         }
                         const vidAddKey = `vidadd-${slot.target}-${idx}`;
                         return (
-                        <button key={`${slot.target}-add-${idx}`} onClick={() => slot.mediaKind === "audio" ? (vidPickTarget.current = slot.target, vidAudioInputRef.current?.click()) : openPicker(slot.target as any, slot.mediaKind)} disabled={submitting} onDragOver={e => { if (slot.mediaKind === "audio" || !e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(vidAddKey); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => { if (slot.mediaKind !== "audio") handleGalleryItemDrop(e, slot.target as any, slot.mediaKind as "image" | "video"); }} style={{ width: "64px", height: "64px", borderRadius: "8px", flexShrink: 0, border: dragOverSlotKey === vidAddKey ? "2.5px solid #2DD4BF" : "1.5px dashed rgba(255,255,255,0.2)", boxShadow: dragOverSlotKey === vidAddKey ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, background: dragOverSlotKey === vidAddKey ? "rgba(45,212,191,0.07)" : "rgba(255,255,255,0.03)", cursor: submitting ? "not-allowed" : "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", color: dragOverSlotKey === vidAddKey ? "#2DD4BF" : "rgba(255,255,255,0.4)", transition: "all 140ms" }}>
+                        <button key={`${slot.target}-add-${idx}`} onClick={() => slot.mediaKind === "audio" ? (vidPickTarget.current = slot.target, vidAudioInputRef.current?.click()) : openPicker(slot.target as any, slot.mediaKind)} disabled={submitting} onDragOver={e => { if (slot.mediaKind === "audio" || !e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(vidAddKey); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => { if (slot.mediaKind !== "audio") handleGalleryItemDrop(e, slot.target as any, slot.mediaKind as "image" | "video"); }} style={{ width: "64px", height: "64px", borderRadius: "8px", flexShrink: 0, border: dragOverSlotKey === vidAddKey ? "2.5px solid var(--primary)" : "1.5px dashed rgba(255,255,255,0.2)", boxShadow: dragOverSlotKey === vidAddKey ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, background: dragOverSlotKey === vidAddKey ? "rgba(45,212,191,0.07)" : "rgba(255,255,255,0.03)", cursor: submitting ? "not-allowed" : "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", color: dragOverSlotKey === vidAddKey ? "var(--primary)" : "rgba(255,255,255,0.4)", transition: "all 140ms" }}>
                         <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.04em" }}>{slot.label === "Ref Video" ? "VIDEO" : slot.label === "Audio" ? "AUDIO" : slot.label.toUpperCase()}</span>
-                        <span style={{ fontSize: "8px", color: dragOverSlotKey === vidAddKey ? "#2DD4BF" : "rgba(255,255,255,0.3)" }}>{slot.countLeft} left</span>
+                        <span style={{ fontSize: "8px", color: dragOverSlotKey === vidAddKey ? "var(--primary)" : "rgba(255,255,255,0.3)" }}>{slot.countLeft} left</span>
                         </button>
                         );
                   })}
@@ -3610,8 +3610,8 @@ function GalleryInner() {
                 fontSize: "11px", fontWeight: 500, color: "rgba(255,255,255,0.45)",
                 letterSpacing: "0.02em", marginBottom: "-2px",
               }}>
-                <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#2DD4BF", flexShrink: 0 }} />
-                Multi <strong style={{ color: "#2DD4BF", fontWeight: 600 }}>on</strong>
+                <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--primary)", flexShrink: 0 }} />
+                Multi <strong style={{ color: "var(--primary)", fontWeight: 600 }}>on</strong>
                 {" · "}
                 {prompt.split(/\n\n+/).filter(p => p.trim()).length} prompt{prompt.split(/\n\n+/).filter(p => p.trim()).length !== 1 ? "s" : ""}
               </div>
@@ -3679,7 +3679,7 @@ function GalleryInner() {
                   border: "none",
                   outline: "none",
                   color: "transparent",
-                  caretColor: "#2DD4BF",
+                  caretColor: "var(--primary)",
                   fontSize: "14.5px",
                   fontFamily: promptTextMode !== "text" ? "monospace" : "inherit",
                   lineHeight: "22px",
@@ -3730,7 +3730,7 @@ function GalleryInner() {
                           inputRef.current?.setSelectionRange(pos, pos);
                         },
                       )}
-                      <span style={{ background: "rgba(239,68,68,0.22)", color: "#f87171", borderRadius: 2 }}>
+                      <span style={{ background: "rgba(239,68,68,0.22)", color: "var(--danger-soft)", borderRadius: 2 }}>
                         {prompt.slice(promptMaxLength)}
                       </span>
                     </>
@@ -3815,7 +3815,7 @@ function GalleryInner() {
                       >
                         <span style={{
                           fontSize: "10px", fontWeight: 700, letterSpacing: "0.06em",
-                          color: isNonEmpty ? "#2DD4BF" : "rgba(255,255,255,0.25)",
+                          color: isNonEmpty ? "var(--primary)" : "rgba(255,255,255,0.25)",
                           fontFamily: "monospace", lineHeight: "22px", flexShrink: 0, minWidth: "18px",
                         }}>
                           {displayIdx !== null ? String(displayIdx).padStart(2, '0') : "—"}
@@ -3947,7 +3947,7 @@ function GalleryInner() {
                             display: "block", width: "100%",
                             background: "transparent", border: "none", outline: "none",
                             color: "transparent",
-                            caretColor: "#2DD4BF",
+                            caretColor: "var(--primary)",
                             fontSize: "13.5px",
                             fontFamily: promptTextMode !== "text" ? "monospace" : "inherit",
                             lineHeight: "22px",
@@ -4009,7 +4009,7 @@ function GalleryInner() {
                         {isNonEmpty && promptMaxLength !== null && (
                           <span style={{
                             fontSize: "10px", fontWeight: 600,
-                            color: block.length > promptMaxLength ? "#f87171" : "rgba(255,255,255,0.25)",
+                            color: block.length > promptMaxLength ? "var(--danger-soft)" : "rgba(255,255,255,0.25)",
                             fontFamily: "monospace", lineHeight: "22px",
                             fontVariantNumeric: "tabular-nums",
                             ...(isExpanded
@@ -4211,7 +4211,7 @@ function GalleryInner() {
                       borderRadius: "8px",
                       border: "1px solid rgba(255,255,255,0.1)",
                       background: sound ? "rgba(94,234,212,0.12)" : "rgba(255,255,255,0.05)",
-                      color: sound ? "#5EEAD4" : "rgba(255,255,255,0.55)",
+                      color: sound ? "var(--role-audio)" : "rgba(255,255,255,0.55)",
                       fontSize: "13px", fontFamily: "inherit",
                       cursor: submitting ? "not-allowed" : "pointer",
                       transition: "background 150ms, color 150ms, border-color 150ms",
@@ -4220,7 +4220,7 @@ function GalleryInner() {
                     {/* Toggle pill */}
                     <span style={{
                       width: "28px", height: "16px", borderRadius: "8px",
-                      background: sound ? "#5EEAD4" : "rgba(255,255,255,0.18)",
+                      background: sound ? "var(--role-audio)" : "rgba(255,255,255,0.18)",
                       position: "relative", flexShrink: 0,
                       transition: "background 150ms",
                     }}>
@@ -4228,7 +4228,7 @@ function GalleryInner() {
                         position: "absolute", top: "2px",
                         left: sound ? "14px" : "2px",
                         width: "12px", height: "12px", borderRadius: "50%",
-                        background: sound ? "#1e1040" : "#ffffff",
+                        background: sound ? "#1e1040" : "var(--foreground)",
                         transition: "left 150ms",
                       }} />
                     </span>
@@ -4247,7 +4247,7 @@ function GalleryInner() {
                       borderRadius: "8px",
                       border: "1px solid rgba(255,255,255,0.1)",
                       background: veoMode === "references" ? "rgba(251,146,60,0.12)" : "rgba(255,255,255,0.05)",
-                      color: veoMode === "references" ? "#fb923c" : "rgba(255,255,255,0.55)",
+                      color: veoMode === "references" ? "var(--role-resource)" : "rgba(255,255,255,0.55)",
                       fontSize: "13px", fontFamily: "inherit",
                       cursor: submitting ? "not-allowed" : "pointer",
                       transition: "background 150ms, color 150ms, border-color 150ms",
@@ -4255,7 +4255,7 @@ function GalleryInner() {
                     }}>
                     <span style={{
                       width: "28px", height: "16px", borderRadius: "8px",
-                      background: veoMode === "references" ? "#fb923c" : "rgba(255,255,255,0.18)",
+                      background: veoMode === "references" ? "var(--role-resource)" : "rgba(255,255,255,0.18)",
                       position: "relative", flexShrink: 0,
                       transition: "background 150ms",
                     }}>
@@ -4263,7 +4263,7 @@ function GalleryInner() {
                         position: "absolute", top: "2px",
                         left: veoMode === "references" ? "14px" : "2px",
                         width: "12px", height: "12px", borderRadius: "50%",
-                        background: veoMode === "references" ? "#401010" : "#ffffff",
+                        background: veoMode === "references" ? "#401010" : "var(--foreground)",
                         transition: "left 150ms",
                       }} />
                     </span>
@@ -4326,7 +4326,7 @@ function GalleryInner() {
                       }}
                     >−</button>
                     <span style={{
-                      fontSize: "12.5px", color: "#ffffff",
+                      fontSize: "12.5px", color: "var(--foreground)",
                       minWidth: "30px", textAlign: "center",
                       fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em",
                     }}>
@@ -4367,7 +4367,7 @@ function GalleryInner() {
                     borderRadius: "8px",
                     border: "1px solid rgba(255,255,255,0.1)",
                     background: multiPromptMode ? "rgba(45,212,191,0.12)" : "rgba(255,255,255,0.05)",
-                    color: multiPromptMode ? "#2DD4BF" : "rgba(255,255,255,0.55)",
+                    color: multiPromptMode ? "var(--primary)" : "rgba(255,255,255,0.55)",
                     fontSize: "13px", fontFamily: "inherit",
                     cursor: submitting ? "not-allowed" : "pointer",
                     transition: "background 150ms, color 150ms",
@@ -4375,7 +4375,7 @@ function GalleryInner() {
                   }}>
                   <span style={{
                     width: "28px", height: "16px", borderRadius: "8px",
-                    background: multiPromptMode ? "#2DD4BF" : "rgba(255,255,255,0.18)",
+                    background: multiPromptMode ? "var(--primary)" : "rgba(255,255,255,0.18)",
                     position: "relative", flexShrink: 0,
                     transition: "background 150ms",
                   }}>
@@ -4383,7 +4383,7 @@ function GalleryInner() {
                       position: "absolute", top: "2px",
                       left: multiPromptMode ? "14px" : "2px",
                       width: "12px", height: "12px", borderRadius: "50%",
-                      background: multiPromptMode ? "#0B3B38" : "#ffffff",
+                      background: multiPromptMode ? "#0B3B38" : "var(--foreground)",
                       transition: "left 150ms",
                     }} />
                   </span>
@@ -4416,7 +4416,7 @@ function GalleryInner() {
                     borderRadius: "8px",
                     border: "1px solid rgba(255,255,255,0.1)",
                     background: promptTextMode !== "text" ? "rgba(45,212,191,0.12)" : "rgba(255,255,255,0.05)",
-                    color: promptTextMode !== "text" ? "#2DD4BF" : "rgba(255,255,255,0.55)",
+                    color: promptTextMode !== "text" ? "var(--primary)" : "rgba(255,255,255,0.55)",
                     fontSize: "13px", fontFamily: "inherit",
                     cursor: submitting ? "not-allowed" : "pointer",
                     transition: "background 150ms, color 150ms, border-color 150ms",
@@ -4424,7 +4424,7 @@ function GalleryInner() {
                   }}>
                   <span style={{
                     width: "28px", height: "16px", borderRadius: "8px",
-                    background: promptTextMode !== "text" ? "#2DD4BF" : "rgba(255,255,255,0.18)",
+                    background: promptTextMode !== "text" ? "var(--primary)" : "rgba(255,255,255,0.18)",
                     position: "relative", flexShrink: 0,
                     transition: "background 150ms",
                   }}>
@@ -4432,7 +4432,7 @@ function GalleryInner() {
                       position: "absolute", top: "2px",
                       left: promptTextMode !== "text" ? "14px" : "2px",
                       width: "12px", height: "12px", borderRadius: "50%",
-                      background: promptTextMode !== "text" ? "#0B3B38" : "#ffffff",
+                      background: promptTextMode !== "text" ? "#0B3B38" : "var(--foreground)",
                       transition: "left 150ms",
                     }} />
                   </span>
@@ -4449,7 +4449,7 @@ function GalleryInner() {
                       fontSize: "11px",
                       fontWeight: 600,
                       fontVariantNumeric: "tabular-nums",
-                      color: promptOverLimit ? "#f87171" : "rgba(255,255,255,0.3)",
+                      color: promptOverLimit ? "var(--danger-soft)" : "rgba(255,255,255,0.3)",
                       pointerEvents: "none",
                       userSelect: "none",
                     }}
@@ -4534,7 +4534,7 @@ function GalleryInner() {
                   borderRadius: "9px",
                   border: "none",
                   background: idx === mentionSelIdx ? "rgba(119,229,68,0.07)" : "transparent",
-                  color: idx === mentionSelIdx ? "#2DD4BF" : "rgba(255,255,255,0.65)",
+                  color: idx === mentionSelIdx ? "var(--primary)" : "rgba(255,255,255,0.65)",
                   fontSize: "13px",
                   fontFamily: "inherit",
                   cursor: "pointer",
@@ -4772,7 +4772,7 @@ function GalleryInner() {
           border: "1px solid rgba(248,113,113,0.25)",
           boxShadow: "0 8px 32px rgba(0,0,0,0.55)",
           fontSize: "13px",
-          color: "#f87171",
+          color: "var(--danger-soft)",
           fontFamily: "inherit",
           letterSpacing: "-0.01em",
           animation: "dropIn 160ms cubic-bezier(0.16,1,0.3,1)",
@@ -4791,7 +4791,7 @@ function GalleryInner() {
 
 export default function GalleryPage() {
   return (
-    <Suspense fallback={<div style={{ flex: 1, background: "#0B0E14" }} />}>
+    <Suspense fallback={<div style={{ flex: 1, background: "var(--background)" }} />}>
       <GalleryInner />
     </Suspense>
   );
@@ -5031,7 +5031,7 @@ function ElementPickerModal({
                     )}
                     {img.error && (
                       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger-soft)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
                       </div>
                     )}
                     <button onClick={() => setCreateImages(prev => { URL.revokeObjectURL(img.objectUrl); return prev.filter((_, j) => j !== i); })} style={{
@@ -5210,11 +5210,11 @@ function CustomDropdown({
         }}
       >
         {triggerIcon && (
-          <span style={{ display: "flex", alignItems: "center", color: selectedOpt?.providerIcon ? "#2DD4BF" : "white", flexShrink: 0 }}>
+          <span style={{ display: "flex", alignItems: "center", color: selectedOpt?.providerIcon ? "var(--primary)" : "white", flexShrink: 0 }}>
             {triggerIcon}
           </span>
         )}
-        <span style={{ fontSize: "13px", color: "#ffffff", whiteSpace: "nowrap", letterSpacing: "-0.01em" }}>
+        <span style={{ fontSize: "13px", color: "var(--foreground)", whiteSpace: "nowrap", letterSpacing: "-0.01em" }}>
           {label}
         </span>
         {showChevron && (
@@ -5359,7 +5359,7 @@ function AspectRatioDropdown({
     borderRadius: "8px",
     padding: "6px 8px",
     fontSize: "12px",
-    color: "#ffffff",
+    color: "var(--foreground)",
     fontFamily: "inherit",
   };
 
@@ -5402,7 +5402,7 @@ function AspectRatioDropdown({
             <RatioTriggerPreview ratio={value} />
           </span>
         )}
-        <span style={{ fontSize: "13px", color: "#ffffff", whiteSpace: "nowrap", letterSpacing: "-0.01em", fontVariantNumeric: "tabular-nums" }}>
+        <span style={{ fontSize: "13px", color: "var(--foreground)", whiteSpace: "nowrap", letterSpacing: "-0.01em", fontVariantNumeric: "tabular-nums" }}>
           {label}
         </span>
         <svg
@@ -5513,7 +5513,7 @@ function AspectRatioDropdown({
                 ))}
               </div>
               {customError && (
-                <div style={{ fontSize: "10px", color: "#f87171", marginBottom: "8px", lineHeight: 1.4 }}>
+                <div style={{ fontSize: "10px", color: "var(--danger-soft)", marginBottom: "8px", lineHeight: 1.4 }}>
                   {customError}
                 </div>
               )}
@@ -5569,7 +5569,7 @@ function DropItem({ label, active, onClick, preview, providerIcon }: { label: st
         background: active
           ? "rgba(255,255,255,0.09)"
           : hovered ? "rgba(255,255,255,0.06)" : "transparent",
-        color: active ? "#ffffff" : hovered ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.55)",
+        color: active ? "var(--foreground)" : hovered ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.55)",
         fontSize: "13px",
         fontWeight: active ? 500 : 400,
         cursor: "pointer",
@@ -5581,7 +5581,7 @@ function DropItem({ label, active, onClick, preview, providerIcon }: { label: st
       }}
     >
       {providerIcon && (
-        <span style={{ display: "flex", alignItems: "center", color: "#2DD4BF", flexShrink: 0, opacity: active ? 1 : 0.7 }}>
+        <span style={{ display: "flex", alignItems: "center", color: "var(--primary)", flexShrink: 0, opacity: active ? 1 : 0.7 }}>
           {providerIcon}
         </span>
       )}
@@ -5972,7 +5972,7 @@ function GalleryCard({
       {/* ── Checkbox (top-left) ── */}
       <div className="gallery-checkbox" onClick={e => { e.stopPropagation(); onSelect?.(); }}>
         {selected && (
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0B0E14" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--background)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 6 9 17l-5-5" />
           </svg>
         )}
@@ -6132,7 +6132,7 @@ function GalleryCard({
         {item.prompt && onCopyPrompt && (
           <button className="gallery-action-btn" title={copied ? t("copied") : t("copyPrompt")} onClick={handleCopy}>
             {copied ? (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 6 9 17l-5-5" />
               </svg>
             ) : (
@@ -6228,7 +6228,7 @@ function DownloadToast({ downloads, onClear }: { downloads: DownloadTask[]; onCl
             <circle cx="14" cy="14" r="12" stroke="rgba(119,229,68,0.2)" strokeWidth="2" />
             <circle
               cx="14" cy="14" r="12"
-              stroke="#2DD4BF" strokeWidth="2"
+              stroke="var(--primary)" strokeWidth="2"
               strokeLinecap="round"
               strokeDasharray={`${2 * Math.PI * 12}`}
               strokeDashoffset={allDone ? 0 : `${2 * Math.PI * 12 * 0.25}`}
@@ -6237,12 +6237,12 @@ function DownloadToast({ downloads, onClear }: { downloads: DownloadTask[]; onCl
             />
           </svg>
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
             </svg>
           </div>
         </div>
-        <span style={{ flex: 1, fontSize: "14px", fontWeight: 600, color: "#ffffff", letterSpacing: "-0.01em" }}>{title}</span>
+        <span style={{ flex: 1, fontSize: "14px", fontWeight: 600, color: "var(--foreground)", letterSpacing: "-0.01em" }}>{title}</span>
         <svg
           width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5" strokeLinecap="round"
           style={{ flexShrink: 0, transition: "transform 200ms", transform: collapsed ? "rotate(180deg)" : "none" }}
@@ -6270,18 +6270,18 @@ function DownloadToast({ downloads, onClear }: { downloads: DownloadTask[]; onCl
                 <rect x="2" y="4" width="20" height="16" rx="2" />
               </svg>
               {/* Label */}
-              <span style={{ flex: 1, fontSize: "13px", color: task.status === "preparing" ? "rgba(255,255,255,0.35)" : "#ffffff", letterSpacing: "-0.01em" }}>
+              <span style={{ flex: 1, fontSize: "13px", color: task.status === "preparing" ? "rgba(255,255,255,0.35)" : "var(--foreground)", letterSpacing: "-0.01em" }}>
                 {task.status === "preparing" ? "Preparing…" : task.status === "error" ? "Failed" : "Ready"}
               </span>
               {/* Status indicator */}
               {task.status === "preparing" ? (
                 <div style={{ width: "16px", height: "16px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.12)", borderTopColor: "rgba(255,255,255,0.45)", animation: "spin 0.9s linear infinite", flexShrink: 0 }} />
               ) : task.status === "error" ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger-soft)" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}>
                   <circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" />
                 </svg>
               ) : (
-                <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#2DD4BF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#060A06" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
@@ -6330,7 +6330,7 @@ function syntaxHighlightJson(
         push(m.index, m.index + m[1].length, "#86efac");
       }
     } else if (m[3] !== undefined) {
-      push(m.index, m.index + m[3].length, "#fb923c");
+      push(m.index, m.index + m[3].length, "var(--role-resource)");
     } else if (m[4] !== undefined) {
       push(m.index, m.index + m[4].length, "#a78bfa");
     } else if (m[5] !== undefined) {
@@ -6418,7 +6418,7 @@ function colorYamlValue(
   if (/^(true|false|yes|no|on|off)$/i.test(trimmed)) {
     pushValue(main, "#a78bfa");
   } else if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(trimmed) || /^0x[\da-fA-F]+$/.test(trimmed)) {
-    pushValue(main, "#fb923c");
+    pushValue(main, "var(--role-resource)");
   } else if (/^(null|~)$/.test(trimmed)) {
     pushValue(main, "#a78bfa");
   } else if (/^['"]/.test(trimmed)) {
@@ -6456,7 +6456,7 @@ function renderLightboxPrompt(
         background: "rgba(255,255,255,0.1)", borderRadius: "6px",
         padding: "1px 7px 1px 2px", verticalAlign: "middle",
         margin: "0 1px", fontSize: "12px", fontWeight: 600,
-        color: "#ffffff", lineHeight: "20px",
+        color: "var(--foreground)", lineHeight: "20px",
       }}>
         {imgUrl && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -6561,7 +6561,7 @@ function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { i
   ].filter(Boolean) as { label: string; value: string }[];
 
   const panelStyle: React.CSSProperties = {
-    background: "#0B0E14",
+    background: "var(--background)",
     border: "1px solid rgba(255,255,255,0.07)",
     borderRadius: "16px",
     overflow: "hidden",
@@ -6767,7 +6767,7 @@ function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { i
                   padding: "4px 12px", borderRadius: "8px",
                   border: "1px solid rgba(255,255,255,0.1)",
                   background: "rgba(255,255,255,0.05)",
-                  color: copied ? "#2DD4BF" : "rgba(255,255,255,0.65)",
+                  color: copied ? "var(--primary)" : "rgba(255,255,255,0.65)",
                   fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
                   transition: "background 140ms, color 140ms",
                   borderColor: copied ? "rgba(119,229,68,0.3)" : "rgba(255,255,255,0.1)",
@@ -6799,7 +6799,7 @@ function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { i
               borderTop: "1px solid rgba(255,255,255,0.05)",
             }}>
               <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)" }}>{row.label}</span>
-              <span style={{ fontSize: "13px", color: "#ffffff", fontWeight: 600 }}>{row.value}</span>
+              <span style={{ fontSize: "13px", color: "var(--foreground)", fontWeight: 600 }}>{row.value}</span>
             </div>
           ))}
         </div>
@@ -6812,13 +6812,13 @@ function Lightbox({ item, thumbUrl, onClose, onCopyPrompt, onPrev, onNext }: { i
             display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
             width: "100%", padding: "13px 16px",
             borderRadius: "14px", border: "1px solid rgba(255,255,255,0.07)",
-            background: "#0B0E14",
+            background: "var(--background)",
             color: downloading ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.75)",
             fontSize: "13px", fontWeight: 600, cursor: downloading ? "default" : "pointer",
             fontFamily: "inherit", transition: "background 140ms, color 140ms",
           }}
           onMouseEnter={e => { if (!downloading) { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "#fff"; } }}
-          onMouseLeave={e => { if (!downloading) { e.currentTarget.style.background = "#0B0E14"; e.currentTarget.style.color = "rgba(255,255,255,0.75)"; } }}
+          onMouseLeave={e => { if (!downloading) { e.currentTarget.style.background = "var(--background)"; e.currentTarget.style.color = "rgba(255,255,255,0.75)"; } }}
         >
           {downloading ? (
             <span style={{ width: 13, height: 13, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.15)", borderTopColor: "rgba(255,255,255,0.5)", display: "inline-block", animation: "spin 0.75s linear infinite" }} />
@@ -7003,7 +7003,7 @@ const GALLERY_CSS = `
     width: 13px;
     height: 13px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--foreground);
     cursor: pointer;
     transition: transform 120ms;
   }
@@ -7012,7 +7012,7 @@ const GALLERY_CSS = `
     width: 13px;
     height: 13px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--foreground);
     cursor: pointer;
     border: none;
   }
@@ -7041,7 +7041,7 @@ const GALLERY_CSS = `
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--foreground);
     cursor: pointer;
     transition: transform 100ms;
   }
@@ -7050,7 +7050,7 @@ const GALLERY_CSS = `
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--foreground);
     cursor: pointer;
     border: none;
   }
@@ -7111,11 +7111,11 @@ const GALLERY_CSS = `
   }
   .gallery-action-btn:hover {
     background: rgba(255,255,255,0.16);
-    color: #ffffff;
+    color: var(--foreground);
   }
   .gallery-delete-btn:hover {
     background: rgba(255,255,255,0.16);
-    color: #ef4444 !important;
+    color: var(--destructive) !important;
   }
   .gallery-actions-bottom {
     position: absolute;
@@ -7140,7 +7140,7 @@ const GALLERY_CSS = `
     background: rgba(0,0,0,0.62);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    color: #ffffff;
+    color: var(--foreground);
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
@@ -7200,8 +7200,8 @@ const GALLERY_CSS = `
   .gallery-item:hover .gallery-checkbox { opacity: 1; }
   .gallery-item--selected .gallery-checkbox {
     opacity: 1;
-    border-color: #ffffff;
-    background: #ffffff;
+    border-color: var(--foreground);
+    background: var(--foreground);
   }
   .gallery-item--anyselected .gallery-actions-top { display: none; }
   .gallery-item--anyselected .gallery-actions-bottom { display: none; }

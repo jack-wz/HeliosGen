@@ -701,7 +701,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
             className="flex items-center gap-1.5 transition-colors duration-150"
             style={{
               background: textMode !== "text" ? "rgba(45,212,191,0.1)" : "rgba(255,255,255,0.05)",
-              color: textMode !== "text" ? "#2DD4BF" : "#555",
+              color: textMode !== "text" ? "var(--primary)" : "#555",
               border: `1px solid ${textMode !== "text" ? "rgba(45,212,191,0.25)" : "rgba(255,255,255,0.07)"}`,
               borderRadius: 6,
               padding: "2px 7px 2px 5px",
@@ -712,7 +712,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           >
             <span style={{
               width: 22, height: 12, borderRadius: 6, flexShrink: 0, position: "relative",
-              background: textMode !== "text" ? "#2DD4BF" : "rgba(255,255,255,0.15)",
+              background: textMode !== "text" ? "var(--primary)" : "rgba(255,255,255,0.15)",
               transition: "background 150ms",
               display: "inline-block",
             }}>
@@ -749,7 +749,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                   : promptMaxLength !== null && localText.length > promptMaxLength
                   ? <>
                       {renderWithMentions(localText.slice(0, promptMaxLength), knownLabels)}
-                      <span style={{ background: "rgba(239,68,68,0.22)", color: "#f87171", borderRadius: 2 }}>
+                      <span style={{ background: "rgba(239,68,68,0.22)", color: "var(--danger-soft)", borderRadius: 2 }}>
                         {localText.slice(promptMaxLength)}
                       </span>
                     </>
@@ -762,7 +762,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
             {!localText && textMode === "text" && (
               <div
                 aria-hidden
-                className="absolute inset-0 px-3 pt-2.5 pb-8 text-[15px] text-[#3A4055] leading-[1.6] pointer-events-none select-none"
+                className="absolute inset-0 px-3 pt-2.5 pb-8 text-[15px] text-[var(--text-placeholder)] leading-[1.6] pointer-events-none select-none"
               >
                 Describe what you want to generate…
               </div>
@@ -872,7 +872,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                 style={{
                   fontSize: 9,
                   lineHeight: 1,
-                  color: localText.length > promptMaxLength ? "#f87171" : "#fff",
+                  color: localText.length > promptMaxLength ? "var(--danger-soft)" : "#fff",
                   background: localText.length > promptMaxLength ? "#2a1010" : "#1a1a1a",
                 }}
               >
@@ -966,7 +966,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           {/* Panel */}
           <div
             className="relative z-10 flex flex-col rounded-xl border border-white/[0.08]"
-            style={{ width: "min(760px, 100%)", height: "min(520px, 100%)", background: "#0B0E14", boxShadow: "0 24px 80px rgba(0,0,0,0.8)" }}
+            style={{ width: "min(760px, 100%)", height: "min(520px, 100%)", background: "var(--background)", boxShadow: "0 24px 80px rgba(0,0,0,0.8)" }}
             onKeyDown={(e) => { if (e.key === "Escape") { setExpandOpen(false); setExpandMentionQuery(null); } }}
           >
             {/* Header */}
@@ -1243,7 +1243,7 @@ function colorYamlValue(value: string, baseKey: number, sorted: string[] = []): 
   if (/^(true|false|yes|no|on|off)$/i.test(trimmed)) {
     pushValue(main, "#a78bfa");
   } else if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(trimmed) || /^0x[\da-fA-F]+$/.test(trimmed)) {
-    pushValue(main, "#fb923c");
+    pushValue(main, "var(--role-resource)");
   } else if (/^(null|~)$/.test(trimmed)) {
     pushValue(main, "#a78bfa");
   } else if (/^['"]/.test(trimmed)) {
@@ -1269,7 +1269,7 @@ function syntaxHighlightJson(json: string, errorPos?: number, knownLabels: strin
       if (errorPos > from)
         parts.push(<span key={k++} style={color ? { color } : undefined}>{json.slice(from, errorPos)}</span>);
       parts.push(
-        <mark key={k++} style={{ background: "rgba(239,68,68,0.45)", color: "#f87171", borderRadius: 2, padding: "0 1px" }}>
+        <mark key={k++} style={{ background: "rgba(239,68,68,0.45)", color: "var(--danger-soft)", borderRadius: 2, padding: "0 1px" }}>
           {json[errorPos] ?? " "}
         </mark>
       );
@@ -1297,7 +1297,7 @@ function syntaxHighlightJson(json: string, errorPos?: number, knownLabels: strin
         push(m.index, m.index + m[1].length, "#86efac");
       }
     } else if (m[3] !== undefined) {
-      push(m.index, m.index + m[3].length, "#fb923c");
+      push(m.index, m.index + m[3].length, "var(--role-resource)");
     } else if (m[4] !== undefined) {
       push(m.index, m.index + m[4].length, "#a78bfa");
     } else if (m[5] !== undefined) {

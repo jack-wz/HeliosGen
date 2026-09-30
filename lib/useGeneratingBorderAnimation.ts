@@ -44,7 +44,7 @@ function perimToAngle(dist: number, W: number, H: number, r: number): number {
   return (Math.atan2(x, -y) * (180 / Math.PI) + 360) % 360;
 }
 
-const PEAK_DEG = 345;   // gradient stop where #ffffff sits
+const PEAK_DEG = 345;   // gradient stop where var(--foreground) sits
 const DURATION = 3000;  // ms per full revolution
 const BORDER_RADIUS = 8;
 

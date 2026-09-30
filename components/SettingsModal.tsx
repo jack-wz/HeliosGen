@@ -1004,7 +1004,7 @@ function ImageModelsPanel({
       <ProviderLegend />
       <ModelGroup
         title="Image Models"
-        accent="#fb923c"
+        accent="var(--role-resource)"
         models={models}
         providers={providers}
         onProviderChange={onProviderChange}
@@ -1050,7 +1050,7 @@ function VideoModelsPanel({
       <ProviderLegend />
       <ModelGroup
         title="Video Models"
-        accent="#5EEAD4"
+        accent="var(--role-audio)"
         models={models}
         providers={providers}
         onProviderChange={onProviderChange}

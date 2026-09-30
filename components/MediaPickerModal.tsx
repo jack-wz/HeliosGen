@@ -452,8 +452,8 @@ export function MediaPickerModal({
               <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
                 padding: "6px 16px", borderRadius: "100px", border: "none", cursor: "pointer",
                 fontSize: "13px", fontWeight: active ? 600 : 400,
-                background: active ? "#ffffff" : "transparent",
-                color: active ? "#0B0E14" : "rgba(255,255,255,0.5)",
+                background: active ? "var(--foreground)" : "transparent",
+                color: active ? "var(--background)" : "rgba(255,255,255,0.5)",
                 transition: "background 150ms, color 150ms",
               }}>
                 {t.label}
@@ -465,7 +465,7 @@ export function MediaPickerModal({
               marginLeft: "8px", fontSize: "11px", fontWeight: 500,
               padding: "3px 8px", borderRadius: "100px",
               background: (selectedUrls?.length ?? 0) >= maxCount ? "rgba(45,212,191,0.15)" : "rgba(255,255,255,0.07)",
-              color: (selectedUrls?.length ?? 0) >= maxCount ? "#2DD4BF" : "rgba(255,255,255,0.4)",
+              color: (selectedUrls?.length ?? 0) >= maxCount ? "var(--primary)" : "rgba(255,255,255,0.4)",
               flexShrink: 0,
             }}>
               {selectedUrls?.length ?? 0}/{maxCount}
@@ -517,14 +517,14 @@ export function MediaPickerModal({
               style={{
                 height: "32px", padding: "0 14px", borderRadius: "8px", border: "none",
                 background: urlInput.trim() && !urlLoading ? "rgba(45,212,191,0.18)" : "rgba(255,255,255,0.05)",
-                color: urlInput.trim() && !urlLoading ? "#2DD4BF" : "rgba(255,255,255,0.25)",
+                color: urlInput.trim() && !urlLoading ? "var(--primary)" : "rgba(255,255,255,0.25)",
                 fontSize: "12px", fontWeight: 500, cursor: urlInput.trim() && !urlLoading ? "pointer" : "default",
                 transition: "background 150ms, color 150ms", flexShrink: 0,
                 display: "flex", alignItems: "center", gap: "6px",
               }}
             >
               {urlLoading ? (
-                <span style={{ width: "12px", height: "12px", borderRadius: "50%", border: "1.5px solid rgba(45,212,191,0.3)", borderTopColor: "#2DD4BF", display: "inline-block", animation: "spin 0.75s linear infinite" }} />
+                <span style={{ width: "12px", height: "12px", borderRadius: "50%", border: "1.5px solid rgba(45,212,191,0.3)", borderTopColor: "var(--primary)", display: "inline-block", animation: "spin 0.75s linear infinite" }} />
               ) : (
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M12 5l7 7-7 7" />
@@ -534,7 +534,7 @@ export function MediaPickerModal({
             </button>
           </div>
           {urlError && (
-            <p style={{ margin: "6px 0 0", fontSize: "11px", color: "#f87171" }}>{urlError}</p>
+            <p style={{ margin: "6px 0 0", fontSize: "11px", color: "var(--danger-soft)" }}>{urlError}</p>
           )}
         </div>
 
@@ -542,7 +542,7 @@ export function MediaPickerModal({
         <div ref={scrollContainerRef} className="picker-scroll" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "14px 18px 18px" }}>
           {fetching && displayItems.length === 0 ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "200px" }}>
-              <span style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.1)", borderTopColor: "#2DD4BF", display: "inline-block", animation: "spin 0.75s linear infinite" }} />
+              <span style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.1)", borderTopColor: "var(--primary)", display: "inline-block", animation: "spin 0.75s linear infinite" }} />
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "4px" }}>
@@ -585,7 +585,7 @@ export function MediaPickerModal({
                     style={{
                       position: "relative", aspectRatio: "1", borderRadius: "8px", overflow: "hidden",
                       background: "#1a1c1f",
-                      border: isSelected ? "2px solid #2DD4BF" : "2px solid transparent",
+                      border: isSelected ? "2px solid var(--primary)" : "2px solid transparent",
                       cursor: isDisabled ? "not-allowed" : "pointer", padding: 0,
                       transition: "border-color 110ms, transform 110ms, opacity 110ms",
                       opacity: isDisabled ? 0.35 : 1,
@@ -654,7 +654,7 @@ export function MediaPickerModal({
           )}
           {loadingMore && (
             <div style={{ padding: "16px", display: "flex", justifyContent: "center" }}>
-              <span style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.1)", borderTopColor: "#2DD4BF", display: "inline-block", animation: "spin 0.75s linear infinite" }} />
+              <span style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.1)", borderTopColor: "var(--primary)", display: "inline-block", animation: "spin 0.75s linear infinite" }} />
             </div>
           )}
         </div>

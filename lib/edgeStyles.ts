@@ -2,13 +2,13 @@ import type { CSSProperties } from "react";
 
 // Colours match the handle border colours exactly
 export const EDGE_COLORS: Record<string, string> = {
-  prompt: "#2DD4BF", // teal   — matches node-handle-icon-prompt
-  image: "#fb923c", // orange — matches node-handle-icon-resource
+  prompt: "var(--primary)", // teal   — matches node-handle-icon-prompt
+  image: "var(--role-resource)", // orange — matches node-handle-icon-resource
   startFrame: "#818cf8", // indigo — matches node-handle-icon-image
   endFrame: "#818cf8", // indigo — matches node-handle-icon-image
-  resource: "#fb923c", // orange — matches node-handle-icon-resource
-  videoRef: "#22d3ee", // cyan   — matches node-handle-icon-videoref
-  referenceVideo: "#38bdf8", // sky    — matches node-handle-icon-refvideo
+  resource: "var(--role-resource)", // orange — matches node-handle-icon-resource
+  videoRef: "var(--role-video)", // cyan   — matches node-handle-icon-videoref
+  referenceVideo: "var(--role-refvideo)", // sky    — matches node-handle-icon-refvideo
   audioRef: "#a78bfa", // violet — matches node-handle-icon-audioref
   character: "#f472b6", // pink   — matches node-handle-icon-character (motion control startFrame)
   default: "#3a3a3a", // neutral
@@ -30,17 +30,17 @@ export function getSourceHandleColor(nodeType: string | undefined, sourceHandleI
     case "startFrameOut":
     case "endFrameOut":
     case "imagePickOut": return "#818cf8";
-    case "videoRefOut": return "#22d3ee";
+    case "videoRefOut": return "var(--role-video)";
     case "audioRefOut": return "#a78bfa";
   }
   // Legacy / single-output nodes — derive from node type
   switch (nodeType) {
-    case "promptNode": return "#2DD4BF";
-    case "assistantNode": return "#FBBF24";
+    case "promptNode": return "var(--primary)";
+    case "assistantNode": return "var(--role-assistant)";
     case "imageInputNode": return "#818cf8";
     case "generateNode": return "#818cf8";
-    case "videoInputNode": return "#22d3ee";
-    case "videoGeneratorNode": return "#22d3ee";
+    case "videoInputNode": return "var(--role-video)";
+    case "videoGeneratorNode": return "var(--role-video)";
     default: return EDGE_COLORS.default;
   }
 }
