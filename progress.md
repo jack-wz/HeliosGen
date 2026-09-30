@@ -88,6 +88,32 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-30（NAS 恢复 + A 类线上最终验证 ✅）
+
+### 过载自行解除
+| 指标 | 过载时 | 恢复后 |
+|---|---|---|
+| load (1min) | 82.0 | **0.83** |
+| 可用内存 | 938MB | **9593MB** |
+| 内存已用 | 14Gi | **6.0Gi** |
+| `/api/workflows` | 连续 3 次 30s 超时 | **HTTP 200** |
+
+约 8GB 内存被释放（其他服务重启或回收）。`heliosgen` Up 3 hours healthy。
+
+### A 类线上最终验证（局域网直连 NAS）
+| 检查 | 结果 |
+|---|---|
+| 局域网 `/` | HTTP 307（0.26s） |
+| `/api/workflows` | HTTP 200 |
+| 资产 | 170 ✓ |
+| EACCES | 0 ✓ |
+| asset-bridge | Up 5 days ✓ |
+| 浏览器 zh-CN / en | `lang` 正确切换；`--primary`=#2dd4bf、`--danger-soft`=#f87171、body=rgb(11,14,20) ✓ |
+| **A 类用到的 14 个 token** | **全部有解析值，无 `var()` 断链** ✓ |
+| JS 错误 | 无 ✓ |
+
+**结论：A 类色值替换（212 处）已上线且完全正确。**
+
 ## 2026-09-30（NAS 再次过载 — **与本次改动无关**）
 
 写完 `scripts/deploy-nas.sh` 后跑 `--check`，**脚本立刻报警**：
