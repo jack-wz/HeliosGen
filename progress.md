@@ -88,6 +88,33 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-30（NAS 失联 — 复测诊断更新）
+
+用户提示"NAS 在线"，复测结果**确认机器在线、但服务不可用**：
+
+| 检查项 | 结果 | 含义 |
+|---|---|---|
+| ping `192.168.1.185`（局域网） | ✅ 0% 丢包 / 3.8ms | **NAS 机器活着** |
+| ping `100.112.104.77`（Tailscale） | ❌ 100% 丢包 | 其 Tailscale 已断 |
+| tailnet 状态 | `offline, last seen 1h ago` | Tailscale 进程已停 |
+| 局域网 22 端口 | 开，但 `Permission denied (publickey,password)` | SSH 服务在，但我的密钥只授权给 Tailscale SSH |
+| 局域网 17860 端口 | TCP 可连（有时） | 应用在监听 |
+| `http://192.168.1.185:17860/api/health` | ❌ 20s 与 60s 均超时（HTTP 000） | **连得上但完全不响应** |
+| TCP 层直连测试 | ❌ 超时（exit 124） | 时通时不通 |
+| 公网中继 | 000 | — |
+
+**结论**：NAS **通电且在网**，但**应用与 Tailscale 均无响应**。TCP 端口有时能连上、但 60 秒拿不到任何 HTTP 响应，且 SSH 也不通 —— 与"构建把主机资源耗尽 / 服务卡死"一致。
+
+**我无法远程介入**：局域网 SSH 拒绝我的公钥，Tailscale 已断。
+
+**建议你在 NAS 控制台或可用 SSH 上执行**：
+```
+docker ps -a                          # 看 heliosgen 状态、有无卡住的构建
+docker compose --env-file .env.sync -f compose.nas.yaml logs --tail=30 heliosgen
+docker compose --env-file .env.sync -f compose.nas.yaml restart heliosgen
+```
+若确认有卡住的构建，先中断它再重启容器。**注意**：不要 `docker compose down`（会连 asset-bridge 一起停）。
+
 ## 2026-09-30（⚠️ NAS 失联事件）
 
 ### 经过
