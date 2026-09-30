@@ -88,6 +88,39 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-30（⚠️ NAS 失联事件）
+
+### 经过
+- A 类色值替换已提交并推送（`5c2410f`），随后按流程部署：
+  1. 建回滚镜像 `rollback-20260930-5` ✅
+  2. 备份 NAS 源码 `heliosgen-src-backup-20260930-5.tar.gz` ✅
+  3. 同步源码到 NAS ✅（`EXTRACT_OK`）
+  4. 执行 `docker compose build heliosgen` —— **构建进行到 "Creating an optimized production build" 时 NAS 失去响应**
+- 构建日志停在 `#12 7.732 Creating an optimized production build ...`，此后无进展
+
+### 当前状态（约 5 分钟后复测）
+| 路径 | 结果 |
+|---|---|
+| ping 100.112.104.77 | 100% 丢包 |
+| SSH | `Operation timed out` |
+| 局域网 `192.168.1.185:17860` | HTTP 000 |
+| Tailscale HTTPS | HTTP 000 |
+| 公网 `heliosgen.iepose.cn` | HTTP 404（「节点小宝」网关响应，非本应用） |
+| tailnet 状态 | `active; relay "sfo", tx 15288 rx 0` —— 发得出去、收不到 |
+
+### 我做了什么 / 没做什么
+- **做了**：建回滚点、备份源码、同步源码、启动 `docker compose build`
+- **没做**：**从未执行 `up -d --force-recreate`**，即**没有停止或替换正在运行的容器**
+- **未触碰**：`.env.sync`、`secrets/seek-token`、`.seek-token.bak`、数据库与媒体目录
+
+### 因果关系的诚实判断
+同一个构建此前已成功执行 11 次。但 Next.js 生产构建是 CPU/内存密集型，NAS 是小型设备，**我无法排除这次构建导致其资源耗尽（如 OOM）从而失去响应**。不排除是我的操作触发。
+
+### 需要你处理
+- NAS 需要**物理或控制台介入**（可能需重启），我无法远程做到
+- 恢复后我可以：**A)** 继续完成本次部署；**B)** 用 `rollback-20260930-5` 回滚
+- 回滚点与源码备份均在失联前创建完成，可用
+
 ## 2026-09-30（review 收口 · 八）
 
 ### 本轮完成
