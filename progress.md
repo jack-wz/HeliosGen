@@ -126,8 +126,29 @@ Tailscale 已断、公网中继不通，最终通过**局域网 SSH + `~/.ssh/fn
 - 后续部署应改为**本地构建 linux/amd64 镜像再传过去**（本地 Docker daemon 当前未运行，需先启动），或**构建前先检查 NAS 的 load 与可用内存**。
 - 部署脚本缺一道**前置资源检查**。
 
-### 当前部署状态
-容器运行的是**A 类改动之前**的镜像（构建未完成）。`5c2410f` 已提交并推送，但**未部署**。
+### A 类部署（改用「别处构建」流程，已完成 ✅）
+经用户选定方案 A：**不在 NAS 上构建**。
+1. 本地启动 Docker Desktop → `docker buildx build --platform linux/amd64 -f Dockerfile.nas --build-arg APP_VERSION=1.2.1 --load`（QEMU 模拟，Next.js 编译 30s）
+2. `docker save | gzip -1` → **472MB 镜像 / 447MB 压缩包**
+3. 局域网传输 **9.5 秒**（NAS load 此时已回落至 1.28）
+4. NAS 侧建回滚点 `rollback-20260930-6` → `docker load` → `up -d --force-recreate --no-deps heliosgen`
+5. 容器 healthy（20s）
+
+**验证**：
+| 检查 | 结果 |
+|---|---|
+| 镜像架构 | `amd64/linux` ✓ |
+| 容器内 chunk 含 `var(--primary)` | **9 个** ✓（A 类改动已上线） |
+| chunk 残留 `#2DD4BF` | 3 处（正是刻意保留的排除项） |
+| 浏览器实测 `--primary` / `--background` | `#2dd4bf` / `#0b0e14`，body 解析为 `rgb(11,14,20)` ✓ |
+| JS 错误 | 无 ✓ |
+| `/api/workflows` | HTTP 200 |
+| 资产 | 170 ✓ |
+| EACCES | 0 ✓ |
+| asset-bridge | Up 5 days ✓ |
+| NAS load | 158 → **3.26** |
+
+**部署流程已改进**：`README.nas.md` 现以「别处构建再传输」为推荐路径，并附「若坚持在 NAS 上构建」的前置资源检查（load < 20、available > 3Gi、无 unhealthy 容器）与卡死构建的识别方法。
 
 ## 2026-09-30（NAS 失联 — 复测诊断更新）
 
