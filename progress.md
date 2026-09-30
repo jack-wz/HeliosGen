@@ -88,6 +88,34 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-09-30（NAS 再次过载 — **与本次改动无关**）
+
+写完 `scripts/deploy-nas.sh` 后跑 `--check`，**脚本立刻报警**：
+
+| 检查项 | 值 | 阈值 |
+|---|---|---|
+| load (1min) | **43.8 → 82.0**（持续上升） | < 20 |
+| 可用内存 | **938MB** | > 3072MB |
+| unhealthy 容器 | **2** | 0 |
+
+进一步确认：
+- unhealthy 的是 **`topic-xhs-rss`、`topic-web-monitor-rss`**（用户的其他服务，**非 heliosgen**）
+- `heliosgen` 容器 Docker 报 healthy，但 `/api/workflows` **连续 3 次 30 秒超时（HTTP 000）**
+- **Swap 再次 8.0Gi / 8.0Gi 全部用尽**
+- 内存大户：node 1116MB、bun 790MB、dockerd 649MB、bun ×3 各 ~333MB
+
+**结论：这是 NAS 的慢性容量问题，与我的改动无关**——本次我是在**本地**构建后传输镜像的，没有在 NAS 上跑构建。该机 15GB 物理内存跑 6+ 个服务（含多个 `bun`、`WeKnora`、RSS 服务），swap 长期耗尽，heliosgen 被连带饿死。
+
+**这解释了上一轮事故的真实性质**：我的构建是触发点，但**根因是容量不足**。即使我不构建，这台机器也会因为其他服务而反复进入该状态。
+
+### 已产出：`scripts/deploy-nas.sh`
+把验证过的安全流程固化（`6b38e60` 之后新增）：
+- 本地 `buildx --platform linux/amd64` 构建 → `docker save | gzip` → 局域网传输 → NAS `docker load` → **只重建 heliosgen**
+- **部署前资源前置检查**（load / 可用内存 / unhealthy 容器），不达标会明确警告
+- 自动建回滚镜像 + 源码备份
+- 部署后验证（health / API / 资产 / EACCES / 桥接 / 负载）
+- `--check` 仅检查不部署；`--skip-build` 复用本地镜像
+
 ## 2026-09-30（NAS 事件 — 已定位并恢复 ✅）
 
 ### 进入方式
