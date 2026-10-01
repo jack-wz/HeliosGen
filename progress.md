@@ -95,7 +95,15 @@
 
 1. **测试污染了被测状态**。`PromptNode` 的 textarea 是**非受控**的，且 `handleChange` 会把内容写回 store（`updateNodeData(id, { prompt })`）。我前几次输入的 `@` **被持久化**，下次打开时初始值变成 `hello @@@@@@@`。于是 `getMentionQuery`（正则 `/@(\S*)$/`）匹配到的是 `@@@@@@@` 而非空串，`filteredMentions` 过滤后为空 → `menuOpen=false`。
    - 这解释了当时「zh 命中一次、立刻复测就失败」的诡异现象：**只有第一次是干净的**。
-2. **空文本时点击被空态遮罩拦截**。prompt 为空时节点显示 `Describe what you want to generate…` 占位层，`click()` 落在遮罩上，按键根本没进 textarea（实测 `value` 始终为 `''`）。改用 `focus()` 显式聚焦即可。
+2. **未选中的节点上，`click()` 不会聚焦 textarea**（我最初误判为"空态遮罩拦截"，**已更正**）。
+   - 实测：`elementFromPoint` 在 textarea 中心命中的就是 `TEXTAREA` 本身；占位层带 `pointer-events-none`，**并不拦截点击**。
+   - 真正原因是 `PromptNode` 里**有意为之**的 `mousedown` 处理器（第 390–400 行）：
+     ```js
+     if (selectedRef.current) e.stopPropagation();   // 已选中：允许放置光标 / 选文本
+     else e.preventDefault();                        // 未选中：交给 ReactFlow 拖拽，同时阻止文本选择手势
+     ```
+     未选中时 `preventDefault()` 会**阻止浏览器默认的 mousedown 聚焦**。点节点本体可正常聚焦（选中流程会聚焦），所以**功能无损，不是 bug**。
+   - 测试上用 `focus()` 显式聚焦即可绕过。
 3. **判据没考虑 CSS `uppercase`**。菜单标题用 `uppercase` 渲染，`inner_text` 返回大写 `CONNECTED NODES`，而我断言的是 `Connected nodes`。
 
 ### 修正后的复现步骤
