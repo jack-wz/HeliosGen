@@ -128,3 +128,7 @@
 | NAS 直下 CDN 403 | 1 | CDN 按 UA 拦截；本机带浏览器 UA 下载后传输 |
 | 模型块下载截断（61/86） | 2 | 改 curl -C - 断点续传 + 按偏移量校验 |
 | compose up --force-recreate 波及 asset-bridge | 1 | 改为指定服务名 |
+
+## 未验证项（已清零）
+
+- [x] **`connectedNodes` 已验证**（2026-10-01）：zh-CN `已连接节点` / en `CONNECTED NODES` 均在浏览器确认渲染。此前复现不了是测试方法问题（持久化文本污染 + 空态遮罩拦截点击 + 判据未考虑 CSS uppercase），非代码问题

@@ -88,6 +88,34 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-10-01（`connectedNodes` 未验证项 —— **已关闭 ✅**）
+
+### 为什么之前一直复现不了
+三个原因叠加，**全部是测试方法问题**，不是代码问题：
+
+1. **测试污染了被测状态**。`PromptNode` 的 textarea 是**非受控**的，且 `handleChange` 会把内容写回 store（`updateNodeData(id, { prompt })`）。我前几次输入的 `@` **被持久化**，下次打开时初始值变成 `hello @@@@@@@`。于是 `getMentionQuery`（正则 `/@(\S*)$/`）匹配到的是 `@@@@@@@` 而非空串，`filteredMentions` 过滤后为空 → `menuOpen=false`。
+   - 这解释了当时「zh 命中一次、立刻复测就失败」的诡异现象：**只有第一次是干净的**。
+2. **空文本时点击被空态遮罩拦截**。prompt 为空时节点显示 `Describe what you want to generate…` 占位层，`click()` 落在遮罩上，按键根本没进 textarea（实测 `value` 始终为 `''`）。改用 `focus()` 显式聚焦即可。
+3. **判据没考虑 CSS `uppercase`**。菜单标题用 `uppercase` 渲染，`inner_text` 返回大写 `CONNECTED NODES`，而我断言的是 `Connected nodes`。
+
+### 修正后的复现步骤
+```
+reset(prompt="a")                                        # 每次都从干净状态开始
+pg.focus('.react-flow__node[data-id="n0"] textarea')      # 绕过空态遮罩
+pg.keyboard.press("End"); pg.keyboard.type(" @")
+```
+图结构：`promptNode → generateNode`，另有 `imageInputNode → generateNode`（与 prompt 共享下游 → 可提及）。
+
+### 结果（两种语言均通过）
+| 语言 | 菜单标题 | 候选项 |
+|---|---|---|
+| zh-CN | `已连接节点` ✓ | `@Img A` ✓ |
+| en | `CONNECTED NODES` ✓ | `@Img A` ✓ |
+
+节点实测渲染：`PROMPT A | JSON/YAML |  @a | 3/10,000 | | 已连接节点 | | @Img A | ↵`
+
+**至此 R3 i18n 组件侧全部字符串均已在浏览器中验证，无遗留未验证项。**
+
 ## 2026-09-30（NAS 恢复 + A 类线上最终验证 ✅）
 
 ### 过载自行解除
