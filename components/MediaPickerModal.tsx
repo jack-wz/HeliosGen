@@ -584,7 +584,7 @@ export function MediaPickerModal({
                     }}
                     style={{
                       position: "relative", aspectRatio: "1", borderRadius: "8px", overflow: "hidden",
-                      background: "#1a1c1f",
+                      background: "var(--neutral-10)",
                       border: isSelected ? "2px solid var(--primary)" : "2px solid transparent",
                       cursor: isDisabled ? "not-allowed" : "pointer", padding: 0,
                       transition: "border-color 110ms, transform 110ms, opacity 110ms",

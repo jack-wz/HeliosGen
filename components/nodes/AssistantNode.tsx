@@ -235,14 +235,14 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
         }}
       >
         <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDuplicate(); }} title={tCanvas("duplicateNode")}
-          className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-white hover:bg-white/10 transition-colors duration-150">
+          className="w-7 h-7 flex items-center justify-center rounded-full text-[var(--neutral-3)] hover:text-white hover:bg-white/10 transition-colors duration-150">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
           </svg>
         </button>
         <span className="w-px h-4 bg-white/[0.08] mx-0.5 shrink-0" />
         <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDelete(); }} title={tCanvas("deleteNode")}
-          className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-red-400 hover:bg-red-400/10 transition-colors duration-150">
+          className="w-7 h-7 flex items-center justify-center rounded-full text-[var(--neutral-3)] hover:text-red-400 hover:bg-red-400/10 transition-colors duration-150">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
           </svg>
@@ -379,13 +379,13 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
               </button>
 
               {modelPopup.visible && (
-                <div className={`absolute bottom-full left-0 mb-2 w-44 bg-[#111622] border border-[var(--border-handle-active)] rounded-md overflow-hidden z-[1002] shadow-2xl ${modelPopup.className}`}>
+                <div className={`absolute bottom-full left-0 mb-2 w-44 bg-[var(--neutral-11)] border border-[var(--border-handle-active)] rounded-md overflow-hidden z-[1002] shadow-2xl ${modelPopup.className}`}>
                   {MODELS.map((m) => (
                     <button
                       key={m.id}
                       onMouseDown={(e) => e.stopPropagation()}
                       onClick={(e) => { e.stopPropagation(); updateNodeData(id, { model: m.id }); setModelOpen(false); }}
-                      className={`w-full text-left px-3 py-[7px] text-[12px] hover:bg-[#141C28] transition-colors ${model === m.id ? "text-white" : "text-muted-foreground"}`}
+                      className={`w-full text-left px-3 py-[7px] text-[12px] hover:bg-[var(--neutral-11)] transition-colors ${model === m.id ? "text-white" : "text-muted-foreground"}`}
                     >
                       {m.label}
                     </button>
@@ -399,7 +399,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
               <button
                 onClick={(e) => { e.stopPropagation(); handleCancel(); }}
                 className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium hover:bg-white/5 transition-colors"
-                style={{ border: "1px solid #333", color: "#888", background: "rgba(255,255,255,0.04)" }}
+                style={{ border: "1px solid var(--neutral-7)", color: "var(--neutral-2)", background: "rgba(255,255,255,0.04)" }}
               >
                 <svg width="7" height="7" viewBox="0 0 8 8" fill="currentColor"><rect width="8" height="8" rx="1.5" /></svg>
                 Stop

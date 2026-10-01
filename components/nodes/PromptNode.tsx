@@ -641,7 +641,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
         >
           {/* Copy to clipboard */}
           <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleCopyToClipboard(); }} title={t("copyPromptText")}
-            className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-white hover:bg-white/10 transition-colors duration-150">
+            className="w-7 h-7 flex items-center justify-center rounded-full text-[var(--neutral-3)] hover:text-white hover:bg-white/10 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
             </svg>
@@ -649,14 +649,14 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           <span className="w-px h-4 bg-white/[0.08] mx-0.5 shrink-0" />
           {/* Duplicate */}
           <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDuplicate(); }} title={tCanvas("duplicateNode")}
-            className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-white hover:bg-white/10 transition-colors duration-150">
+            className="w-7 h-7 flex items-center justify-center rounded-full text-[var(--neutral-3)] hover:text-white hover:bg-white/10 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
           </button>
           {/* Expand */}
           <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setExpandOpen(true); }} title={t("expandEditor")}
-            className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-white hover:bg-white/10 transition-colors duration-150">
+            className="w-7 h-7 flex items-center justify-center rounded-full text-[var(--neutral-3)] hover:text-white hover:bg-white/10 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 3 21 3 21 9" /><polyline points="9 21 3 21 3 15" /><line x1="21" y1="3" x2="14" y2="10" /><line x1="3" y1="21" x2="10" y2="14" />
             </svg>
@@ -664,7 +664,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           <span className="w-px h-4 bg-white/[0.08] mx-0.5 shrink-0" />
           {/* Delete */}
           <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleDelete(); }} title={tCanvas("deleteNode")}
-            className="w-7 h-7 flex items-center justify-center rounded-full text-[#777] hover:text-red-400 hover:bg-red-400/10 transition-colors duration-150">
+            className="w-7 h-7 flex items-center justify-center rounded-full text-[var(--neutral-3)] hover:text-red-400 hover:bg-red-400/10 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
             </svg>
@@ -701,7 +701,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
             className="flex items-center gap-1.5 transition-colors duration-150"
             style={{
               background: textMode !== "text" ? "rgba(45,212,191,0.1)" : "rgba(255,255,255,0.05)",
-              color: textMode !== "text" ? "var(--primary)" : "#555",
+              color: textMode !== "text" ? "var(--primary)" : "var(--neutral-5)",
               border: `1px solid ${textMode !== "text" ? "rgba(45,212,191,0.25)" : "rgba(255,255,255,0.07)"}`,
               borderRadius: 6,
               padding: "2px 7px 2px 5px",
@@ -873,7 +873,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                   fontSize: 9,
                   lineHeight: 1,
                   color: localText.length > promptMaxLength ? "var(--danger-soft)" : "#fff",
-                  background: localText.length > promptMaxLength ? "#2a1010" : "#1a1a1a",
+                  background: localText.length > promptMaxLength ? "#2a1010" : "var(--neutral-10)",
                 }}
               >
                 {localText.length.toLocaleString()}/{promptMaxLength.toLocaleString()}
@@ -895,12 +895,12 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
         {/* ── Inline @mention menu (scales with canvas zoom) ─────────────── */}
         {menuOpen && (
           <div
-            className="absolute left-0 right-0 bg-[#111622] border border-[#2A2A2A] rounded-lg overflow-hidden shadow-xl"
+            className="absolute left-0 right-0 bg-[var(--neutral-11)] border border-[var(--neutral-9)] rounded-lg overflow-hidden shadow-xl"
             style={{ top: "calc(100% + 6px)", zIndex: 50 }}
             onMouseDown={(e) => e.preventDefault()}
           >
             <div className="px-2.5 py-1.5 border-b border-[#1E1E1E]">
-              <p className="text-[10px] text-[#4A4A45] uppercase tracking-widest">
+              <p className="text-[10px] text-[var(--neutral-6)] uppercase tracking-widest">
                 {t("connectedNodes")}
               </p>
             </div>
@@ -919,10 +919,10 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                 <button
                   key={n.id}
                   onClick={() => insertMention(label)}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left transition-colors ${active ? "bg-[#1A2010]" : "hover:bg-[#141C28]"
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left transition-colors ${active ? "bg-[#1A2010]" : "hover:bg-[var(--neutral-11)]"
                     }`}
                 >
-                  <div className="w-6 h-6 rounded bg-[#1A1A1A] overflow-hidden shrink-0 flex items-center justify-center">
+                  <div className="w-6 h-6 rounded bg-[var(--neutral-10)] overflow-hidden shrink-0 flex items-center justify-center">
                     {imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={thumbSrc(imageUrl, 24)} alt="" className="w-full h-full object-cover" />
@@ -941,11 +941,11 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                       <EmptyThumb />
                     )}
                   </div>
-                  <span className={`text-[12px] font-medium truncate ${active ? "text-primary" : "text-[#CCCCCC]"}`}>
+                  <span className={`text-[12px] font-medium truncate ${active ? "text-primary" : "text-[var(--neutral-1)]"}`}>
                     @{label}
                   </span>
                   {active && (
-                    <span className="ml-auto text-[10px] text-[#4A4A45] shrink-0">↵</span>
+                    <span className="ml-auto text-[10px] text-[var(--neutral-6)] shrink-0">↵</span>
                   )}
                 </button>
               );
@@ -971,10 +971,10 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] shrink-0">
-              <span className="text-[12px] text-[#555] uppercase tracking-widest font-medium">{data.label as string}</span>
+              <span className="text-[12px] text-[var(--neutral-5)] uppercase tracking-widest font-medium">{data.label as string}</span>
               <button
                 onClick={() => { setExpandOpen(false); setExpandMentionQuery(null); }}
-                className="w-6 h-6 flex items-center justify-center rounded text-[#555] hover:text-white hover:bg-white/10 transition-colors"
+                className="w-6 h-6 flex items-center justify-center rounded text-[var(--neutral-5)] hover:text-white hover:bg-white/10 transition-colors"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
@@ -1044,12 +1044,12 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
             {/* @mention menu */}
             {expandMenuOpen && (
               <div
-                className="shrink-0 border-t border-[#1E1E1E] bg-[#111622] overflow-y-auto"
+                className="shrink-0 border-t border-[#1E1E1E] bg-[var(--neutral-11)] overflow-y-auto"
                 style={{ maxHeight: 160 }}
                 onMouseDown={(e) => e.preventDefault()}
               >
-                <div className="px-3 py-1.5 border-b border-[#1A1A1A]">
-                  <p className="text-[10px] text-[#4A4A45] uppercase tracking-widest">{t("connectedNodes")}</p>
+                <div className="px-3 py-1.5 border-b border-[var(--neutral-10)]">
+                  <p className="text-[10px] text-[var(--neutral-6)] uppercase tracking-widest">{t("connectedNodes")}</p>
                 </div>
                 {expandFilteredMentions.map((n, idx) => {
                   const label = n.data.label as string;
@@ -1063,14 +1063,14 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
                   const active = idx === expandSelectedIdx;
                   return (
                     <button key={n.id} onClick={() => insertMentionModal(label)}
-                      className={`w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${active ? "bg-[#1A2010]" : "hover:bg-[#141C28]"}`}>
-                      <div className="w-5 h-5 rounded bg-[#1A1A1A] overflow-hidden shrink-0 flex items-center justify-center">
+                      className={`w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${active ? "bg-[#1A2010]" : "hover:bg-[var(--neutral-11)]"}`}>
+                      <div className="w-5 h-5 rounded bg-[var(--neutral-10)] overflow-hidden shrink-0 flex items-center justify-center">
                         {imageUrl ? <img src={thumbSrc(imageUrl, 20)} alt="" className="w-full h-full object-cover" /> :
                           videoUrl ? <video src={videoUrl} autoPlay loop muted playsInline className="w-full h-full" style={{ objectFit: "cover" }} /> :
                             <EmptyThumb />}
                       </div>
                       <span className={`text-[12px] font-medium truncate ${active ? "text-primary" : "text-[#CCC]"}`}>@{label}</span>
-                      {active && <span className="ml-auto text-[10px] text-[#4A4A45] shrink-0">↵</span>}
+                      {active && <span className="ml-auto text-[10px] text-[var(--neutral-6)] shrink-0">↵</span>}
                     </button>
                   );
                 })}
@@ -1141,7 +1141,7 @@ export default function PromptNode({ id, data, selected }: NodeProps<PromptNodeT
 
 function EmptyThumb() {
   return (
-    <svg width="12" height="10" viewBox="0 0 14 12" fill="none" stroke="#333" strokeWidth="1.2">
+    <svg width="12" height="10" viewBox="0 0 14 12" fill="none" stroke="var(--neutral-7)" strokeWidth="1.2">
       <rect x=".6" y=".6" width="12.8" height="10.8" rx="1.5" />
       <path d="m.6 8.5 3.5-3.5 2.5 2.5 2-2 5 4" />
     </svg>
@@ -1195,20 +1195,20 @@ function syntaxHighlightYaml(yaml: string, knownLabels: string[] = []): ReactNod
 
   lines.forEach((line, i) => {
     if (/^---/.test(line) || /^\.\.\.$/.test(line)) {
-      parts.push(<span key={k++} style={{ color: "#6b7280" }}>{line}</span>);
+      parts.push(<span key={k++} style={{ color: "var(--neutral-4)" }}>{line}</span>);
     } else {
       const keyMatch = line.match(/^(\s*(?:-\s+)?)([\w\-./]+)(\s*:)(.*)/);
       if (keyMatch) {
         const [, indent, key, colon, rest] = keyMatch;
         parts.push(<span key={k++}>{indent}</span>);
         parts.push(<span key={k++} style={{ color: "#06b6d4" }}>{key}</span>);
-        parts.push(<span key={k++} style={{ color: "#6b7280" }}>{colon}</span>);
+        parts.push(<span key={k++} style={{ color: "var(--neutral-4)" }}>{colon}</span>);
         parts.push(<span key={k++}>{colorYamlValue(rest, k, sorted)}</span>);
         k++;
       } else {
         const listMatch = line.match(/^(\s*-\s+)(.*)/);
         if (listMatch) {
-          parts.push(<span key={k++} style={{ color: "#6b7280" }}>{listMatch[1]}</span>);
+          parts.push(<span key={k++} style={{ color: "var(--neutral-4)" }}>{listMatch[1]}</span>);
           parts.push(<span key={k++}>{colorYamlValue(listMatch[2], k, sorted)}</span>);
           k++;
         } else {
@@ -1292,7 +1292,7 @@ function syntaxHighlightJson(json: string, errorPos?: number, knownLabels: strin
     if (m[1] !== undefined) {
       if (m[2] !== undefined) {
         push(m.index, m.index + m[1].length, "#06b6d4");
-        push(m.index + m[1].length, m.index + m[0].length, "#6b7280");
+        push(m.index + m[1].length, m.index + m[0].length, "var(--neutral-4)");
       } else {
         push(m.index, m.index + m[1].length, "#86efac");
       }
@@ -1301,7 +1301,7 @@ function syntaxHighlightJson(json: string, errorPos?: number, knownLabels: strin
     } else if (m[4] !== undefined) {
       push(m.index, m.index + m[4].length, "#a78bfa");
     } else if (m[5] !== undefined) {
-      push(m.index, m.index + m[5].length, "#6b7280");
+      push(m.index, m.index + m[5].length, "var(--neutral-4)");
     }
     last = re.lastIndex;
   }

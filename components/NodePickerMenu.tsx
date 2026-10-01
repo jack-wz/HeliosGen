@@ -342,11 +342,11 @@ export default function NodePickerMenu({ dropState, onClose }: Props) {
       <div
         ref={menuRef}
         style={{ position: "fixed", left, top, zIndex: 1000 }}
-        className="w-56 bg-[#0F1214] border border-[#2A2A2A] rounded-lg shadow-2xl overflow-hidden"
+        className="w-56 bg-[#0F1214] border border-[var(--neutral-9)] rounded-lg shadow-2xl overflow-hidden"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="px-3 py-2 border-b border-[#1E1E1E]">
-          <p className="text-[10px] text-[#4A4A45] uppercase tracking-widest font-medium">
+          <p className="text-[10px] text-[var(--neutral-6)] uppercase tracking-widest font-medium">
             Connect to
           </p>
         </div>
@@ -372,7 +372,7 @@ export default function NodePickerMenu({ dropState, onClose }: Props) {
                     borderRadius: "8px",
                     background: meta?.bg ?? "rgba(255,255,255,0.06)",
                     color: meta?.accent ?? "#aaa",
-                    border: `1px solid ${meta?.accent ?? "#333"}28`,
+                    border: `1px solid ${meta?.accent ?? "var(--neutral-7)"}28`,
                   }}
                 >
                   {meta?.bigIcon ?? n.icon}
@@ -381,7 +381,7 @@ export default function NodePickerMenu({ dropState, onClose }: Props) {
                   <span className="text-[13px] text-white font-medium leading-none">
                     {n.label}
                   </span>
-                  <span className="text-[10px] text-[#4A4A45] leading-none">
+                  <span className="text-[10px] text-[var(--neutral-6)] leading-none">
                     {n.description}
                   </span>
                 </span>

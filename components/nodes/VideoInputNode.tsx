@@ -708,7 +708,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
           return (
             <div
               className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
-              style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "#1A1A1A", border: `1px solid ${color}33`, color: "#CCCCCC" }}
+              style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "var(--neutral-10)", border: `1px solid ${color}33`, color: "var(--neutral-1)" }}
             >
               <span style={{ color }} className="mr-1.5">●</span>{t(def.labelKey)}
             </div>
@@ -846,7 +846,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   className="w-7 h-7 rounded-full flex items-center justify-center relative z-10"
                   title={t("showVideo")}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={viewMode === "video" ? "white" : "#777"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 220ms" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={viewMode === "video" ? "white" : "var(--neutral-3)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 220ms" }}>
                     <rect width="15" height="14" x="2" y="5" rx="2" />
                     <path d="m17 8 5-3v14l-5-3V8Z" />
                   </svg>
@@ -873,7 +873,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                       flexShrink: 0,
                     }} />
                   ) : (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={viewMode === "frame" ? "white" : "#777"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 220ms" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={viewMode === "frame" ? "white" : "var(--neutral-3)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 220ms" }}>
                       <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
                     </svg>
                   )}
@@ -972,7 +972,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={() => { fileRef.current?.click(); }}
-                    className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors pointer-events-auto"
+                    className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[var(--neutral-1)] hover:text-white hover:bg-black/70 transition-colors pointer-events-auto"
                   >replace</button>
                 </div>
               )}
@@ -1021,7 +1021,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                     if (v) { v.pause(); setScrubPos(v.currentTime / (v.duration || 1)); }
                     setPickerOpen(true);
                   }}
-                  className="absolute bottom-2 left-1/2 -translate-x-1/2 h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors opacity-0 group-hover/player:opacity-100 pointer-events-auto z-10 node-slide-reveal"
+                  className="absolute bottom-2 left-1/2 -translate-x-1/2 h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[var(--neutral-1)] hover:text-white hover:bg-black/70 transition-colors opacity-0 group-hover/player:opacity-100 pointer-events-auto z-10 node-slide-reveal"
                   title={t("retakeFrame")}
                 >
                   <span className="flex items-center gap-1">
@@ -1255,8 +1255,8 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
                     {capturing ? (
                       <>
                         <svg width="11" height="11" viewBox="0 0 22 22" fill="none" style={{ animation: "spin 0.9s linear infinite" }}>
-                          <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
-                          <path d="M11 3A8 8 0 0 1 19 11" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                          <circle cx="11" cy="11" r="8" stroke="var(--neutral-7)" strokeWidth="2.5" />
+                          <path d="M11 3A8 8 0 0 1 19 11" stroke="var(--neutral-12)" strokeWidth="2.5" strokeLinecap="round" />
                         </svg>
                         Capturing…
                       </>
@@ -1292,7 +1292,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
           {uploading && (
             <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 pointer-events-none">
               <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style={{ animation: "spin 0.9s linear infinite" }}>
-                <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
+                <circle cx="11" cy="11" r="8" stroke="var(--neutral-7)" strokeWidth="2.5" />
                 <path d="M11 3A8 8 0 0 1 19 11" stroke="var(--role-video)" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
               <span className="text-[11px] text-[var(--role-video)]">{tGeneric("uploading")}</span>
@@ -1304,7 +1304,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
               <div className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-black/60 backdrop-blur-sm border border-white/10">
                 <svg width="11" height="11" viewBox="0 0 22 22" fill="none" style={{ animation: "spin 0.9s linear infinite" }}>
-                  <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
+                  <circle cx="11" cy="11" r="8" stroke="var(--neutral-7)" strokeWidth="2.5" />
                   <path d="M11 3A8 8 0 0 1 19 11" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
                 <span className="text-[11px] text-primary">{t("extractingFrame")}</span>
@@ -1384,7 +1384,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
         return (
           <div
             className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
-            style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "#1A1A1A", border: `1px solid ${color}33`, color: "#CCCCCC" }}
+            style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "var(--neutral-10)", border: `1px solid ${color}33`, color: "var(--neutral-1)" }}
           >
             <span style={{ color }} className="mr-1.5">●</span>{t(def.labelKey)}
           </div>
@@ -1403,7 +1403,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
             <path d="m16 10-4-2.5v5L16 10z" fill="var(--role-video)" stroke="none" />
           </svg>
           <p className="text-[12px] text-muted-foreground">{t("dropVideoPrefix")}{" "}<span className="underline underline-offset-2 text-white">{t("browse")}</span></p>
-          <p className="text-[11px] text-[#4A4A45] mt-1">{t("max100mb")}</p>
+          <p className="text-[11px] text-[var(--neutral-6)] mt-1">{t("max100mb")}</p>
         </div>
         {uploadErr && <p className="text-[11px] text-red-400 mt-1.5 text-center">{uploadErr}</p>}
       </div>

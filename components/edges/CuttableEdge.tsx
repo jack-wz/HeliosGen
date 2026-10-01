@@ -41,7 +41,7 @@ export default function CuttableEdge({
     (sourceHandleId === "startFrameOut" || sourceHandleId === "endFrameOut" || sourceHandleId === "imagePickOut");
 
   const tgtStyle   = edgeStyle(colorKey ?? targetHandleId);
-  const tgtColor   = (tgtStyle.stroke as string) ?? "#555";
+  const tgtColor   = (tgtStyle.stroke as string) ?? "var(--neutral-5)";
   const srcColor   = getSourceHandleColor(srcNode?.type, sourceHandleId);
   const strokeWidth = (tgtStyle.strokeWidth as number) ?? 2;
 

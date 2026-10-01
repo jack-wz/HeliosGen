@@ -398,7 +398,7 @@ function PendingGenTile({ pg, onCancel }: { pg: PendingGen; onCancel: () => void
               <path d="M5 1 A4 4 0 0 1 9 5" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           )}
-          <span style={{ fontSize: "11px", color: pg.prePending ? "#888" : "var(--primary)", fontWeight: 500 }}>
+          <span style={{ fontSize: "11px", color: pg.prePending ? "var(--neutral-2)" : "var(--primary)", fontWeight: 500 }}>
             {pg.prePending ? "Pending" : "Generating…"}
           </span>
         </div>
@@ -2839,7 +2839,7 @@ function GalleryInner() {
                     height: "100%",
                     position: "relative",
                     overflow: "hidden",
-                    background: pg.error ? "#2a2427" : "#2a2d35",
+                    background: pg.error ? "#2a2427" : "var(--neutral-8)",
                   }}>
                         {pg.error ? (
                           <>
@@ -3451,7 +3451,7 @@ function GalleryInner() {
                   const isHovered = hoveredRefId === img.id;
                   const isDragging = draggingId === img.id;
                   return (
-                    <div key={img.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (refImages.length <= 1 || img.uploading || img.error) return; _reorderDragItem = { id: img.id, listTarget: "refImage" }; _reorderOverId = null; setDraggingId(img.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === img.id || _reorderDragItem.listTarget !== "refImage") return; _reorderOverId = img.id; setReorderOverId(img.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== "refImage") return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? img.id; handleReorderDrop(target, "refImage"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(img.id); }} onMouseLeave={() => setHoveredRefId(null)} onClick={() => { if (_reorderJustDropped) { _reorderJustDropped = false; return; } if (!img.uploading && !img.error && !draggingId) setRefPreview({ url: img.objectUrl, mediaKind: "image" }); }} onDragOver={e => { if (!e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(`refimg-filled-${img.id}`); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => handleGalleryItemDrop(e, "refImage", "image")} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", background: "#1A1C1F", flexShrink: 0, touchAction: refImages.length > 1 ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: img.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === `refimg-filled-${img.id}` ? "2.5px solid var(--primary)" : taggedImages.some(t => t.refId === img.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.08)", boxShadow: dragOverSlotKey === `refimg-filled-${img.id}` ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, cursor: (!img.uploading && !img.error) ? (refImages.length > 1 ? (draggingId === img.id ? "grabbing" : "grab") : "zoom-in") : "default", animation: isRemoving ? "none" : (isDragging ? "none" : "refImgIn 260ms cubic-bezier(0.16,1,0.3,1) backwards"), opacity: isDragging ? 0.3 : undefined, ...(isRemoving ? { transition: "opacity 170ms, transform 170ms", opacity: 0, transform: "translateY(-10px) scale(0.92)" } : {}) }}>
+                    <div key={img.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (refImages.length <= 1 || img.uploading || img.error) return; _reorderDragItem = { id: img.id, listTarget: "refImage" }; _reorderOverId = null; setDraggingId(img.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === img.id || _reorderDragItem.listTarget !== "refImage") return; _reorderOverId = img.id; setReorderOverId(img.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== "refImage") return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? img.id; handleReorderDrop(target, "refImage"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(img.id); }} onMouseLeave={() => setHoveredRefId(null)} onClick={() => { if (_reorderJustDropped) { _reorderJustDropped = false; return; } if (!img.uploading && !img.error && !draggingId) setRefPreview({ url: img.objectUrl, mediaKind: "image" }); }} onDragOver={e => { if (!e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(`refimg-filled-${img.id}`); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => handleGalleryItemDrop(e, "refImage", "image")} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", background: "var(--neutral-10)", flexShrink: 0, touchAction: refImages.length > 1 ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: img.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === `refimg-filled-${img.id}` ? "2.5px solid var(--primary)" : taggedImages.some(t => t.refId === img.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.08)", boxShadow: dragOverSlotKey === `refimg-filled-${img.id}` ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, cursor: (!img.uploading && !img.error) ? (refImages.length > 1 ? (draggingId === img.id ? "grabbing" : "grab") : "zoom-in") : "default", animation: isRemoving ? "none" : (isDragging ? "none" : "refImgIn 260ms cubic-bezier(0.16,1,0.3,1) backwards"), opacity: isDragging ? 0.3 : undefined, ...(isRemoving ? { transition: "opacity 170ms, transform 170ms", opacity: 0, transform: "translateY(-10px) scale(0.92)" } : {}) }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={thumbSrc(img.objectUrl, snapWidth(64))} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                       {isHovered && !img.uploading && !img.error && (
@@ -3543,7 +3543,7 @@ function GalleryInner() {
                     if (slot.kind === "element-filled") {
                       const el = slot.element; const thumb = el.imageUrls[0]; const hovId = `elem-${el.id}`;
                       return (
-                        <div key={el.id} onMouseEnter={() => setHoveredRefId(hovId)} onMouseLeave={() => setHoveredRefId(null)} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "#1a1c1f", border: "1px solid rgba(255,255,255,0.12)" }}>
+                        <div key={el.id} onMouseEnter={() => setHoveredRefId(hovId)} onMouseLeave={() => setHoveredRefId(null)} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "var(--neutral-10)", border: "1px solid rgba(255,255,255,0.12)" }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={thumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                           {hoveredRefId === hovId && (
@@ -3568,7 +3568,7 @@ function GalleryInner() {
                         const listForSlot = slot.target === "resource" ? vidResources : slot.target === "referenceVideo" ? vidRefVideos : vidRefAudios;
                         const isSlotDragging = draggingId === r.id;
                         return (
-                        <div key={r.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (!isMultiTarget || listForSlot.length <= 1 || r.uploading || r.error) return; _reorderDragItem = { id: r.id, listTarget: slot.target as "resource"|"referenceVideo"|"audioRef" }; _reorderOverId = null; setDraggingId(r.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === r.id || _reorderDragItem.listTarget !== slot.target) return; _reorderOverId = r.id; setReorderOverId(r.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== slot.target) return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? r.id; handleReorderDrop(target, slot.target as "resource"|"referenceVideo"|"audioRef"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(hovId); }} onMouseLeave={() => setHoveredRefId(null)} onDragOver={e => { if (slot.mediaKind === "audio" || !e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(dragKey); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => { if (slot.mediaKind !== "audio") handleGalleryItemDrop(e, slot.target as any, slot.mediaKind as "image" | "video"); }} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "#1a1c1f", touchAction: (isMultiTarget && listForSlot.length > 1) ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: r.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === dragKey ? "2.5px solid var(--primary)" : taggedImages.some(t => t.refId === r.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.12)", boxShadow: dragOverSlotKey === dragKey ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, opacity: isSlotDragging ? 0.3 : undefined, cursor: (isMultiTarget && listForSlot.length > 1 && !r.uploading && !r.error) ? (draggingId === r.id ? "grabbing" : "grab") : undefined }}>
+                        <div key={r.id} onMouseDown={e => e.preventDefault()} onPointerDown={e => { if (!isMultiTarget || listForSlot.length <= 1 || r.uploading || r.error) return; _reorderDragItem = { id: r.id, listTarget: slot.target as "resource"|"referenceVideo"|"audioRef" }; _reorderOverId = null; setDraggingId(r.id); }} onPointerEnter={() => { if (!_reorderDragItem || _reorderDragItem.id === r.id || _reorderDragItem.listTarget !== slot.target) return; _reorderOverId = r.id; setReorderOverId(r.id); }} onPointerUp={e => { const info = _reorderDragItem; if (!info || info.listTarget !== slot.target) return; e.stopPropagation(); if (_reorderOverId) e.preventDefault(); const target = _reorderOverId ?? r.id; handleReorderDrop(target, slot.target as "resource"|"referenceVideo"|"audioRef"); }} onMouseEnter={() => { if (!draggingId) setHoveredRefId(hovId); }} onMouseLeave={() => setHoveredRefId(null)} onDragOver={e => { if (slot.mediaKind === "audio" || !e.dataTransfer.types.includes("application/x-gallery-item")) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setDragOverSlotKey(dragKey); }} onDragLeave={() => setDragOverSlotKey(null)} onDrop={e => { if (slot.mediaKind !== "audio") handleGalleryItemDrop(e, slot.target as any, slot.mediaKind as "image" | "video"); }} style={{ position: "relative", width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "var(--neutral-10)", touchAction: (isMultiTarget && listForSlot.length > 1) ? "none" : undefined, transition: "border 120ms, box-shadow 120ms, opacity 120ms", border: r.error ? "1px solid rgba(248,113,113,0.4)" : dragOverSlotKey === dragKey ? "2.5px solid var(--primary)" : taggedImages.some(t => t.refId === r.id) ? "2.5px solid #10b981" : "1px solid rgba(255,255,255,0.12)", boxShadow: dragOverSlotKey === dragKey ? "0 0 0 3px rgba(45,212,191,0.25)" : undefined, opacity: isSlotDragging ? 0.3 : undefined, cursor: (isMultiTarget && listForSlot.length > 1 && !r.uploading && !r.error) ? (draggingId === r.id ? "grabbing" : "grab") : undefined }}>
                           {slot.mediaKind === "image" ? <img src={thumbSrc(r.objectUrl, snapWidth(64))} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : slot.mediaKind === "video" ? (videoPosterUrl(r.objectUrl) ? (
                             // eslint-disable-next-line @next/next/no-img-element -- runtime workflow media
                             <img src={videoPosterUrl(r.objectUrl, null, 64)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -4547,7 +4547,7 @@ function GalleryInner() {
                 <img
                   src={thumbSrc(ref.objectUrl, snapWidth(128))}
                   alt=""
-                  style={{ width: "30px", height: "30px", borderRadius: "6px", objectFit: "cover", flexShrink: 0, background: "#1a1c1f" }}
+                  style={{ width: "30px", height: "30px", borderRadius: "6px", objectFit: "cover", flexShrink: 0, background: "var(--neutral-10)" }}
                 />
                 <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {(ref as any).role} ({(ref as any).label})
@@ -4703,9 +4703,9 @@ function GalleryInner() {
             transformOrigin: "bottom left",
           }}>
           <p style={{ margin: "0 0 10px", fontSize: "12px", fontWeight: 600, color: "#fff" }}>Duration</p>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", borderRadius: "8px", background: "#141C28" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", borderRadius: "8px", background: "var(--neutral-11)" }}>
             <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", fontVariantNumeric: "tabular-nums", minWidth: "24px" }}>{duration}s</span>
-            <div style={{ width: "1px", height: "14px", background: "#2A2A2A", flexShrink: 0 }} />
+            <div style={{ width: "1px", height: "14px", background: "var(--neutral-9)", flexShrink: 0 }} />
             <input
               type="range"
               min={0}
@@ -4967,7 +4967,7 @@ function ElementPickerModal({
                       style={{
                         width: "100%", height: "100%", borderRadius: "10px", overflow: "hidden",
                         border: isAttached ? "2px solid #77e544" : "2px solid transparent",
-                        background: "#1a1c1f", cursor: isAttached || atMax ? "default" : "pointer",
+                        background: "var(--neutral-10)", cursor: isAttached || atMax ? "default" : "pointer",
                         padding: 0, display: "block", position: "relative",
                         transition: "border-color 110ms, opacity 110ms",
                         opacity: atMax ? 0.4 : 1,
@@ -4986,7 +4986,7 @@ function ElementPickerModal({
                       </div>
                       {isAttached && (
                         <div style={{ position: "absolute", top: "5px", right: "5px", width: "18px", height: "18px", borderRadius: "50%", background: "#77e544", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--neutral-12)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
                       )}
                     </button>
@@ -5021,7 +5021,7 @@ function ElementPickerModal({
               <div style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.4)", marginBottom: "8px" }}>Images (2–4 · JPG/PNG · max 10 MB each)</div>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" as const }}>
                 {createImages.map((img, i) => (
-                  <div key={img.id} style={{ position: "relative", width: "72px", height: "72px", borderRadius: "8px", overflow: "hidden", border: img.error ? "1px solid rgba(248,113,113,0.4)" : "1px solid rgba(255,255,255,0.12)", background: "#1a1c1f", flexShrink: 0 }}>
+                  <div key={img.id} style={{ position: "relative", width: "72px", height: "72px", borderRadius: "8px", overflow: "hidden", border: img.error ? "1px solid rgba(248,113,113,0.4)" : "1px solid rgba(255,255,255,0.12)", background: "var(--neutral-10)", flexShrink: 0 }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={img.objectUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                     {img.uploading && (
@@ -5104,7 +5104,7 @@ function ElementPickerModal({
               style={{
                 padding: "10px 24px", borderRadius: "10px", border: "none",
                 background: canCreate ? "#77e544" : "rgba(255,255,255,0.08)",
-                color: canCreate ? "#000" : "rgba(255,255,255,0.3)",
+                color: canCreate ? "var(--neutral-12)" : "rgba(255,255,255,0.3)",
                 fontSize: "13.5px", fontWeight: 600, fontFamily: "inherit",
                 cursor: canCreate ? "pointer" : "not-allowed", transition: "background 150ms, color 150ms",
                 alignSelf: "flex-start" as const,
@@ -5932,7 +5932,7 @@ function GalleryCard({
   if (failed) {
     return (
       <div className="gallery-item" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--neutral-7)" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
       </div>
     );
   }
@@ -6325,7 +6325,7 @@ function syntaxHighlightJson(
     if (m[1] !== undefined) {
       if (m[2] !== undefined) {
         push(m.index, m.index + m[1].length, "#06b6d4");
-        push(m.index + m[1].length, m.index + m[0].length, "#6b7280");
+        push(m.index + m[1].length, m.index + m[0].length, "var(--neutral-4)");
       } else {
         push(m.index, m.index + m[1].length, "#86efac");
       }
@@ -6334,7 +6334,7 @@ function syntaxHighlightJson(
     } else if (m[4] !== undefined) {
       push(m.index, m.index + m[4].length, "#a78bfa");
     } else if (m[5] !== undefined) {
-      push(m.index, m.index + m[5].length, "#6b7280");
+      push(m.index, m.index + m[5].length, "var(--neutral-4)");
     }
     last = re.lastIndex;
   }
@@ -6355,7 +6355,7 @@ function syntaxHighlightYaml(
   lines.forEach((line, i) => {
     // Directive / document markers
     if (/^---/.test(line) || /^\.\.\.$/.test(line)) {
-      parts.push(<span key={k++} style={{ color: "#6b7280" }}>{line}</span>);
+      parts.push(<span key={k++} style={{ color: "var(--neutral-4)" }}>{line}</span>);
     } else {
       // Key: value  (handles indent + optional list marker)
       const keyMatch = line.match(/^(\s*(?:-\s+)?)([\w\-./]+)(\s*:)(.*)/);
@@ -6363,14 +6363,14 @@ function syntaxHighlightYaml(
         const [, indent, key, colon, rest] = keyMatch;
         parts.push(<span key={k++}>{indent}</span>);
         parts.push(<span key={k++} style={{ color: "#06b6d4" }}>{key}</span>);
-        parts.push(<span key={k++} style={{ color: "#6b7280" }}>{colon}</span>);
+        parts.push(<span key={k++} style={{ color: "var(--neutral-4)" }}>{colon}</span>);
         parts.push(<span key={k++}>{colorYamlValue(rest, k, tagged, onEnter, onLeave, onMD)}</span>);
         k++;
       } else {
         // List item or plain value
         const listMatch = line.match(/^(\s*-\s+)(.*)/);
         if (listMatch) {
-          parts.push(<span key={k++} style={{ color: "#6b7280" }}>{listMatch[1]}</span>);
+          parts.push(<span key={k++} style={{ color: "var(--neutral-4)" }}>{listMatch[1]}</span>);
           parts.push(<span key={k++}>{colorYamlValue(listMatch[2], k, tagged, onEnter, onLeave, onMD)}</span>);
           k++;
         } else {

@@ -1702,13 +1702,13 @@ export default function WorkflowCanvas() {
           panOnScroll
           defaultEdgeOptions={{ animated: false }}
           connectionLineStyle={{
-            stroke: "#555555",
+            stroke: "var(--neutral-5)",
             strokeWidth: 2,
             strokeDasharray: "6 3",
             strokeLinecap: "round",
           }}
         >
-          <Background variant={BackgroundVariant.Dots} gap={28} size={1.5} color="#888888" />
+          <Background variant={BackgroundVariant.Dots} gap={28} size={1.5} color="var(--neutral-2)" />
           <ViewportSyncer />
           <GroupPreviewOverlay groupIds={potentialGroupIds} />
           <SelectionToolbar />
@@ -1767,13 +1767,13 @@ export default function WorkflowCanvas() {
                 const sy = guide.canvasPos * zoom + panY;
                 return (
                   <line key={i} x1={-100000} y1={sy} x2={100000} y2={sy}
-                    stroke="#555" strokeWidth={1} opacity={0.8} />
+                    stroke="var(--neutral-5)" strokeWidth={1} opacity={0.8} />
                 );
               }
               const sx = guide.canvasPos * zoom + panX;
               return (
                 <line key={i} x1={sx} y1={-100000} x2={sx} y2={100000}
-                  stroke="#555" strokeWidth={1} opacity={0.8} />
+                  stroke="var(--neutral-5)" strokeWidth={1} opacity={0.8} />
               );
             })}
           </svg>

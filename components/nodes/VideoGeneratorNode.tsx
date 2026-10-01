@@ -1225,9 +1225,9 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               top: `calc(50% + ${sourceHandleCenterOffset(idx)}px)`,
               right: 0,
               transform: "translate(calc(100% + 34px), -50%)",
-              background: "#1A1A1A",
+              background: "var(--neutral-10)",
               border: `1px solid ${color}33`,
-              color: "#CCCCCC",
+              color: "var(--neutral-1)",
             }}
           >
             <span style={{ color }} className="mr-1.5">●</span>
@@ -1276,7 +1276,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
         const tooltipColor =
           hoveredDef.id === "startFrame" && cfg.apiInput.useMotionControl
             ? "#f472b6"
-            : HANDLE_COLORS[hoveredDef.id] ?? "#888";
+            : HANDLE_COLORS[hoveredDef.id] ?? "var(--neutral-2)";
         return (
           <div
             className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
@@ -1284,9 +1284,9 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               top: `calc(50% + ${centerOffset}px)`,
               left: 0,
               transform: "translate(calc(-100% - 34px), -50%)",
-              background: "#1A1A1A",
+              background: "var(--neutral-10)",
               border: `1px solid ${tooltipColor}33`,
-              color: "#CCCCCC",
+              color: "var(--neutral-1)",
             }}
           >
             <span style={{ color: tooltipColor }} className="mr-1.5">●</span>
@@ -1297,7 +1297,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
 
       {/* ── Full-card media container — all controls overlaid inside ── */}
       <div
-        className="relative bg-[#2a2d35] group/player group/gen"
+        className="relative bg-[var(--neutral-8)] group/player group/gen"
         style={{
           aspectRatio: (data.imageNaturalRatio as string | undefined) ?? aspectRatio.replace(":", " / "),
           width: "100%",
@@ -1319,9 +1319,9 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               }}
             >
               {generations.map((entry, i) => (
-                <div key={i} style={{ minWidth: "100%", height: "100%", flexShrink: 0, position: "relative", background: "#2a2d35" }}>
+                <div key={i} style={{ minWidth: "100%", height: "100%", flexShrink: 0, position: "relative", background: "var(--neutral-8)" }}>
                   {entry === null ? (
-                    <div className="absolute inset-0" style={{ background: "#2a2d35" }} />
+                    <div className="absolute inset-0" style={{ background: "var(--neutral-8)" }} />
                   ) : typeof entry === "object" ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center z-20" style={{ background: "#2a2427" }}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1409,7 +1409,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               {textNode && (
                 <div className="absolute bottom-12 left-4 flex items-center gap-1.5 z-10">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                  <span className="text-[12px] text-[#555]">{textNode.data.label as string}</span>
+                  <span className="text-[12px] text-[var(--neutral-5)]">{textNode.data.label as string}</span>
                 </div>
               )}
             </div>
@@ -1455,7 +1455,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   className="w-7 h-7 rounded-full flex items-center justify-center relative z-10"
                   title={t("showVideo")}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={viewMode === "video" ? "white" : "#777"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 220ms" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={viewMode === "video" ? "white" : "var(--neutral-3)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 220ms" }}>
                     <rect width="15" height="14" x="2" y="5" rx="2" />
                     <path d="m17 8 5-3v14l-5-3V8Z" />
                   </svg>
@@ -1553,8 +1553,8 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   {capturing ? (
                     <>
                       <svg width="11" height="11" viewBox="0 0 22 22" fill="none" style={{ animation: "spin 0.9s linear infinite" }}>
-                        <circle cx="11" cy="11" r="8" stroke="#333" strokeWidth="2.5" />
-                        <path d="M11 3A8 8 0 0 1 19 11" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                        <circle cx="11" cy="11" r="8" stroke="var(--neutral-7)" strokeWidth="2.5" />
+                        <path d="M11 3A8 8 0 0 1 19 11" stroke="var(--neutral-12)" strokeWidth="2.5" strokeLinecap="round" />
                       </svg>
                       Capturing…
                     </>
@@ -1618,7 +1618,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                   <path d="M5 1 A4 4 0 0 1 9 5" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               )}
-              <span className="text-[12px] font-medium" style={{ color: isPending ? "#888" : "var(--primary)" }}>
+              <span className="text-[12px] font-medium" style={{ color: isPending ? "var(--neutral-2)" : "var(--primary)" }}>
                 {isPending ? t("pending") : t("generating")}
               </span>
             </div>
@@ -1726,7 +1726,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                       <div className="w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center text-white/40 hover:text-white/70 hover:border-white/40 transition-colors cursor-default select-none">
                         <span className="text-[9px] font-semibold leading-none">i</span>
                       </div>
-                      <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 rounded-lg text-[11px] leading-[1.6] text-[#AAA] opacity-0 group-hover/orient-info:opacity-100 transition-opacity z-50 node-slide-reveal" style={{ background: "#111317", border: "1px solid #2A2A2A" }}>
+                      <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 rounded-lg text-[11px] leading-[1.6] text-[#AAA] opacity-0 group-hover/orient-info:opacity-100 transition-opacity z-50 node-slide-reveal" style={{ background: "#111317", border: "1px solid var(--neutral-9)" }}>
                         {t("orientationHint")}
                       </div>
                     </div>
@@ -1816,7 +1816,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                               if (removedHandles.length) killEdgesForHandles(id, removedHandles);
                               setModelOpen(false);
                             }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 text-[12px] hover:bg-[#141C28] transition-colors ${videoModelId === m.id ? "text-white font-medium" : "text-muted-foreground"}`}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-[12px] hover:bg-[var(--neutral-11)] transition-colors ${videoModelId === m.id ? "text-white font-medium" : "text-muted-foreground"}`}
                           >
                             <span className="shrink-0 text-white/50" style={{ lineHeight: 0 }}>
                               <NodeProviderIcon provider={m.provider} />
@@ -1863,12 +1863,12 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                         <p className="text-[12px] text-white font-medium mb-2.5">{t("chooseDuration")}</p>
                         <div
                           className="nodrag flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-lg"
-                          style={{ background: "#141C28" }}
+                          style={{ background: "var(--neutral-11)" }}
                           onMouseDown={(e) => e.stopPropagation()}
                           onPointerDown={(e) => e.stopPropagation()}
                         >
                           <span className="text-[12px] text-[#AAA] tabular-nums shrink-0 w-6">{duration}s</span>
-                          <div className="w-px h-3.5 shrink-0" style={{ background: "#2A2A2A" }} />
+                          <div className="w-px h-3.5 shrink-0" style={{ background: "var(--neutral-9)" }} />
                           <input
                             type="range"
                             min={0}
@@ -2097,7 +2097,7 @@ function FloatMenu({ children, fullWidth = false, open }: { children: React.Reac
   const { visible, className } = useAnimatedPopup(open);
   if (!visible) return null;
   return (
-    <div className={`absolute bottom-full left-0 mb-1.5 bg-[#111622] border border-[#222] rounded-xl overflow-hidden z-[1002] shadow-2xl ${className}`}>
+    <div className={`absolute bottom-full left-0 mb-1.5 bg-[var(--neutral-11)] border border-[#222] rounded-xl overflow-hidden z-[1002] shadow-2xl ${className}`}>
       {children}
     </div>
   );
@@ -2108,7 +2108,7 @@ function FloatItem({ children, active, onClick }: { children: React.ReactNode; a
     <button
       onMouseDown={(e) => e.stopPropagation()}
       onClick={onClick}
-      className={`w-full px-3 py-2 text-left text-[12px] hover:bg-[#141C28] transition-colors ${active ? "text-white font-medium" : "text-muted-foreground"}`}
+      className={`w-full px-3 py-2 text-left text-[12px] hover:bg-[var(--neutral-11)] transition-colors ${active ? "text-white font-medium" : "text-muted-foreground"}`}
     >
       {children}
     </button>
@@ -2126,7 +2126,7 @@ function AspectIcon({ ratio }: { ratio: string }) {
 
 function ChevronIcon({ open = false }: { open?: boolean }) {
   return (
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round"
+    <svg width="7" height="7" viewBox="0 0 8 8" fill="none" stroke="var(--neutral-5)" strokeWidth="1.5" strokeLinecap="round"
       className={`shrink-0 transition-transform duration-100 ${open ? "rotate-180" : ""}`}>
       <path d="M1 2.5 4 5.5 7 2.5" />
     </svg>
@@ -2135,8 +2135,8 @@ function ChevronIcon({ open = false }: { open?: boolean }) {
 
 function ToggleSwitch({ on, activeColor = "#4ade80" }: { on: boolean; activeColor?: string }) {
   return (
-    <div className="relative shrink-0 rounded-full transition-colors" style={{ width: 32, height: 18, background: on ? "#3A3A3A" : "#2A2A2A" }}>
-      <div className="absolute top-[3px] rounded-full transition-transform" style={{ width: 12, height: 12, background: on ? activeColor : "#555", transform: on ? "translateX(17px)" : "translateX(3px)" }} />
+    <div className="relative shrink-0 rounded-full transition-colors" style={{ width: 32, height: 18, background: on ? "#3A3A3A" : "var(--neutral-9)" }}>
+      <div className="absolute top-[3px] rounded-full transition-transform" style={{ width: 12, height: 12, background: on ? activeColor : "var(--neutral-5)", transform: on ? "translateX(17px)" : "translateX(3px)" }} />
     </div>
   );
 }

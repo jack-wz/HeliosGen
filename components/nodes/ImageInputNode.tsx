@@ -358,7 +358,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
             <div
               aria-hidden
               className="absolute top-1.5 right-2 pointer-events-none select-none z-30 tabular-nums px-1.5 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-150 node-slide-reveal"
-              style={{ fontSize: 9, lineHeight: 1, color: "#fff", background: "#1a1a1a" }}
+              style={{ fontSize: 9, lineHeight: 1, color: "#fff", background: "var(--neutral-10)" }}
             >
               {natW} × {natH}
             </div>
@@ -372,14 +372,14 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
             <button
               onMouseDown={(e) => e.stopPropagation()}
               onClick={() => { fileRef.current?.click(); }}
-              className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors relative z-10"
+              className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[var(--neutral-1)] hover:text-white hover:bg-black/70 transition-colors relative z-10"
             >
               replace
             </button>
             <button
               onMouseDown={(e) => e.stopPropagation()}
               onClick={() => setPickerOpen(true)}
-              className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[#CCCCCC] hover:text-white hover:bg-black/70 transition-colors relative z-10"
+              className="h-6 px-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[11px] text-[var(--neutral-1)] hover:text-white hover:bg-black/70 transition-colors relative z-10"
             >
               library
             </button>

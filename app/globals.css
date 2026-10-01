@@ -94,6 +94,25 @@
   --border-handle: #1e2540;
   --border-handle-active: #1e2840;
   --text-subtle: #6a7080;
+  /* Neutral ramp — the greys the UI actually uses, named.
+     Values are the literals they replace, unchanged, except for two merges:
+     var(--neutral-10) -> var(--neutral-10) and var(--neutral-11) -> var(--neutral-11). Those pairs sit at dE 2.6 and
+     3.0 (CIE76) — indistinguishable by eye. Everything else in this ramp is
+     5.8+ apart, i.e. genuinely a separate step, which is why the ramp is this
+     long rather than collapsed: folding them further would be a redesign, not
+     a rename. (Tailwind's own grey scale has 11 steps.) */
+  --neutral-1: #CCCCCC;
+  --neutral-2: #888888;
+  --neutral-3: #777777;
+  --neutral-4: #6B7280;
+  --neutral-5: #555555;
+  --neutral-6: #4A4A45;
+  --neutral-7: #333333;
+  --neutral-8: #2A2D35;
+  --neutral-9: #2A2A2A;
+  --neutral-10: #1A1A1A;
+  --neutral-11: #141C28;
+  --neutral-12: #000000;
   --text-placeholder: #3a4055;
   --danger-soft: #f87171;
   --role-video: #22d3ee;

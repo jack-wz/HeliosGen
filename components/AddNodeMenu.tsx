@@ -293,7 +293,7 @@ export default function AddNodeMenu({ anchorRect, onClose }: AddNodeMenuProps) {
           width: "34px", height: "34px", borderRadius: "9px",
           background: meta?.bg ?? "rgba(255,255,255,0.06)",
           color: meta?.accent ?? "#aaa",
-          border: `1px solid ${meta?.accent ?? "#333"}28`,
+          border: `1px solid ${meta?.accent ?? "var(--neutral-7)"}28`,
         }}>
           {meta?.bigIcon ?? node.icon}
         </span>

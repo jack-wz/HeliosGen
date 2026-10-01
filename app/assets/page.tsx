@@ -204,7 +204,7 @@ export default function AssetsPage() {
           <div className="grid grid-cols-2 gap-4 xl:grid-cols-3 2xl:grid-cols-4">
           {data.assets.map((asset) => <article key={asset.id} className={`overflow-hidden rounded-2xl border bg-white/[0.035] ${selectedIds.has(asset.id) ? "border-teal-500/60" : "border-white/10"}`}>
             <div className="relative aspect-video bg-black/35">
-              <button onClick={() => toggleSelect(asset.id)} className="absolute left-2 top-2 z-10 flex size-6 items-center justify-center rounded-md border bg-black/50 text-xs" style={selectedIds.has(asset.id) ? {background: "rgba(20,184,166,0.8)", borderColor: "rgba(20,184,166,0.8)", color: "#000"} : {borderColor: "rgba(255,255,255,0.2)", color: "transparent"}}>✓</button>
+              <button onClick={() => toggleSelect(asset.id)} className="absolute left-2 top-2 z-10 flex size-6 items-center justify-center rounded-md border bg-black/50 text-xs" style={selectedIds.has(asset.id) ? {background: "rgba(20,184,166,0.8)", borderColor: "rgba(20,184,166,0.8)", color: "var(--neutral-12)"} : {borderColor: "rgba(255,255,255,0.2)", color: "transparent"}}>✓</button>
               {asset.mime_type.startsWith("video/")
                 ? <video src={asset.url} poster={videoPosterUrl(asset.url, asset.poster_url, 360)} preload="none" controls playsInline className="h-full w-full object-cover" />
                 : asset.mime_type.startsWith("audio/")
