@@ -1,4 +1,33 @@
-# 目标（2026-10-01 立）
+# 目标完成情况（2026-10-01 立，同日全部收口）
+
+| # | 目标项 | 状态 | 结果 |
+|---|---|---|---|
+| G1 | **API 错误码本地化** | ✅ 完成 `e525e7b` | 30 路由 / 93 处错误响应加 `code`，`error` 英文原文不变（CLI/MCP 契约不动）；前端 11 文件 / 27 处经 `lib/useApiError.ts` 解析；`errors` 词条 69 条；端到端实测 zh 显示「URL 无效」、en 显示「Invalid URL」 |
+| G2 | **6 个强调色 token 化** | ✅ 完成 `f92a17d` | 9 个 accent + 8 个 node-bg token（值不变，均 10+ ΔE 故只命名不合并）；**先**把 17 处「变量+透明度后缀」迁移到 `color-mix()` 才使其可 token 化；像素 A/B canvas **0.0000%（最大通道差 0）** |
+| G3 | **R5 路由静态化** | ⚠️ **评估后判定不可安全做** | 见下方评估 |
+| G4 | **R5 gallery 拆分** | ✅ 部分完成 `1759c5b` | 7215 → **6941** 行；抽出 `lib/gallery/types.ts` + `components/gallery/GalleryChrome.tsx`；`GalleryInner`(4194 行) 与 `GalleryPage` 未动，理由见下 |
+
+## G3 评估结论：路由静态化**当前不可安全做**
+
+**根因**：`app/layout.tsx:47` 读 `cookies()` 决定 locale → 全站动态（构建产物全是 `ƒ`）。
+
+**实测**：启用 Next 16 的 Cache Components（PPR 是其默认行为）后**构建失败，15 个错误**：
+- 3 个路由有 `export const dynamic = "force-dynamic"` —— 与 `cacheComponents` 不兼容
+- 11 个路由有 `export const runtime = "nodejs"` —— 同样不兼容
+
+**更关键的是语义变化**：开启后 GET 路由处理器走预渲染模型（`/api/models`、`/api/update-check`、`/api/credit` 等会被缓存），需要逐个加 `use cache` 与失效策略——这是**迁移项目**，不是开关。
+
+**另外两条路都有代价**：
+- 改成 `/[locale]/...` URL 方案（next-intl 标准做法）→ **改变全部 URL**，破坏已有深链、Tauri 外壳、agent 链接
+- 改成客户端决定 locale → `en` 用户会先看到中文再切换（FOUC 回归）
+
+**建议**：若要做，选 `/[locale]/` 方案并配 301 重定向；需单独立项。
+
+## G4 未完成部分与理由
+
+`GalleryInner`（4194 行）与 `GalleryPage` 的拆分**需要先有测试兜底**。拆它们意味着把大量状态穿进新 props，而唯一的安全网是截图——截图能抓布局回归，**抓不到状态接线错误**。诚实顺序是：先写测试，再拆。
+
+
 
 **完成 HeliosGen 全部未完成项，逐项交付、逐项验证、逐项上线。**
 

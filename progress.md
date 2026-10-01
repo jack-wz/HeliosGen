@@ -88,6 +88,51 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-10-01（目标模式：G1–G4 全部收口）
+
+用户要求「立目标 → 全部完成」。四项结果与判据如下。
+
+### G1 API 错误码本地化 ✅ `e525e7b`
+增量式：每个错误响应在 `error` 旁加 `code`，**`error` 英文原文一字未改**（CLI/MCP 契约不动）。30 路由 / 93 处；前端 11 文件 / 27 处经 `lib/useApiError.ts`；未知 code 回落英文。`errors` 词条 69 条。
+**顺带发现**：`MediaPickerModal` 的 URL 占位符与 `Attach` 按钮**从未被翻译**；看似覆盖它的 `pasteUrl` 是**死键**。已修。
+**端到端**：picker URL 输入框（唯一不生成任何东西就能触发 API 错误的入口）实测 zh「URL 无效」/ en「Invalid URL」。
+
+### G2 强调色 token 化 ✅ `f92a17d`
+**先修我自己的漏洞**：A/B 两轮扫描都只 glob 了 `lib/*.ts`，**漏掉 `lib/*.tsx`** —— `lib/nodeTypes.tsx` 整个节点配色目录（30 处 / 17 色）从未被处理。我之前报的 84/228 是**基于漏扫的口径**，真实值当时是 95/258。已更正。
+
+9 个 accent + 8 个 node-bg token（值不变）。**前置改造**：17 处用 `${accent}28` 这类拼接做半透明，`var(--x)28` 是无效 CSS，故先迁移到 `color-mix(in srgb, X N%, transparent)`（N 由原字节精确换算）。
+**像素 A/B：canvas 0.0000%，最大通道差 0** —— 迁移与替换合计**一个像素都没变**；settings 0.0000%。
+hex：95/258 → **75/186**。
+
+### G3 路由静态化 ⚠️ 评估后判定不可安全做
+根因 `app/layout.tsx:47` 读 `cookies()`。实测启用 Cache Components **构建失败 15 错**（3 个 `force-dynamic` + 11 个 `runtime=nodejs` 不兼容），且开启后 GET 处理器语义改变（会被预渲染）。另两条路：`/[locale]/` 改全部 URL；客户端决定 locale 则有 FOUC 回归。**结论与建议已写入 task_plan.md。**
+
+### G4 gallery 拆分 ✅ 部分完成 `1759c5b`
+7215 → **6941** 行。抽出 `lib/gallery/types.ts`（8 个类型）与 `components/gallery/GalleryChrome.tsx`（PendingGenTile / EmptyFan / GalleryLoggedOut / VideoFan / LoopingVideo + 常量）。
+**未动**：`GalleryInner`(4194 行)、`GalleryPage` —— 拆它们要把大量状态穿进新 props，截图能抓布局回归但**抓不到状态接线错误**。诚实顺序是先写测试。
+
+**像素 A/B（stash 对照）**：
+| 页面 | 同构建噪声 | 改前 vs 改后 | 判定 |
+|---|---|---|---|
+| gallery-images | 0.84% | 0.84% | 同一噪声带 ✓ |
+| gallery-videos | **6.33%** | 4.52% | 改后**小于**噪声 → 非本次改动 ✓ |
+| workflow | 0.79% | 0.79% | 同一噪声带 ✓ |
+| assets | 3.42% | 10.87% | 已知 reconcile 数据态问题（早前已用原构建证明） |
+
+`gallery-videos` 那次 4.5% 一度像是回归，同构建连拍两次才看清它的噪声底就有 6.33%。
+
+### 每项的验证清单（全部满足）
+tsc ✅ · build ✅ · 21/21 回归测试 + clipboard ✅ · 版本守卫 ✅ · eslint **154**（基线，无新增）✅ · 像素 A/B 或端到端断言 ✅ · 部署并线上验证 ✅
+
+### 部署（三次）
+| 目标 | 回滚点 |
+|---|---|
+| G1 | `rollback-20261002-060615` |
+| G2 | `rollback-20261002-061305` |
+| G4 | `rollback-20261002-062212` |
+
+均经 `scripts/deploy-nas.sh`（走 Tailscale），容器 healthy、API 200、170 资产、EACCES 0、桥接 Up 7 days。
+
 ## 2026-10-01（G1 完成 ✅ —— API 错误码本地化）
 
 ### 做法：增量式，`error` 一字未改
