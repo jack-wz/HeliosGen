@@ -710,7 +710,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
           return (
             <div
               className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
-              style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "var(--neutral-10)", border: `1px solid ${color}33`, color: "var(--neutral-1)" }}
+              style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "var(--neutral-10)", border: `1px solid color-mix(in srgb, ${color} 20.0%, transparent)`, color: "var(--neutral-1)" }}
             >
               <span style={{ color }} className="mr-1.5">●</span>{t(def.labelKey)}
             </div>
@@ -1386,7 +1386,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
         return (
           <div
             className="absolute pointer-events-none z-[1001] text-[11px] px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl"
-            style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "var(--neutral-10)", border: `1px solid ${color}33`, color: "var(--neutral-1)" }}
+            style={{ top: `calc(50% + ${videoSourceHandleCenterOffset(idx)}px)`, right: 0, transform: "translate(calc(100% + 34px), -50%)", background: "var(--neutral-10)", border: `1px solid color-mix(in srgb, ${color} 20.0%, transparent)`, color: "var(--neutral-1)" }}
           >
             <span style={{ color }} className="mr-1.5">●</span>{t(def.labelKey)}
           </div>

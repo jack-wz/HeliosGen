@@ -343,7 +343,7 @@ export default function AddNodeMenu({ anchorRect, onClose }: AddNodeMenuProps) {
           flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
           width: "34px", height: "34px", borderRadius: "9px",
           background: bg, color: accent,
-          border: `1px solid ${accent}28`,
+          border: `1px solid color-mix(in srgb, ${accent} 15.69%, transparent)`,
         }}>
           {icon}
         </span>
@@ -434,7 +434,7 @@ export default function AddNodeMenu({ anchorRect, onClose }: AddNodeMenuProps) {
                       label="Upload"
                       description="Image or video — auto-detects type"
                       accent="var(--role-source)"
-                      bg="#052e16"
+                      bg="var(--node-bg-prompt)"
                       icon={<Upload size={18} strokeWidth={1.8} />}
                       onClick={() => fileInputRef.current?.click()}
                     />
@@ -442,8 +442,8 @@ export default function AddNodeMenu({ anchorRect, onClose }: AddNodeMenuProps) {
                       id="assets"
                       label="Assets"
                       description="Browse your generations & uploads"
-                      accent="#60a5fa"
-                      bg="#0c1a3b"
+                      accent="var(--accent-sky)"
+                      bg="var(--node-bg-video-input)"
                       icon={<LayoutGrid size={18} strokeWidth={1.8} />}
                       onClick={(e) => {
                         setPickerPos({ x: e.clientX, y: e.clientY });

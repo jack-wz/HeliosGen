@@ -6,7 +6,7 @@ import { useReadOnly } from "@/lib/readOnlyContext";
 
 type CommentNodeType = Node<NodeData, "commentNode">;
 
-const ACCENT = "#FACC15"; // amber-400
+const ACCENT = "var(--accent-yellow)"; // amber-400
 
 export default function CommentNode({ id, data, selected }: NodeProps<CommentNodeType>) {
   const readOnly = useReadOnly();
@@ -24,7 +24,7 @@ export default function CommentNode({ id, data, selected }: NodeProps<CommentNod
       className="w-full h-full flex flex-col rounded-lg overflow-hidden shadow-lg"
       style={{
         background: "rgba(250, 204, 21, 0.09)",
-        border: `1px solid ${ACCENT}44`,
+        border: `1px solid color-mix(in srgb, ${ACCENT} 26.67%, transparent)`,
         backdropFilter: "blur(2px)",
       }}
     >
@@ -40,11 +40,11 @@ export default function CommentNode({ id, data, selected }: NodeProps<CommentNod
       <div
         className="flex items-center justify-between gap-2 px-2.5 py-1.5 select-none"
         style={{
-          borderBottom: `1px solid ${ACCENT}22`,
+          borderBottom: `1px solid color-mix(in srgb, ${ACCENT} 13.33%, transparent)`,
           background: "rgba(250, 204, 21, 0.07)",
         }}
       >
-        <span className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: `${ACCENT}dd` }}>
+        <span className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: `color-mix(in srgb, ${ACCENT} 86.67%, transparent)` }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
@@ -56,9 +56,9 @@ export default function CommentNode({ id, data, selected }: NodeProps<CommentNod
             onClick={(e) => { e.stopPropagation(); handleDelete(); }}
             title="Delete comment"
             className="nodrag flex items-center justify-center w-5 h-5 rounded transition-colors"
-            style={{ color: `${ACCENT}99` }}
+            style={{ color: `color-mix(in srgb, ${ACCENT} 60.0%, transparent)` }}
             onMouseEnter={(e) => { e.currentTarget.style.color = "var(--danger-soft)"; e.currentTarget.style.background = "rgba(248,113,113,0.12)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = `${ACCENT}99`; e.currentTarget.style.background = "transparent"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = `color-mix(in srgb, ${ACCENT} 60.0%, transparent)`; e.currentTarget.style.background = "transparent"; }}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6" />

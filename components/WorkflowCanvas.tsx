@@ -1837,7 +1837,7 @@ export default function WorkflowCanvas() {
                     type: "videoGeneratorNode",
                     label: tCanvas("videoGenerator"),
                     desc: tCanvas("genVideosHint"),
-                    accent: "#a78bfa",
+                    accent: "var(--accent-violet)",
                     icon: <Clapperboard size={20} strokeWidth={1.6} />,
                   },
                 ].map(({ type, label, desc, icon, accent }) => (
@@ -1862,8 +1862,8 @@ export default function WorkflowCanvas() {
                     onMouseEnter={(e) => {
                       const el = e.currentTarget;
                       el.style.transform = "translateY(-4px)";
-                      el.style.boxShadow = `0 0 0 1px ${accent}35, 0 16px 40px rgba(0,0,0,0.4)`;
-                      el.style.borderColor = `${accent}35`;
+                      el.style.boxShadow = `0 0 0 1px color-mix(in srgb, ${accent} 20.78%, transparent), 0 16px 40px rgba(0,0,0,0.4)`;
+                      el.style.borderColor = `color-mix(in srgb, ${accent} 20.78%, transparent)`;
                       el.style.background = `rgba(255,255,255,0.05)`;
                     }}
                     onMouseLeave={(e) => {
@@ -1882,7 +1882,7 @@ export default function WorkflowCanvas() {
                       width: "44px",
                       height: "44px",
                       borderRadius: "12px",
-                      background: `${accent}22`,
+                      background: `color-mix(in srgb, ${accent} 13.33%, transparent)`,
                       color: accent,
                       flexShrink: 0,
                     }}>

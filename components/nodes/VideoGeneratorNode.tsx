@@ -1228,7 +1228,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               right: 0,
               transform: "translate(calc(100% + 34px), -50%)",
               background: "var(--neutral-10)",
-              border: `1px solid ${color}33`,
+              border: `1px solid color-mix(in srgb, ${color} 20.0%, transparent)`,
               color: "var(--neutral-1)",
             }}
           >
@@ -1287,7 +1287,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               left: 0,
               transform: "translate(calc(-100% - 34px), -50%)",
               background: "var(--neutral-10)",
-              border: `1px solid ${tooltipColor}33`,
+              border: `1px solid color-mix(in srgb, ${tooltipColor} 20.0%, transparent)`,
               color: "var(--neutral-1)",
             }}
           >
@@ -1328,8 +1328,8 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center z-20" style={{ background: "#2a2427" }}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" fill="#1a0a0a" stroke="#5a1a1a" strokeWidth="1.5" />
-                        <path d="M12 7v5" stroke="#c04040" strokeWidth="2" strokeLinecap="round" />
-                        <circle cx="12" cy="16" r="1" fill="#c04040" />
+                        <path d="M12 7v5" stroke="var(--accent-red)" strokeWidth="2" strokeLinecap="round" />
+                        <circle cx="12" cy="16" r="1" fill="var(--accent-red)" />
                       </svg>
                       {(entry.error === "moderation_blocked" || entry.error?.includes?.("moderation_blocked") || entry.error?.includes?.("flagged as sensitive")) ? (
                         <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--danger-soft)]">
@@ -1385,10 +1385,10 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
               <div className="flex items-center gap-2.5">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="shrink-0">
                   <circle cx="12" cy="12" r="10" fill="#1a0a0a" stroke="#5a1a1a" strokeWidth="1.5" />
-                  <path d="M12 7v5" stroke="#c04040" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="12" cy="16" r="1" fill="#c04040" />
+                  <path d="M12 7v5" stroke="var(--accent-red)" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="12" cy="16" r="1" fill="var(--accent-red)" />
                 </svg>
-                <span className="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80", background: "rgba(74,222,128,0.07)" }}>
+                <span className="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ border: "1px solid rgba(74,222,128,0.2)", color: "var(--accent-green)", background: "rgba(74,222,128,0.07)" }}>
                   Credits refunded
                 </span>
               </div>
@@ -2135,7 +2135,7 @@ function ChevronIcon({ open = false }: { open?: boolean }) {
   );
 }
 
-function ToggleSwitch({ on, activeColor = "#4ade80" }: { on: boolean; activeColor?: string }) {
+function ToggleSwitch({ on, activeColor = "var(--accent-green)" }: { on: boolean; activeColor?: string }) {
   return (
     <div className="relative shrink-0 rounded-full transition-colors" style={{ width: 32, height: 18, background: on ? "#3A3A3A" : "var(--neutral-9)" }}>
       <div className="absolute top-[3px] rounded-full transition-transform" style={{ width: 12, height: 12, background: on ? activeColor : "var(--neutral-5)", transform: on ? "translateX(17px)" : "translateX(3px)" }} />

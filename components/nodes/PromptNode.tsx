@@ -1201,7 +1201,7 @@ function syntaxHighlightYaml(yaml: string, knownLabels: string[] = []): ReactNod
       if (keyMatch) {
         const [, indent, key, colon, rest] = keyMatch;
         parts.push(<span key={k++}>{indent}</span>);
-        parts.push(<span key={k++} style={{ color: "#06b6d4" }}>{key}</span>);
+        parts.push(<span key={k++} style={{ color: "var(--accent-cyan)" }}>{key}</span>);
         parts.push(<span key={k++} style={{ color: "var(--neutral-4)" }}>{colon}</span>);
         parts.push(<span key={k++}>{colorYamlValue(rest, k, sorted)}</span>);
         k++;
@@ -1241,11 +1241,11 @@ function colorYamlValue(value: string, baseKey: number, sorted: string[] = []): 
   };
 
   if (/^(true|false|yes|no|on|off)$/i.test(trimmed)) {
-    pushValue(main, "#a78bfa");
+    pushValue(main, "var(--accent-violet)");
   } else if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(trimmed) || /^0x[\da-fA-F]+$/.test(trimmed)) {
     pushValue(main, "var(--role-resource)");
   } else if (/^(null|~)$/.test(trimmed)) {
-    pushValue(main, "#a78bfa");
+    pushValue(main, "var(--accent-violet)");
   } else if (/^['"]/.test(trimmed)) {
     pushValue(main, "#86efac");
   } else if (trimmed !== "") {
@@ -1291,7 +1291,7 @@ function syntaxHighlightJson(json: string, errorPos?: number, knownLabels: strin
     push(last, m.index);
     if (m[1] !== undefined) {
       if (m[2] !== undefined) {
-        push(m.index, m.index + m[1].length, "#06b6d4");
+        push(m.index, m.index + m[1].length, "var(--accent-cyan)");
         push(m.index + m[1].length, m.index + m[0].length, "var(--neutral-4)");
       } else {
         push(m.index, m.index + m[1].length, "#86efac");
@@ -1299,7 +1299,7 @@ function syntaxHighlightJson(json: string, errorPos?: number, knownLabels: strin
     } else if (m[3] !== undefined) {
       push(m.index, m.index + m[3].length, "var(--role-resource)");
     } else if (m[4] !== undefined) {
-      push(m.index, m.index + m[4].length, "#a78bfa");
+      push(m.index, m.index + m[4].length, "var(--accent-violet)");
     } else if (m[5] !== undefined) {
       push(m.index, m.index + m[5].length, "var(--neutral-4)");
     }

@@ -975,8 +975,8 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center z-20" style={{ background: "#2a2427" }}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" fill="#1a0a0a" stroke="#5a1a1a" strokeWidth="1.5" />
-                        <path d="M12 7v5" stroke="#c04040" strokeWidth="2" strokeLinecap="round" />
-                        <circle cx="12" cy="16" r="1" fill="#c04040" />
+                        <path d="M12 7v5" stroke="var(--accent-red)" strokeWidth="2" strokeLinecap="round" />
+                        <circle cx="12" cy="16" r="1" fill="var(--accent-red)" />
                       </svg>
                       {(entry.error === "moderation_blocked" || entry.error?.includes?.("moderation_blocked") || entry.error?.includes?.("flagged as sensitive")) ? (
                         <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--danger-soft)]">
@@ -1028,10 +1028,10 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
               <div className="flex items-center gap-2.5">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="shrink-0">
                   <circle cx="12" cy="12" r="10" fill="#1a0a0a" stroke="#5a1a1a" strokeWidth="1.5" />
-                  <path d="M12 7v5" stroke="#c04040" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="12" cy="16" r="1" fill="#c04040" />
+                  <path d="M12 7v5" stroke="var(--accent-red)" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="12" cy="16" r="1" fill="var(--accent-red)" />
                 </svg>
-                <span className="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80", background: "rgba(74,222,128,0.07)" }}>
+                <span className="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ border: "1px solid rgba(74,222,128,0.2)", color: "var(--accent-green)", background: "rgba(74,222,128,0.07)" }}>
                   Credits refunded
                 </span>
               </div>

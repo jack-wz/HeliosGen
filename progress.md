@@ -88,6 +88,45 @@
 3. hero 图：用 sharp 按「显示尺寸 ×2 DPR」裁切重编码，4 张合计 4,952KB → 46KB；`public/` 5.2MB → 408KB；`/workflow` 首屏 6,678KB → 1,457KB（-78%）
 - 验证：tsc、`pnpm build`、21 项回归测试 + clipboard 全过
 
+## 2026-10-01（G1 完成 ✅ —— API 错误码本地化）
+
+### 做法：增量式，`error` 一字未改
+每个错误响应在 `error` 旁新增 `code`：
+```json
+{ "error": "File exceeds 100 MB limit", "code": "file_too_large_100mb" }
+```
+`error` 保持英文原文——**那是 CLI/MCP 的契约**（`cli/lib/client.mjs` 直接读它给 agent）。新增字段纯增量，那些客户端无需改动。
+
+- **API 侧**：30 个路由文件 / **93 处**错误响应加了 code（68 处字面量手工映射，25 处变量拼接或裸 500）
+- **前端**：`lib/useApiError.ts`
+  ```ts
+  if (code && t.has(code)) return t(code);
+  return payload?.error ?? fallback;
+  ```
+  **未知 code 回落英文原文**，所以服务端加 code 永远不会弄坏旧客户端
+- **11 个文件 / 27 处**展示点改用它；`useApiError` 按 `t` memo 化（next-intl 的 `t` 按 locale 稳定），可安全进依赖数组
+- 词条新增 `errors` 命名空间 **69 条**，总词条 353 / 键集一致
+
+### 顺带发现的两个漏译（已修）
+- `MediaPickerModal` 的 URL 占位符与 `Attach` 按钮**从来没被翻译过**
+- 看起来覆盖占位符的 `pasteUrl` 词条是**死键**——没有任何地方引用它。已删死键、改用真正被引用的 key
+
+### 端到端验证
+picker 的 URL 输入框是用户**不生成任何东西就能触发 API 错误**的唯一入口，正好做探针：
+| 语言 | 结果 |
+|---|---|
+| zh-CN | 显示 `URL 无效`，全文**无** `Invalid URL` ✓ |
+| en | 显示 `Invalid URL`，全文**无** `URL 无效` ✓ |
+
+### 线上验证
+`kie-key` / `collections` / `fetch-url` 均返回 code；353 词条 / 键集一致 / errors 69 条。
+
+### 部署
+`scripts/deploy-nas.sh`（走 Tailscale）→ 回滚点 `rollback-20261002-060615`；容器 healthy、API 200、170 资产、EACCES 0、桥接 Up 7 days、load 1.63。
+
+### 验证清单
+tsc ✅ · build ✅ · 21/21 回归测试 + clipboard ✅ · 版本守卫 ✅ · eslint **154**（基线，无新增）✅
+
 ## 2026-10-01（用户授权后自行拍板：B 类执行 / API 错误码与 R5 暂缓）
 
 用户授权「按最合适的方案来，你来拍版」。三项决定如下。

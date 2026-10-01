@@ -386,7 +386,7 @@ const FolderRow = React.memo(function FolderRow({
             <path d="M5 1.5A3.5 3.5 0 0 1 8.5 5" fill="none" stroke="url(#fg-spin)" strokeWidth="1.5" strokeLinecap="round" />
             <defs>
               <linearGradient id="fg-spin" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#3B82F6" />
+                <stop offset="0%" stopColor="var(--accent-blue)" />
                 <stop offset="100%" stopColor="var(--primary)" />
               </linearGradient>
             </defs>
@@ -395,7 +395,7 @@ const FolderRow = React.memo(function FolderRow({
         {!isRenaming && !isGenerating && hasUnseen && (
           <span style={{
             width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
-            background: "linear-gradient(135deg, #3B82F6 0%, var(--primary) 100%)",
+            background: "linear-gradient(135deg, var(--accent-blue) 0%, var(--primary) 100%)",
             boxShadow: "0 0 5px rgba(45,212,191,0.6)",
           }} />
         )}
@@ -591,7 +591,7 @@ const AllAssetsRow = React.memo(function AllAssetsRow({ isActive, count, onSelec
             <path d="M5 1.5A3.5 3.5 0 0 1 8.5 5" fill="none" stroke="url(#fg-spin-all)" strokeWidth="1.5" strokeLinecap="round" />
             <defs>
               <linearGradient id="fg-spin-all" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#3B82F6" />
+                <stop offset="0%" stopColor="var(--accent-blue)" />
                 <stop offset="100%" stopColor="var(--primary)" />
               </linearGradient>
             </defs>
@@ -600,7 +600,7 @@ const AllAssetsRow = React.memo(function AllAssetsRow({ isActive, count, onSelec
         {!isGenerating && hasUnseen && (
           <span style={{
             width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
-            background: "linear-gradient(135deg, #3B82F6 0%, var(--primary) 100%)",
+            background: "linear-gradient(135deg, var(--accent-blue) 0%, var(--primary) 100%)",
             boxShadow: "0 0 5px rgba(45,212,191,0.6)",
           }} />
         )}

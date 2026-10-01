@@ -109,7 +109,7 @@ export default function SelectionToolbar() {
       type:     "groupNode",
       position: { x: gx, y: gy },
       style:    { width: gw, height: gh, zIndex: -1 },
-      data:     { label: `Group #${groupCount}`, color: "#3b82f6", locked: false, memberIds } as NodeData,
+      data:     { label: `Group #${groupCount}`, color: "var(--accent-blue)", locked: false, memberIds } as NodeData,
       selected: true,
       zIndex:   -1,
     };

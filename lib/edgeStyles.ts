@@ -4,12 +4,12 @@ import type { CSSProperties } from "react";
 export const EDGE_COLORS: Record<string, string> = {
   prompt: "var(--primary)", // teal   — matches node-handle-icon-prompt
   image: "var(--role-resource)", // orange — matches node-handle-icon-resource
-  startFrame: "#818cf8", // indigo — matches node-handle-icon-image
-  endFrame: "#818cf8", // indigo — matches node-handle-icon-image
+  startFrame: "var(--accent-indigo)", // indigo — matches node-handle-icon-image
+  endFrame: "var(--accent-indigo)", // indigo — matches node-handle-icon-image
   resource: "var(--role-resource)", // orange — matches node-handle-icon-resource
   videoRef: "var(--role-video)", // cyan   — matches node-handle-icon-videoref
   referenceVideo: "var(--role-refvideo)", // sky    — matches node-handle-icon-refvideo
-  audioRef: "#a78bfa", // violet — matches node-handle-icon-audioref
+  audioRef: "var(--accent-violet)", // violet — matches node-handle-icon-audioref
   character: "#f472b6", // pink   — matches node-handle-icon-character (motion control startFrame)
   default: "#3a3a3a", // neutral
 };
@@ -29,16 +29,16 @@ export function getSourceHandleColor(nodeType: string | undefined, sourceHandleI
   switch (sourceHandleId) {
     case "startFrameOut":
     case "endFrameOut":
-    case "imagePickOut": return "#818cf8";
+    case "imagePickOut": return "var(--accent-indigo)";
     case "videoRefOut": return "var(--role-video)";
-    case "audioRefOut": return "#a78bfa";
+    case "audioRefOut": return "var(--accent-violet)";
   }
   // Legacy / single-output nodes — derive from node type
   switch (nodeType) {
     case "promptNode": return "var(--primary)";
     case "assistantNode": return "var(--role-assistant)";
-    case "imageInputNode": return "#818cf8";
-    case "generateNode": return "#818cf8";
+    case "imageInputNode": return "var(--accent-indigo)";
+    case "generateNode": return "var(--accent-indigo)";
     case "videoInputNode": return "var(--role-video)";
     case "videoGeneratorNode": return "var(--role-video)";
     default: return EDGE_COLORS.default;

@@ -28,7 +28,7 @@ function collectAncestors(startId: string, allNodes: Node<NodeData>[], edges: { 
 }
 
 const GROUP_COLORS = [
-  "#3b82f6", // Blue (default)
+  "var(--accent-blue)", // Blue (default)
   "#0D9488", // Blue-600
   "#ec4899", // Pink
   "var(--destructive)", // Red
@@ -36,7 +36,7 @@ const GROUP_COLORS = [
   "#eab308", // Yellow
   "#22c55e", // Green
   "#14b8a6", // Teal
-  "#06b6d4", // Cyan
+  "var(--accent-cyan)", // Cyan
   "#9ca3af", // Gray
 ];
 
@@ -75,7 +75,7 @@ function LockBadge({ color }: { color: string }) {
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
       <div
         className="w-8 h-8 rounded-full flex items-center justify-center"
-        style={{ background: `${color}20`, border: `1.5px solid ${color}50` }}
+        style={{ background: `color-mix(in srgb, ${color} 12.55%, transparent)`, border: `1.5px solid color-mix(in srgb, ${color} 31.37%, transparent)` }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -175,7 +175,7 @@ export default function GroupNode({ id, data, selected }: NodeProps<GroupNodeTyp
   const onNodesChange   = useWorkflowStore((s) => s.onNodesChange);
   const { fitBounds }   = useReactFlow();
 
-  const color  = (data.color  as string)  ?? "#3b82f6";
+  const color  = (data.color  as string)  ?? "var(--accent-blue)";
   const locked = (data.locked as boolean) ?? false;
   const label  = data.label   as string;
 
@@ -486,7 +486,7 @@ export default function GroupNode({ id, data, selected }: NodeProps<GroupNodeTyp
       className="relative w-full h-full rounded-[10px]"
       style={{
         border: `2px solid ${color}`,
-        background: `${color}0d`,
+        background: `color-mix(in srgb, ${color} 5.1%, transparent)`,
         opacity: locked ? 0.85 : 1,
       }}
     >

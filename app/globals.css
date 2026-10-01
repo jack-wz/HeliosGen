@@ -101,6 +101,29 @@
      5.8+ apart, i.e. genuinely a separate step, which is why the ramp is this
      long rather than collapsed: folding them further would be a redesign, not
      a rename. (Tailwind's own grey scale has 11 steps.) */
+  /* Accent colours and the node-category backgrounds. Values unchanged.
+     Every one of these is 10+ dE from the nearest existing colour and from each
+     other (measured, CIE76), so — as with the neutral ramp — they are named
+     rather than merged; collapsing them would be a redesign. */
+  --accent-violet: #A78BFA;
+  --accent-blue: #3B82F6;
+  --accent-indigo: #818CF8;
+  --accent-deep-blue: #082F49;
+  --accent-cyan: #06B6D4;
+  --accent-red: #C04040;
+  --accent-green: #4ADE80;
+  --accent-sky: #60A5FA;
+  --accent-yellow: #FACC15;
+  /* Node-category backgrounds: each is the dark counterpart of that
+     category's accent in NODE_META. */
+  --node-bg-prompt: #052E16;
+  --node-bg-image-input: #431407;
+  --node-bg-video-input: #0C1A3B;
+  --node-bg-generate: #001F1F;
+  --node-bg-assistant: #1C1000;
+  --node-bg-video-generator: #042F2E;
+  --node-bg-comment: #2A2005;
+  --node-bg-llm: #422006;
   --neutral-1: #CCCCCC;
   --neutral-2: #888888;
   --neutral-3: #777777;
