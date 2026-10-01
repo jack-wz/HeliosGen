@@ -60,7 +60,7 @@ ok "daemon $(docker info --format '{{.ServerVersion}}')"
 
 step "2/6 NAS 可达性与资源"
 nas 'echo up' >/dev/null 2>&1 \
-  || fail "无法 SSH 到 $NAS_SSH。局域网请确认 NAS_SSH_KEY（默认密钥只授权给 Tailscale SSH）；远程请设置 NAS_SSH。"
+  || fail "无法 SSH 到 ${NAS_SSH}。局域网请确认 NAS_SSH_KEY（默认密钥只授权给 Tailscale SSH）；远程请设置 NAS_SSH。"
 
 read -r LOAD AVAIL_KB UNHEALTHY <<<"$(nas '
   load=$(awk "{print \$1}" /proc/loadavg)
@@ -94,7 +94,7 @@ else
     || fail "构建失败"
 fi
 ARCH=$(docker image inspect "$IMAGE" --format '{{.Architecture}}')
-[[ "$ARCH" == "amd64" ]] || fail "镜像架构是 $ARCH，NAS 需要 amd64"
+[[ "$ARCH" == "amd64" ]] || fail "镜像架构是 ${ARCH}，NAS 需要 amd64"
 ok "$IMAGE ($ARCH, 版本 $APP_VERSION)"
 
 step "4/6 打包并传输"
@@ -106,7 +106,19 @@ ok "包大小 $(du -h "$TARBALL" | cut -f1)"
 nas "cat > /tmp/heliosgen-amd64.tar.gz" < "$TARBALL"
 ok "已传到 NAS"
 
-step "5/6 回滚点 + 加载 + 重建容器"
+step "5/6 同步源码 + 回滚点 + 加载 + 重建容器"
+# The image is the deployable artifact, but the NAS tree is kept in step too —
+# otherwise grepping the NAS shows stale code and the source backup below would
+# capture a tree that does not match what is running.
+tar czf - \
+  --exclude='./node_modules' --exclude='./.next' --exclude='./.git' \
+  --exclude='./data' --exclude='./public/generated' --exclude='./src-tauri' \
+  --exclude='./cli/mcp/node_modules' --exclude='./output' \
+  --exclude='./secrets' --exclude='./.env.sync' --exclude='./.seek-token.bak' \
+  --exclude='./._*' --exclude='./.DS_Store' . 2>/dev/null \
+  | nas "tar xzf - -C $NAS_DIR" \
+  || fail "源码同步失败"
+ok "源码已同步"
 TAG="rollback-$(date +%Y%m%d-%H%M%S)"
 nas "
   set -e
@@ -117,7 +129,7 @@ nas "
     --exclude=.seek-token.bak -C /home/wyai heliosgen
   docker load -i /tmp/heliosgen-amd64.tar.gz >/dev/null
   rm -f /tmp/heliosgen-amd64.tar.gz
-  # --no-deps and naming the service: a bare `up -d` would recreate asset-bridge.
+  # --no-deps and naming the service: a bare "up -d" would recreate asset-bridge.
   docker compose --env-file .env.sync -f compose.nas.yaml up -d \
     --force-recreate --no-deps heliosgen
 "
@@ -129,7 +141,7 @@ for i in $(seq 1 18); do
   sleep 10
 done
 HEALTH=$(nas 'docker inspect --format "{{.State.Health.Status}}" heliosgen')
-[[ "$HEALTH" == "healthy" ]] || fail "容器未恢复健康（当前 $HEALTH）。回滚: docker tag heliosgen:$TAG $IMAGE && docker compose ... up -d --force-recreate --no-deps heliosgen"
+[[ "$HEALTH" == "healthy" ]] || fail "容器未恢复健康（当前 ${HEALTH}）。回滚: docker tag heliosgen:$TAG $IMAGE && docker compose ... up -d --force-recreate --no-deps heliosgen"
 ok "容器 healthy"
 
 nas '
