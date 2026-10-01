@@ -5,6 +5,7 @@ import { MODEL_GROUPS } from "@/lib/models";
 import { useWorkflowStore } from "@/lib/store";
 import { copyText } from "@/lib/clipboard";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 import { PROVIDERS, ProviderId, loadModelProviders, saveModelProviders, getModelProvider } from "@/lib/providers";
 
 /* ─── Provider options (re-exported for backwards compat) ───────────────────── */
@@ -441,6 +442,7 @@ function ApiKeysPanel({
   codexStatus: CodexStatus;
   onCodexLoginSuccess: () => void;
 }) {
+  const apiError = useApiError();
   const tSettings = useTranslations("settings");
   const [kieInput, setKieInput]       = useState("");
   const [kieSaving, setKieSaving]     = useState(false);
@@ -463,7 +465,7 @@ function ApiKeysPanel({
       const res = await fetch("/api/settings/codex-login", { method: "POST" });
       const d = await res.json();
       if (d.status === "pending") setLoginFlow({ status: "pending", url: d.url, code: d.code });
-      else setLoginFlow({ status: "error", error: d.error ?? "Failed to start login" });
+      else setLoginFlow({ status: "error", error: apiError(d, "Failed to start login") });
     } catch (e: unknown) {
       setLoginFlow({ status: "error", error: e instanceof Error ? e.message : "Failed to start login" });
     }
@@ -500,14 +502,14 @@ function ApiKeysPanel({
             setLoginFlow({ status: "idle" });
             onCodexLoginSuccess();
           } else {
-            setLoginFlow({ status: "error", error: d.error ?? "Login failed" });
+            setLoginFlow({ status: "error", error: apiError(d, "Login failed") });
           }
         }
         // "pending" → keep polling
       } catch { /* network hiccup — keep polling */ }
     }, 2500);
     return () => clearInterval(interval);
-  }, [loginFlow.status, onCodexLoginSuccess]);
+  }, [loginFlow.status, onCodexLoginSuccess, apiError]);
 
   const handleKieSave = async () => {
     if (!kieInput.trim()) return;
@@ -1340,6 +1342,7 @@ function DebugPanel() {
 /* ─── Main modal ─────────────────────────────────────────────────────────────── */
 
 export default function SettingsModal({ onClose }: SettingsModalProps) {
+  const apiError = useApiError();
   const tSettings = useTranslations("settings");
   const [activeNav, setActiveNav]             = useState<NavId>("api-keys");
   const [modelProviders, setModelProviders]   = useState<Record<string, ProviderId>>({});
@@ -1430,7 +1433,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
       headers: { ...h, "Content-Type": "application/json" },
       body: JSON.stringify({ kieApiToken: token }),
     });
-    if (!res.ok) throw new Error((await res.json()).error ?? "Failed to save");
+    if (!res.ok) throw new Error(apiError(await res.json(), "Failed to save"));
     setKieKeyStatus("set");
     setKieKeySet(true);
   };
@@ -1449,7 +1452,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
       headers: { ...h, "Content-Type": "application/json" },
       body: JSON.stringify({ azureApiKey: key }),
     });
-    if (!res.ok) throw new Error((await res.json()).error ?? "Failed to save");
+    if (!res.ok) throw new Error(apiError(await res.json(), "Failed to save"));
     setAzureKeyStatus("set");
     setAzureKeySet(true);
   };

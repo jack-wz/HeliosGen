@@ -539,7 +539,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
         <input
           type="text"
           className="node-input mt-2"
-          placeholder="or paste image URL…"
+          placeholder={t("orPasteImageUrl")}
           onBlur={(e) => {
             const v = e.target.value.trim();
             if (v) setImage(v);

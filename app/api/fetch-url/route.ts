@@ -23,13 +23,13 @@ export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json() as { url?: string };
     if (!url || typeof url !== "string") {
-      return NextResponse.json({ error: "Missing url" }, { status: 400 });
+      return NextResponse.json({ error: "Missing url", code: "url_required" }, { status: 400 });
     }
 
     try {
       new URL(url);
     } catch {
-      return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid URL", code: "url_invalid" }, { status: 400 });
     }
 
     let upstream: Response;
@@ -37,11 +37,11 @@ export async function POST(req: NextRequest) {
       upstream = await fetchFollowingSafely(url);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      return NextResponse.json({ error: msg }, { status: 400 });
+      return NextResponse.json({ error: msg, code: "url_private_address" }, { status: 400 });
     }
 
     if (!upstream.ok) {
-      return NextResponse.json({ error: `Failed to fetch URL: ${upstream.status} ${upstream.statusText}` }, { status: 400 });
+      return NextResponse.json({ error: `Failed to fetch URL: ${upstream.status} ${upstream.statusText}`, code: "url_fetch_failed" }, { status: 400 });
     }
 
     const contentType = upstream.headers.get("content-type") ?? "application/octet-stream";
@@ -50,12 +50,12 @@ export async function POST(req: NextRequest) {
     const isImage = mimeType.startsWith("image/");
     const isVideo = mimeType.startsWith("video/");
     if (!isImage && !isVideo) {
-      return NextResponse.json({ error: "URL does not point to an image or video" }, { status: 400 });
+      return NextResponse.json({ error: "URL does not point to an image or video", code: "url_not_media" }, { status: 400 });
     }
 
     const buffer = Buffer.from(await upstream.arrayBuffer());
     if (buffer.byteLength > MAX_BYTES) {
-      return NextResponse.json({ error: "File exceeds 50 MB limit" }, { status: 413 });
+      return NextResponse.json({ error: "File exceeds 50 MB limit", code: "file_too_large_50mb" }, { status: 413 });
     }
 
     const folder = isVideo ? "references" : "uploads";
@@ -76,6 +76,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ cdnUrl, mediaType });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: msg, code: "url_fetch_failed" }, { status: 500 });
   }
 }

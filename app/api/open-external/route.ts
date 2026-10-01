@@ -18,7 +18,7 @@ function opener(): { cmd: string; args: string[] } {
 
 export async function POST(req: NextRequest) {
   if (process.env.HELIOS_WEB === "1") {
-    return NextResponse.json({ error: "Desktop URL opener is unavailable" }, { status: 404 });
+    return NextResponse.json({ error: "Desktop URL opener is unavailable", code: "desktop_opener_unavailable" }, { status: 404 });
   }
 
   let url: string;
@@ -26,10 +26,10 @@ export async function POST(req: NextRequest) {
     url = (await req.json()).url;
     const parsed = new URL(url);
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return NextResponse.json({ error: "unsupported protocol" }, { status: 400 });
+      return NextResponse.json({ error: "unsupported protocol", code: "protocol_unsupported" }, { status: 400 });
     }
   } catch {
-    return NextResponse.json({ error: "invalid url" }, { status: 400 });
+    return NextResponse.json({ error: "invalid url", code: "url_invalid" }, { status: 400 });
   }
 
   const { cmd, args } = opener();
@@ -44,6 +44,6 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ ok: true });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+    return NextResponse.json({ error: (e as Error).message, code: "open_external_failed" }, { status: 500 });
   }
 }

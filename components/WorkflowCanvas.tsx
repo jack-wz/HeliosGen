@@ -19,6 +19,7 @@ import "@xyflow/react/dist/style.css";
 
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 import VideoTrimNode from "@/components/nodes/VideoTrimNode";
 import VideoFrameGrabNode from "@/components/nodes/VideoFrameGrabNode";
 import LLMGenerateNode from "@/components/nodes/LLMGenerateNode";
@@ -194,6 +195,7 @@ function nodeAcceptsPromptInput(node: Node<NodeData>, edges: Edge[]): boolean {
 }
 
 export default function WorkflowCanvas() {
+  const apiError = useApiError();
   const tCanvas = useTranslations("ui.canvas");
   const tNodes = useTranslations("nodes");
   const {
@@ -1345,7 +1347,7 @@ export default function WorkflowCanvas() {
             const poll = await fetch(`/api/job-status?taskId=${taskId}`);
             const result = await poll.json();
             if (result.status === "done") { imageUrl = result.imageUrl; break; }
-            if (result.status === "error") throw new Error(result.error ?? "Generation failed");
+            if (result.status === "error") throw new Error(apiError(result, "Generation failed"));
             if (attempt > 0 && attempt % 5 === 0) push(`[${node.id}] still waiting…`);
           }
 
@@ -1390,7 +1392,7 @@ export default function WorkflowCanvas() {
           });
           if (!res.ok) {
             const err = await res.json().catch(() => ({ error: "Generation failed" }));
-            throw new Error(err.error ?? "Generation failed");
+            throw new Error(apiError(err, "Generation failed"));
           }
 
           const reader = res.body!.getReader();
@@ -1476,7 +1478,7 @@ export default function WorkflowCanvas() {
 
     push(tCanvas("complete"));
     setIsRunning(false);
-  }, [nodes, edges, updateNodeData, setIsRunning, debugMode, push, kieKeySet, addToast, tCanvas]);
+  }, [nodes, edges, updateNodeData, setIsRunning, debugMode, push, kieKeySet, addToast, tCanvas, apiError]);
   // Latest-ref pattern: the shortcut handler above needs the current runAll
   // without re-subscribing on every change.
   // eslint-disable-next-line react-hooks/immutability

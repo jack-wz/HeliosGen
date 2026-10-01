@@ -12,7 +12,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const { azureApiKey } = await req.json();
   if (typeof azureApiKey !== "string" || !azureApiKey.trim()) {
-    return NextResponse.json({ error: "azureApiKey is required" }, { status: 400 });
+    return NextResponse.json({ error: "azureApiKey is required", code: "azure_api_key_required" }, { status: 400 });
   }
   setAzureApiKey(azureApiKey.trim());
   return NextResponse.json({ ok: true });

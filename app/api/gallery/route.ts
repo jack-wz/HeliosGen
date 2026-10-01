@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const { id, source } = await req.json() as { id: string; source: "generation" | "upload" };
-  if (!id || !source) return NextResponse.json({ error: "Missing id or source" }, { status: 400 });
+  if (!id || !source) return NextResponse.json({ error: "Missing id or source", code: "id_or_source_required" }, { status: 400 });
 
   if (source === "generation") guestDb.deleteGeneration(id, GUEST_USER_ID);
   else guestDb.deleteUpload(id, GUEST_USER_ID);

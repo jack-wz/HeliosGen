@@ -4,7 +4,7 @@ export async function POST(req: NextRequest) {
   const { prompt, model = "flux-schnell" } = await req.json();
 
   if (!prompt) {
-    return NextResponse.json({ error: "prompt is required" }, { status: 400 });
+    return NextResponse.json({ error: "prompt is required", code: "prompt_required" }, { status: 400 });
   }
 
   const apiKey = process.env.REPLICATE_API_TOKEN;
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   if (!createRes.ok) {
     const err = await createRes.text();
-    return NextResponse.json({ error: err }, { status: 500 });
+    return NextResponse.json({ error: err, code: "generation_failed" }, { status: 500 });
   }
 
   const prediction = await createRes.json();
@@ -66,9 +66,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ imageUrl: output });
     }
     if (data.status === "failed") {
-      return NextResponse.json({ error: data.error }, { status: 500 });
+      return NextResponse.json({ error: data.error, code: "generation_failed" }, { status: 500 });
     }
   }
 
-  return NextResponse.json({ error: "Timed out" }, { status: 504 });
+  return NextResponse.json({ error: "Timed out", code: "generation_timed_out" }, { status: 504 });
 }

@@ -11,6 +11,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const status = /must point|escapes|not a file|Unsupported|Invalid/.test(message) ? 400 : 500;
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json({ error: message, code: "import_failed" }, { status });
   }
 }

@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     };
 
     if (!dataUrl) {
-      return NextResponse.json({ error: "dataUrl is required" }, { status: 400 });
+      return NextResponse.json({ error: "dataUrl is required", code: "data_url_required" }, { status: 400 });
     }
 
     let cdnUrl: string;
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     } else if (dataUrl.startsWith("http")) {
       cdnUrl = await mirrorToStorage(dataUrl, folder);
     } else {
-      return NextResponse.json({ error: "dataUrl must be a data: or http: URL" }, { status: 400 });
+      return NextResponse.json({ error: "dataUrl must be a data: or http: URL", code: "data_url_invalid" }, { status: 400 });
     }
 
     guestDb.insertUpload({ user_id: GUEST_USER_ID, r2_url: cdnUrl, mime_type: mimeType ?? null, aspect_ratio: aspectRatio, source: "user_upload" });
@@ -46,6 +46,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ cdnUrl });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: msg, code: "upload_failed" }, { status: 500 });
   }
 }

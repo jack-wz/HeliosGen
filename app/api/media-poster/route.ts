@@ -40,12 +40,12 @@ export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url") ?? "";
   const requested = Number(req.nextUrl.searchParams.get("w") ?? 480);
   const width = ALLOWED_WIDTHS.find((w) => w >= requested) ?? ALLOWED_WIDTHS[ALLOWED_WIDTHS.length - 1];
-  if (!url.startsWith("/generated/")) return NextResponse.json({ error: "url must be a /generated/ video" }, { status: 400 });
+  if (!url.startsWith("/generated/")) return NextResponse.json({ error: "url must be a /generated/ video", code: "poster_url_invalid" }, { status: 400 });
 
   let media: Awaited<ReturnType<typeof resolveMediaPath>>;
   try { media = await resolveMediaPath({ url }); }
-  catch { return NextResponse.json({ error: "Video not found" }, { status: 404 }); }
-  if (!media.mimeType.startsWith("video/")) return NextResponse.json({ error: "Not a video" }, { status: 400 });
+  catch { return NextResponse.json({ error: "Video not found", code: "video_not_found" }, { status: 404 }); }
+  if (!media.mimeType.startsWith("video/")) return NextResponse.json({ error: "Not a video", code: "not_a_video" }, { status: 400 });
 
   const { mtimeMs, size } = await stat(media.actualPath);
   const key = createHash("sha1").update(`${media.relativePath}:${size}:${mtimeMs}:${width}`).digest("hex");
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
       inflight.set(key, job);
     }
     try { body = await job; }
-    catch { return NextResponse.json({ error: "Poster extraction failed" }, { status: 500 }); }
+    catch { return NextResponse.json({ error: "Poster extraction failed", code: "poster_extraction_failed" }, { status: 500 }); }
   }
 
   return new NextResponse(new Uint8Array(body), {

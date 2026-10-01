@@ -51,13 +51,13 @@ export async function POST(req: NextRequest) {
   const userId = GUEST_USER_ID;
 
   const apiKey = (await getKieTokenForUser()) ?? process.env.KIE_API_TOKEN ?? null;
-  if (!apiKey) return NextResponse.json({ error: "No Kie.ai API key configured. Add one in Settings." }, { status: 401 });
+  if (!apiKey) return NextResponse.json({ error: "No Kie.ai API key configured. Add one in Settings.", code: "kie_key_missing" }, { status: 401 });
 
   // The app polls kie.ai directly (lib/kieJobPoller) — no callback URL needed.
   const callBackUrl = rawCallBackUrl || undefined;
 
   const cfg = VIDEO_MODELS.find((m) => m.id === videoModel);
-  if (!cfg) return NextResponse.json({ error: `Unknown video model: ${videoModel}` }, { status: 400 });
+  if (!cfg) return NextResponse.json({ error: `Unknown video model: ${videoModel}`, code: "unknown_model" }, { status: 400 });
 
   const resolution = rawResolution || cfg.defaultResolution || "480p";
   const { apiInput } = cfg;
@@ -419,11 +419,11 @@ export async function POST(req: NextRequest) {
 
   if (!createRes.ok) {
     if (createRes.status === 401) {
-      return NextResponse.json({ error: "Invalid Kie.ai API key — please update it in Settings." }, { status: 401 });
+      return NextResponse.json({ error: "Invalid Kie.ai API key — please update it in Settings.", code: "kie_key_invalid" }, { status: 401 });
     }
     const errText = await createRes.text();
     console.error("[generate-video] kie.ai HTTP error:", createRes.status, errText);
-    return NextResponse.json({ error: errText }, { status: 500 });
+    return NextResponse.json({ error: errText, code: "generation_failed" }, { status: 500 });
   }
 
   const createdText = await createRes.text();
@@ -432,15 +432,15 @@ export async function POST(req: NextRequest) {
   try {
     created = JSON.parse(createdText);
   } catch {
-    return NextResponse.json({ error: `Upstream returned non-JSON: ${createdText.slice(0, 200)}` }, { status: 500 });
+    return NextResponse.json({ error: `Upstream returned non-JSON: ${createdText.slice(0, 200)}`, code: "upstream_bad_response" }, { status: 500 });
   }
   if (created.code !== 200) {
     console.error("[generate-video] kie.ai API error:", created.code, created.msg, "input:", JSON.stringify(input));
-    return NextResponse.json({ error: created.msg ?? "Task creation failed" }, { status: 500 });
+    return NextResponse.json({ error: created.msg ?? "Task creation failed", code: "generation_failed" }, { status: 500 });
   }
 
   const taskId = created.data?.taskId || created.data?.id;
-  if (!taskId) return NextResponse.json({ error: "No taskId returned" }, { status: 500 });
+  if (!taskId) return NextResponse.json({ error: "No taskId returned", code: "task_id_missing" }, { status: 500 });
 
   // Register as pending so the frontend can poll job-status
   jobStore.set(taskId, { status: "pending", type: "video", userId: userId ?? undefined });
@@ -489,6 +489,6 @@ export async function POST(req: NextRequest) {
     const msg = e instanceof Error ? e.message : String(e);
     const cause = e instanceof Error && (e as NodeJS.ErrnoException).cause;
     console.error("[generate-video] unhandled error:", msg, cause ?? "");
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: msg, code: "generation_failed" }, { status: 500 });
   }
 }

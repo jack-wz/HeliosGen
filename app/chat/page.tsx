@@ -15,6 +15,7 @@ import DotCanvasBackground from "@/components/ui/DotCanvasBackground";
 import TypewriterHeading from "@/components/ui/TypewriterHeading";
 import { useWorkflowStore } from "@/lib/store";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 import { loadAzureBaseUrl, loadAzureTextDeployment, loadAzureTextModelName } from "@/components/SettingsModal";
 
 // ── Logo ──────────────────────────────────────────────────────────────────────
@@ -305,6 +306,7 @@ function ChatWindow({
   onAuthRequired?: () => void;
   initialMessage?: string;
 }) {
+  const apiError = useApiError();
   const tChat = useTranslations("chat");
   const [isStreaming, setIsStreaming] = useState(false);
   const [messages, setMessages] = useState<LiveMessage[]>(() =>
@@ -380,7 +382,7 @@ function ChatWindow({
 
       if (!res.ok || !res.body) {
         let errMsg = "Request failed";
-        try { const j = await res.json(); errMsg = j.error ?? errMsg; } catch { errMsg = await res.text().catch(() => errMsg); }
+        try { const j = await res.json(); errMsg = apiError(j, errMsg); } catch { errMsg = await res.text().catch(() => errMsg); }
         setMessages((prev) => prev.map((m, i) => i === assistantIdx ? { ...m, content: `Error: ${errMsg}`, streaming: false } : m));
         setIsStreaming(false);
         return;
@@ -426,7 +428,7 @@ function ChatWindow({
     } finally {
       setIsStreaming(false);
     }
-  }, [isStreaming, model, onAuthRequired, session, onUpdate]);
+  }, [isStreaming, model, onAuthRequired, session, onUpdate, apiError]);
 
   const hasSentInitial = useRef(false);
   useEffect(() => {

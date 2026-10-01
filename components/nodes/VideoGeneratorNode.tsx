@@ -8,6 +8,7 @@ import CornerResizer from "./CornerResizer";
 import NodeActionBar from "./NodeActionBar";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 import { resolveInputs } from "@/lib/executor";
 import { useReadOnly } from "@/lib/readOnlyContext";
 import { ShieldBan } from "lucide-react";
@@ -159,6 +160,7 @@ function resolveMentions(
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function VideoGeneratorNode({ id, data, selected }: NodeProps<VideoGeneratorNodeType>) {
+  const apiError = useApiError();
   const t = useTranslations("nodes");
   const tGeneric = useTranslations("ui.generic");
   const readOnly = useReadOnly();
@@ -497,7 +499,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
         gens[slot] = json.videoUrl;
         updateNodeData(id, { status: "done", videoUrl: json.videoUrl, taskId: undefined, generations: gens, currentGenIdx: slot });
       } else {
-        const errMsg = json.error ?? t("generationFailed");
+        const errMsg = apiError(json, t("generationFailed"));
         gens[slot] = { error: errMsg };
         updateNodeData(id, { status: "error", errorMsg: errMsg, taskId: undefined, generations: gens, currentGenIdx: slot });
       }
@@ -506,7 +508,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
     es.onerror = () => es.close();
 
     return () => es.close();
-  }, [data.taskId, status, id, updateNodeData, t]);
+  }, [data.taskId, status, id, updateNodeData, t, apiError]);
 
   const activeHandles = new Set<string>(cfg.handles);
 
@@ -1062,7 +1064,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
         const text = await res.text();
         let json: { taskId?: string; error?: string } = {};
         try { json = JSON.parse(text); } catch { throw new Error(res.ok ? t("invalidServerResponse") : `Server error ${res.status}`); }
-        if (!res.ok) throw new Error(json.error ?? `Server error ${res.status}`);
+        if (!res.ok) throw new Error(apiError(json, `Server error ${res.status}`));
         // Store taskId — the polling useEffect above will wait for completion
         updateNodeData(id, { taskId: json.taskId });
       } catch (e: unknown) {
@@ -1077,7 +1079,7 @@ export default function VideoGeneratorNode({ id, data, selected }: NodeProps<Vid
       }
     }, 3000);
   }, [id, nodes, edges, prompt, sound, seed, duration, aspectRatio, videoModelId, veoMode, isVeo,
-    mode, resolution, cfg, debugMode, textEdge, updateNodeData, flashEdgeError, kieKeySet, addToast, t]);
+    mode, resolution, cfg, debugMode, textEdge, updateNodeData, flashEdgeError, kieKeySet, addToast, t, apiError]);
 
   const handleGenerateBatch = useCallback(() => {
     generate();

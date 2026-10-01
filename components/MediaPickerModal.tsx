@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { GalleryItem, galleryCache, getToken, thumbSrc } from "@/lib/galleryUtils";
 import { videoPosterUrl } from "@/lib/mediaPreview";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 
 type TabId = "uploads" | "image-gen" | "video-gen";
 
@@ -104,7 +105,8 @@ export function MediaPickerModal({
   y?: number;
   selectedUrls?: string[];
   maxCount?: number;
-}) {
+}) {  const apiError = useApiError();
+
   const t = useTranslations("ui.picker");
   const defaultTab: TabId = mediaKind === "image" ? "image-gen" : mediaKind === "video" ? "video-gen" : "uploads";
   const [activeTab, setActiveTab] = useState<TabId>(defaultTab);
@@ -175,7 +177,7 @@ export function MediaPickerModal({
         body: JSON.stringify({ url: trimmed }),
       });
       const data = await res.json() as { cdnUrl?: string; mediaType?: "image" | "video"; error?: string };
-      if (!res.ok || !data.cdnUrl) throw new Error(data.error ?? t("failedFetchUrl"));
+      if (!res.ok || !data.cdnUrl) throw new Error(apiError(data, t("failedFetchUrl")));
       setUrlInput("");
       onPickUrl(data.cdnUrl, data.mediaType ?? "image");
       onClose();
@@ -494,7 +496,7 @@ export function MediaPickerModal({
             <div style={{ flex: 1, position: "relative" }}>
               <input
                 type="url"
-                placeholder="Paste an image URL…"
+                placeholder={t("pasteImageUrl")}
                 value={urlInput}
                 onChange={e => { setUrlInput(e.target.value); setUrlError(""); }}
                 onKeyDown={e => { if (e.key === "Enter") submitUrl(); }}
@@ -530,7 +532,7 @@ export function MediaPickerModal({
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
               )}
-              Attach
+              {t("attach")}
             </button>
           </div>
           {urlError && (

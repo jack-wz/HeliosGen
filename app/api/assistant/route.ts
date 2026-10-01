@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     }
     messages.push({ role: "user", content: body.prompt.trim() });
   } else {
-    return new Response(JSON.stringify({ error: "messages or prompt is required" }), {
+    return new Response(JSON.stringify({ error: "messages or prompt is required", code: "messages_or_prompt_required" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     const azureKey = await getAzureToken(req);
     if (!azureKey) {
       return new Response(
-        JSON.stringify({ error: "No Azure API key configured. Add one in Settings." }),
+        JSON.stringify({ error: "No Azure API key configured. Add one in Settings.", code: "azure_key_missing" }),
         { status: 401, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     const modelName   = (body.azureModelName  || "model-router").trim();
     if (!endpoint) {
       return new Response(
-        JSON.stringify({ error: "Azure base URL not configured. Add it in Settings → API Keys." }),
+        JSON.stringify({ error: "Azure base URL not configured. Add it in Settings → API Keys.", code: "azure_base_url_missing" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       } catch { /* use raw text */ }
       console.error("[azure-auto] upstream error", upstream.status, errorMsg);
       return new Response(
-        JSON.stringify({ error: `Azure ${upstream.status}: ${errorMsg}` }),
+        JSON.stringify({ error: `Azure ${upstream.status}: ${errorMsg}`, code: "upstream_failed" }),
         { status: upstream.status, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
   const apiKey = await getKieToken(req);
   if (!apiKey) {
     return new Response(
-      JSON.stringify({ error: "No Kie.ai API key configured. Add one in Settings." }),
+      JSON.stringify({ error: "No Kie.ai API key configured. Add one in Settings.", code: "kie_key_missing" }),
       { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
 
   if (!upstream.ok) {
     const errText = await upstream.text();
-    return new Response(JSON.stringify({ error: errText }), {
+    return new Response(JSON.stringify({ error: errText, code: "server_error" }), {
       status: upstream.status,
       headers: { "Content-Type": "application/json" },
     });

@@ -25,10 +25,10 @@ export async function POST(req: NextRequest) {
     const { videoUrl, startTime, endTime } = await req.json();
 
     if (typeof videoUrl !== "string" || !videoUrl || startTime === undefined || endTime === undefined) {
-      return NextResponse.json({ error: "videoUrl, startTime and endTime are required" }, { status: 400 });
+      return NextResponse.json({ error: "videoUrl, startTime and endTime are required", code: "trim_fields_required" }, { status: 400 });
     }
     if (endTime <= startTime) {
-      return NextResponse.json({ error: "endTime must be greater than startTime" }, { status: 400 });
+      return NextResponse.json({ error: "endTime must be greater than startTime", code: "trim_range_invalid" }, { status: 400 });
     }
 
     const localVideo = await readLocalMedia(videoUrl);
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     } else {
       const res = await fetch(videoUrl);
       if (!res.ok) {
-        return NextResponse.json({ error: `Failed to fetch video: ${res.status}` }, { status: 400 });
+        return NextResponse.json({ error: `Failed to fetch video: ${res.status}`, code: "video_fetch_failed" }, { status: 400 });
       }
       videoBuffer = Buffer.from(await res.arrayBuffer());
       contentType = res.headers.get("content-type") ?? "video/mp4";
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[trim-video] error:", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: msg, code: "trim_failed" }, { status: 500 });
   } finally {
     // Cleanup temp files
     await Promise.all([

@@ -23,7 +23,7 @@ function recoverJob(taskId: string): "done" | "error" | "pending" | "not_found" 
 export async function GET(req: NextRequest) {
   const taskId = req.nextUrl.searchParams.get("taskId");
   if (!taskId) {
-    return NextResponse.json({ error: "taskId is required" }, { status: 400 });
+    return NextResponse.json({ error: "taskId is required", code: "task_id_required" }, { status: 400 });
   }
 
   const result = jobStore.get(taskId);

@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json() as { name: string; parentId?: string | null; orderIndex?: number };
   const { name, parentId = null, orderIndex = 0 } = body;
   if (!name || typeof name !== "string") {
-    return NextResponse.json({ error: "Missing name" }, { status: 400 });
+    return NextResponse.json({ error: "Missing name", code: "folder_name_required" }, { status: 400 });
   }
 
   const folder = guestDb.insertFolder({

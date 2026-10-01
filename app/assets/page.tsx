@@ -5,6 +5,7 @@ import { copyText } from "@/lib/clipboard";
 import { previewImageUrl, videoPosterUrl } from "@/lib/mediaPreview";
 import { useWorkflowStore } from "@/lib/store";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 import {
   Box, Clapperboard, Copy, FolderPlus, Image as ImageIcon, Library,
   Mountain, Palette, Plus, Search, Sparkles, UserRound,
@@ -41,6 +42,7 @@ const CATEGORY_KEY_BY_LABEL: Record<Category, string> = {
 };
 
 export default function AssetsPage() {
+  const apiError = useApiError();
   const t = useTranslations("assets");
   const tCat = useTranslations("assets.categories");
   const [data, setData] = useState<Payload>({ assets: [], total: 0, allTotal: 0, counts: { Characters: 0, Props: 0, Environments: 0, Styles: 0, Scenes: 0 }, collections: [] });
@@ -136,7 +138,7 @@ export default function AssetsPage() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: name.trim(), kind, rule }),
     });
-    if (!res.ok) window.alert((await res.json()).error ?? "Unable to create collection");
+    if (!res.ok) window.alert(apiError(await res.json(), "Unable to create collection"));
     await load();
   }
 

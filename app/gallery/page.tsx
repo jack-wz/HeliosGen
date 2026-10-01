@@ -11,6 +11,7 @@ import { Maximize2, Minimize2, ShieldAlert, X } from "lucide-react";
 type User = { id: string };
 import { GalleryItem, getToken, galleryCache } from "@/lib/galleryUtils";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 import { useFolderStore } from "@/lib/folderStore";
 import { MediaPickerModal } from "@/components/MediaPickerModal";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -597,6 +598,7 @@ function reorderAndRenumberTags(
 // ── Inner page ────────────────────────────────────────────────────────────────
 
 function GalleryInner() {
+  const apiError = useApiError();
   const { state, isMobile } = useSidebar();
   const router = useRouter();
   const pathname = usePathname();
@@ -953,7 +955,7 @@ function GalleryInner() {
         // Check immediately (no 3s delay) before entering the regular poll loop
         const immediateRes = await fetch(`/api/job-status?taskId=${pending.taskId!}`);
         const immediateResult = await immediateRes.json() as { status: string; error?: string };
-        if (immediateResult.status === "error") throw new Error(immediateResult.error ?? "Generation failed");
+        if (immediateResult.status === "error") throw new Error(apiError(immediateResult, "Generation failed"));
         if (immediateResult.status === "not_found") {
           // Task expired from server memory — image was likely already saved; just remove the spinner
           setPendingGens(prev => prev.filter(p => p.id !== pending.id));
@@ -1412,7 +1414,7 @@ function GalleryInner() {
           body: file,
         });
         const data = await res.json() as { cdnUrl?: string; error?: string };
-        if (!res.ok || !data.cdnUrl) throw new Error(data.error ?? "Upload failed");
+        if (!res.ok || !data.cdnUrl) throw new Error(apiError(data, "Upload failed"));
         setRefImages(prev => prev.map(r => r.id === entry.id ? { ...r, cdnUrl: data.cdnUrl!, uploading: false } : r));
       } catch {
         setRefImages(prev => prev.map(r => r.id === entry.id ? { ...r, uploading: false, error: true } : r));
@@ -1510,7 +1512,7 @@ function GalleryInner() {
           body: file,
         });
         const data = await res.json() as { cdnUrl?: string; error?: string };
-        if (!res.ok || !data.cdnUrl) throw new Error(data.error ?? "Upload failed");
+        if (!res.ok || !data.cdnUrl) throw new Error(apiError(data, "Upload failed"));
         const ok = (r: RefImage) => r.id === entry.id ? { ...r, cdnUrl: data.cdnUrl!, uploading: false } : r;
         if (isSingle) {
           if (target === "startFrame") setVidStartFrame(p => p?.id === entry.id ? { ...p, cdnUrl: data.cdnUrl!, uploading: false } : p);
@@ -1673,7 +1675,7 @@ function GalleryInner() {
       const text = await res.text();
       let d: { taskId?: string; error?: string } = {};
       try { d = JSON.parse(text); } catch { throw new Error(res.ok ? "Invalid server response" : `Server error ${res.status}`); }
-      if (!res.ok) throw new Error(d.error ?? `Server error ${res.status}`);
+      if (!res.ok) throw new Error(apiError(d, `Server error ${res.status}`));
       return d.taskId!;
     } else {
       const vm = VIDEO_MODELS.find(m => m.id === modelId);
@@ -1778,7 +1780,7 @@ function GalleryInner() {
       const text = await res.text();
       let d: { taskId?: string; error?: string } = {};
       try { d = JSON.parse(text); } catch { throw new Error(res.ok ? "Invalid server response" : `Server error ${res.status}`); }
-      if (!res.ok) throw new Error(d.error ?? `Server error ${res.status}`);
+      if (!res.ok) throw new Error(apiError(d, `Server error ${res.status}`));
       return d.taskId!;
     }
   };
@@ -1800,7 +1802,7 @@ function GalleryInner() {
       const poll = await fetch(`/api/job-status?taskId=${taskId}`);
       const result = await poll.json() as { status: string; error?: string };
       if (result.status === "done") return;
-      if (result.status === "error") throw new Error(result.error ?? "Generation failed");
+      if (result.status === "error") throw new Error(apiError(result, "Generation failed"));
     }
     throw new Error("Timed out");
   };
@@ -2918,7 +2920,7 @@ function GalleryInner() {
                                       ...(storedRefs.length > 0 ? { referenceImageUrls: storedRefs } : {}),
                                     }) });
                                     const d = await res.json() as { taskId?: string; error?: string };
-                                    if (!res.ok) throw new Error(d.error ?? "Failed");
+                                    if (!res.ok) throw new Error(apiError(d, "Failed"));
                                     taskId = d.taskId!;
                                   } else {
                                     const syntheticTagged: TaggedImage[] = storedRefs.map((url, i) => ({ label: `image${i + 1}`, refId: url, url }));
@@ -2932,7 +2934,7 @@ function GalleryInner() {
                                     const isCodex = providerForModel === "codex";
                                     const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ prompt: resolvedPrompt, model: modelId, aspectRatio: pg.aspectRatio, quality, imageUrls, ...(isAzure ? { azureBaseUrl, azureDeployment, azureQuality: quality } : {}), ...(isCodex ? { codexProvider: true } : {}) }) });
                                     const d = await res.json() as { taskId?: string; error?: string };
-                                    if (!res.ok) throw new Error(d.error ?? "Failed");
+                                    if (!res.ok) throw new Error(apiError(d, "Failed"));
                                     taskId = d.taskId!;
                                   }
                                   setPendingGens(prev => prev.map(p => p.id === newId ? { ...p, taskId } : p));
@@ -4820,6 +4822,7 @@ function ElementPickerModal({
   onClose: () => void;
   onAttach: (el: KlingElement) => void;
 }) {
+  const apiError = useApiError();
   const [view, setView] = useState<"browse" | "create">("browse");
   const [elements, setElements] = useState<KlingElement[]>([]);
 
@@ -4872,7 +4875,7 @@ function ElementPickerModal({
           body: file,
         });
         const data = await res.json() as { cdnUrl?: string; error?: string };
-        if (!res.ok || !data.cdnUrl) throw new Error(data.error ?? "Upload failed");
+        if (!res.ok || !data.cdnUrl) throw new Error(apiError(data, "Upload failed"));
         setCreateImages(prev => prev.map(e => e.id === entry.id ? { ...e, cdnUrl: data.cdnUrl!, uploading: false } : e));
       } catch {
         setCreateImages(prev => prev.map(e => e.id === entry.id ? { ...e, uploading: false, error: true } : e));

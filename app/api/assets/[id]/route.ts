@@ -14,13 +14,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if ("seekGuid" in body) updates.seek_guid = typeof body.seekGuid === "string" ? body.seekGuid : null;
   if ("category" in body) {
     const category = body.category == null ? null : normalizeCategory(String(body.category));
-    if (body.category != null && !category) return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+    if (body.category != null && !category) return NextResponse.json({ error: "Invalid category", code: "invalid_category" }, { status: 400 });
     updates.category = category;
   }
   if ("manualCategoryId" in body) {
     const catId = body.manualCategoryId == null ? null : String(body.manualCategoryId);
     if (catId != null && !CATEGORY_IDS.includes(catId as never) && catId !== "inbox") {
-      return NextResponse.json({ error: "Invalid manualCategoryId" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid manualCategoryId", code: "invalid_manual_category" }, { status: 400 });
     }
     updates.manual_category_id = catId;
   }
@@ -28,5 +28,5 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     updates.asset_tags = Array.isArray(body.tags) ? body.tags.map(String) : [];
   }
   const asset = guestDb.updateCreativeAsset(id, GUEST_USER_ID, updates);
-  return asset ? NextResponse.json({ ok: true, asset }) : NextResponse.json({ error: "Asset not found" }, { status: 404 });
+  return asset ? NextResponse.json({ ok: true, asset }) : NextResponse.json({ error: "Asset not found", code: "asset_not_found" }, { status: 404 });
 }

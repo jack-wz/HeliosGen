@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json() as { folderId: string; itemIds: string[] };
   const { folderId, itemIds } = body;
   if (!folderId || !Array.isArray(itemIds)) {
-    return NextResponse.json({ error: "Missing folderId or itemIds" }, { status: 400 });
+    return NextResponse.json({ error: "Missing folderId or itemIds", code: "folder_items_required" }, { status: 400 });
   }
 
   guestDb.insertFolderItems(folderId, itemIds, GUEST_USER_ID);
@@ -17,7 +17,7 @@ export async function DELETE(req: NextRequest) {
   const body = await req.json() as { folderId: string; itemIds: string[] };
   const { folderId, itemIds } = body;
   if (!folderId || !Array.isArray(itemIds)) {
-    return NextResponse.json({ error: "Missing folderId or itemIds" }, { status: 400 });
+    return NextResponse.json({ error: "Missing folderId or itemIds", code: "folder_items_required" }, { status: 400 });
   }
 
   guestDb.deleteFolderItems(folderId, itemIds, GUEST_USER_ID);

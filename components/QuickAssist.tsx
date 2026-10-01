@@ -8,6 +8,7 @@ import { SYSTEM_PROMPT } from "@/lib/systemPrompt";
 import { useWorkflowStore } from "@/lib/store";
 import { loadAzureBaseUrl, loadAzureTextDeployment, loadAzureTextModelName } from "@/components/SettingsModal";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 
 interface Message {
   role: "user" | "assistant";
@@ -17,6 +18,7 @@ interface Message {
 
 
 export function QuickAssist() {
+  const apiError = useApiError();
   const t = useTranslations("ui.assist");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -124,7 +126,7 @@ export function QuickAssist() {
 
       if (!res.ok || !res.body) {
         let errMsg = t("requestFailed");
-        try { const j = await res.json(); errMsg = j.error ?? errMsg; } catch { errMsg = await res.text().catch(() => errMsg); }
+        try { const j = await res.json(); errMsg = apiError(j, errMsg); } catch { errMsg = await res.text().catch(() => errMsg); }
         setMessages(prev => prev.map((m, i) => i === assistantIdx ? { ...m, content: `Error: ${errMsg}`, streaming: false } : m));
         setStreaming(false);
         return;
@@ -168,7 +170,7 @@ export function QuickAssist() {
     } finally {
       setStreaming(false);
     }
-  }, [messages, streaming, model, sessionId, createSession, t]);
+  }, [messages, streaming, model, sessionId, createSession, t, apiError]);
 
   function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); }

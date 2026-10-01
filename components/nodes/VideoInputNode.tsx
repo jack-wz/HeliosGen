@@ -7,6 +7,7 @@ import { useWorkflowStore, NodeData } from "@/lib/store";
 import { VIDEO_MODELS } from "@/lib/modelConfig";
 import { sha256Hex } from "@/lib/assetHash";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 
 type VideoInputNodeType = Node<NodeData, "videoInputNode">;
 
@@ -34,6 +35,7 @@ const VIDEO_SOURCE_HANDLE_SPACING = 32; // px between source handles
 const videoSourceHandleCenterOffset = (i: number) => (i - (VIDEO_SOURCE_HANDLES.length - 1) / 2) * VIDEO_SOURCE_HANDLE_SPACING;
 
 export default function VideoInputNode({ id, data, selected }: NodeProps<VideoInputNodeType>) {
+  const apiError = useApiError();
   const t = useTranslations("nodes");
   const tGeneric = useTranslations("ui.generic");
   const updateNodeData  = useWorkflowStore((s) => s.updateNodeData);
@@ -269,7 +271,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
         body: bytes,
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? t("uploadFailed"));
+      if (!res.ok) throw new Error(apiError(json, t("uploadFailed")));
 
       if (json.cdnUrl) {
         updateNodeData(id, { capturedFrameUrl: json.cdnUrl, capturedFrameBlurUrl: blurDataUrl });
@@ -291,7 +293,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
       setCapturing(false);
       updateNodeData(id, { extractingFrame: false });
     }
-  }, [id, updateNodeData, edges, nodes, t]);
+  }, [id, updateNodeData, edges, nodes, t, apiError]);
 
   // Auto-open picker when connected; close picker + unlock when edge is cut
   const imagePickEdges = edges.filter((e) => e.source === id && e.sourceHandle === "imagePickOut");
@@ -422,7 +424,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
         body: bytes,
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? t("uploadFailed"));
+      if (!res.ok) throw new Error(apiError(json, t("uploadFailed")));
       URL.revokeObjectURL(blobUrl);
       localUrlRef.current = null;
       updateNodeData(id, { videoUrl: json.cdnUrl });
@@ -431,7 +433,7 @@ export default function VideoInputNode({ id, data, selected }: NodeProps<VideoIn
     } finally {
       setUploading(false);
     }
-  }, [id, updateNodeData, t]);
+  }, [id, updateNodeData, t, apiError]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

@@ -9,6 +9,7 @@ import CornerResizer from "./CornerResizer";
 import NodeActionBar from "./NodeActionBar";
 import { useWorkflowStore, NodeData } from "@/lib/store";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 import { resolveInputs } from "@/lib/executor";
 import { useReadOnly } from "@/lib/readOnlyContext";
 import { browserNotify, requestNotificationPermission } from "@/lib/browserNotify";
@@ -164,6 +165,7 @@ function resolveMentions(
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function GenerateNode({ id, data, selected }: NodeProps<GenerateNodeType>) {
+  const apiError = useApiError();
   const t = useTranslations("nodes");
   const tGeneric = useTranslations("ui.generic");
   const readOnly = useReadOnly();
@@ -525,11 +527,11 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
           const storeNode = useWorkflowStore.getState().nodes.find(n => n.id === id);
           const gens = [...((storeNode?.data?.generations as GenEntry[] | undefined) ?? [])] as GenEntry[];
           const slot = storeNode?.data?.currentGenIdx as number ?? gens.length - 1;
-          gens[slot] = { error: json.error ?? t("generationFailed") };
+          gens[slot] = { error: apiError(json, t("generationFailed")) };
           updateNodeData(id, { status: "error", errorMsg: json.error, taskId: undefined, generations: gens, currentGenIdx: slot });
           clearInterval(interval);
           document.removeEventListener("visibilitychange", onVisible);
-          browserNotify(t("nodeFailed"), json.error ?? t("generationFailed"));
+          browserNotify(t("nodeFailed"), apiError(json, t("generationFailed")));
         } else if (json.status === "not_found") {
           const storeNode = useWorkflowStore.getState().nodes.find(n => n.id === id);
           const gens = [...((storeNode?.data?.generations as GenEntry[] | undefined) ?? [])] as GenEntry[];
@@ -553,7 +555,7 @@ export default function GenerateNode({ id, data, selected }: NodeProps<GenerateN
     document.addEventListener("visibilitychange", onVisible);
 
     return () => { cancelled = true; clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
-  }, [data.taskId, status, id, updateNodeData, t]);
+  }, [data.taskId, status, id, updateNodeData, t, apiError]);
 
   const promptConnected = edges.some((e) => e.target === id && e.targetHandle === "prompt");
   const imageConnected = edges.some((e) => e.target === id && e.targetHandle === "image");

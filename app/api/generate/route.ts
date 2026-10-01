@@ -308,10 +308,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  if (!prompt?.trim()) return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+  if (!prompt?.trim()) return NextResponse.json({ error: "Prompt is required", code: "prompt_required" }, { status: 400 });
 
   const cfg = IMAGE_MODELS.find((m) => m.id === model);
-  if (!cfg) return NextResponse.json({ error: `Unknown model: ${model}` }, { status: 400 });
+  if (!cfg) return NextResponse.json({ error: `Unknown model: ${model}`, code: "unknown_model" }, { status: 400 });
 
   let r2ImageUrls: string[] = [];
   try {
@@ -325,7 +325,7 @@ export async function POST(req: NextRequest) {
   // ── Azure Foundry branch ──────────────────────────────────────────────────────
   if (azureBaseUrl && azureDeployment) {
     const azureKey = (await getAzureKeyForUser()) ?? process.env.AZURE_API_KEY ?? null;
-    if (!azureKey) return NextResponse.json({ error: "Azure API key is not configured. Add it in Settings." }, { status: 500 });
+    if (!azureKey) return NextResponse.json({ error: "Azure API key is not configured. Add it in Settings.", code: "azure_key_missing" }, { status: 500 });
 
     const resSizeMaps     = cfg.azureResolutionSizeMaps ?? {};
     const sizeMap         = (azureResolution && resSizeMaps[azureResolution]) ? resSizeMaps[azureResolution] : (cfg.azureSizeMap ?? {});
@@ -498,7 +498,7 @@ export async function POST(req: NextRequest) {
 
   // ── Kie.ai branch ─────────────────────────────────────────────────────────────
   const kieToken = await getKieTokenForUser();
-  if (!kieToken) return NextResponse.json({ error: "No Kie.ai API key configured. Add one in Settings." }, { status: 401 });
+  if (!kieToken) return NextResponse.json({ error: "No Kie.ai API key configured. Add one in Settings.", code: "kie_key_missing" }, { status: 401 });
 
   // The app polls kie.ai directly (see lib/kieJobPoller), so no callback URL.
   const callBackUrl = undefined;
@@ -561,6 +561,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ taskId, referenceImageUrls: r2ImageUrls });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: msg, code: "generation_failed" }, { status: 500 });
   }
 }

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   if (category) assets = assets.filter((asset) => asset.category === category);
   if (collectionId) {
     const collection = collections.find((item) => item.id === collectionId);
-    if (!collection) return NextResponse.json({ error: "Collection not found" }, { status: 404 });
+    if (!collection) return NextResponse.json({ error: "Collection not found", code: "collection_not_found" }, { status: 404 });
     const ids = guestDb.getCollectionAssetIds(collection);
     assets = assets.filter((asset) => ids.has(asset.id));
   }

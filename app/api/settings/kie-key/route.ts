@@ -12,7 +12,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const { kieApiToken } = await req.json();
   if (typeof kieApiToken !== "string" || !kieApiToken.trim()) {
-    return NextResponse.json({ error: "kieApiToken is required" }, { status: 400 });
+    return NextResponse.json({ error: "kieApiToken is required", code: "kie_api_token_required" }, { status: 400 });
   }
   setKieApiToken(kieApiToken.trim());
   return NextResponse.json({ ok: true });

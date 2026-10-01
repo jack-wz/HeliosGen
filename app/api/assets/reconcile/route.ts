@@ -9,6 +9,6 @@ export async function POST() {
     const assets = await reconcileCreativeAssets();
     return NextResponse.json({ ok: true, count: assets.length, assets });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : String(error), code: "reconcile_failed" }, { status: 500 });
   }
 }

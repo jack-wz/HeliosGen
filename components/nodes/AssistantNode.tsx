@@ -8,6 +8,7 @@ import CornerResizer from "./CornerResizer";
 import { useGeneratingBorderAnimation } from "@/lib/useGeneratingBorderAnimation";
 import { useReadOnly } from "@/lib/readOnlyContext";
 import { useTranslations } from "next-intl";
+import { useApiError } from "@/lib/useApiError";
 
 type AssistantNodeType = Node<NodeData, "assistantNode">;
 
@@ -17,6 +18,7 @@ const MODELS = [
 ];
 
 export default function AssistantNode({ id, data, selected }: NodeProps<AssistantNodeType>) {
+  const apiError = useApiError();
   const t = useTranslations("nodes");
   const tCanvas = useTranslations("ui.canvas");
   const readOnly = useReadOnly();
@@ -156,7 +158,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: t("generationFailed") }));
-        throw new Error(err.error ?? t("generationFailed"));
+        throw new Error(apiError(err, t("generationFailed")));
       }
 
       const reader = res.body!.getReader();
@@ -199,7 +201,7 @@ export default function AssistantNode({ id, data, selected }: NodeProps<Assistan
       setLoading(false);
       abortRef.current = null;
     }
-  }, [busy, hasPrompt, localPrompt, id, updateNodeData, t]);
+  }, [busy, hasPrompt, localPrompt, id, updateNodeData, t, apiError]);
 
   const handleCancel = useCallback(() => {
     abortRef.current?.abort();

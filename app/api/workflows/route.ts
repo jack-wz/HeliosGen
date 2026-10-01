@@ -18,10 +18,10 @@ export async function PUT(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
+    return NextResponse.json({ error: "invalid JSON", code: "invalid_json" }, { status: 400 });
   }
   if (!Array.isArray(body.spaces)) {
-    return NextResponse.json({ error: "spaces[] required" }, { status: 400 });
+    return NextResponse.json({ error: "spaces[] required", code: "spaces_required" }, { status: 400 });
   }
 
   saveSpaces(body.spaces);
