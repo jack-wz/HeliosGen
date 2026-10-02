@@ -109,6 +109,28 @@ export async function classifyAssetImage(opts: {
   name?: string | null;
   existingPrompt?: string | null;
   language?: "zh" | "en";
+  /** Internal: how many attempts have been made. Callers should not set this. */
+  attempt?: number;
+}): Promise<AssetClassification> {
+  try {
+    return await classifyOnce(opts);
+  } catch (err) {
+    // The model is stochastic — the same image can come back unparseable on one
+    // call and fine on the next. One retry turns a flaky batch into a reliable
+    // one; a missing key or a transport error is not retried.
+    const retryable = err instanceof Error && err.message.startsWith("Vision model did not return");
+    if (retryable && (opts.attempt ?? 0) < 1) {
+      return classifyAssetImage({ ...opts, attempt: (opts.attempt ?? 0) + 1 });
+    }
+    throw err;
+  }
+}
+
+async function classifyOnce(opts: {
+  imageUrl: string;
+  name?: string | null;
+  existingPrompt?: string | null;
+  language?: "zh" | "en";
 }): Promise<AssetClassification> {
   const apiKey = getMimoApiKey();
   if (!apiKey) throw new VisionNotConfiguredError();
@@ -165,7 +187,7 @@ export async function classifyAssetImage(opts: {
     }
 
     const data = (await res.json()) as {
-      choices?: Array<{ message?: { content?: unknown } }>;
+      choices?: Array<{ finish_reason?: string; message?: { content?: unknown } }>;
     };
     const content = data.choices?.[0]?.message?.content;
     const text =
@@ -176,7 +198,15 @@ export async function classifyAssetImage(opts: {
           : "";
 
     const parsed = parseClassification(text);
-    if (!parsed) throw new Error("Vision model did not return a usable classification");
+    if (!parsed) {
+      // Carry the raw answer: "did not return a usable classification" on its own
+      // is unactionable, and the model is stochastic enough that the reason
+      // varies between runs.
+      throw new Error(
+        `Vision model did not return a usable classification (finish=${data.choices?.[0]?.finish_reason ?? "?"}, ` +
+        `content=${JSON.stringify(text).slice(0, 200)})`,
+      );
+    }
     return parsed;
   } finally {
     clearTimeout(timer);
