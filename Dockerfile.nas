@@ -41,6 +41,9 @@ COPY --from=build --chown=node:node /app/public ./public
 # and adds no network surface.
 COPY --from=build --chown=node:node /app/lib ./lib
 COPY --from=build --chown=node:node /app/scripts/backfill-thumbs.mjs ./scripts/backfill-thumbs.mjs
+# Re-encodes stored images to lossless WebP in place (lib/assetCompress.ts), with
+# a backup dir and --rollback. Same deal as the thumb backfill: shell-only.
+COPY --from=build --chown=node:node /app/scripts/compress-assets.mjs ./scripts/compress-assets.mjs
 COPY --from=build --chown=node:node /app/scripts/_ts-alias-hooks.mjs ./scripts/_ts-alias-hooks.mjs
 # The build stage removes .next/cache, but compose bind-mounts the thumbnail
 # cache at /app/.next/cache/images. Docker then creates the parent as root, so
