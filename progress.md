@@ -1,3 +1,48 @@
+## 2026-10-02（资产功能完善 · 第 1 项：空间压缩 ✅）
+
+用户需求：**占用空间的压缩，且不损害原来的质量**。
+
+### 实测选型（4 个真实资产，6.6–17.8MB）
+| 方案 | 结果 | 像素 |
+|---|---|---|
+| **无损 WebP** | 52.4MB → **23.5MB（省 55%）** | ✅ **逐字节完全一致** |
+| PNG 重压（zopfli） | 52.4MB → 50.3MB（省 4%） | ✅ |
+
+结论：无损 WebP 是唯一的收益来源；"无损"**不靠假设**——`lib/assetCompress.ts` 对每个文件在写入前后各解码一次做**原始像素比对**，不一致就拒绝写入。
+
+### 关键约束与解法
+工作流节点数据里以**自由 JSON** 存了 `/generated/images/<id>.png`，DB 与资产索引同理——**改成 `.webp` 会破坏无法全部重写的引用**。
+
+解法：**字节就地替换、路径不变**；代价是扩展名不再描述内容，因此服务端改为**按魔数嗅探 Content-Type**（`lib/fileSignature.ts`，读前 12 字节识别 PNG/JPEG/GIF/WebP/AVIF/HEIC/MP4/WebM）。
+
+### 交付物
+| 文件 | 作用 |
+|---|---|
+| `lib/fileSignature.ts` | 按魔数定 Content-Type |
+| `lib/assetCompress.ts` | 无损 WebP 转换 + **逐文件像素校验** + temp/rename 原子写入 + 收益阈值 8% |
+| `scripts/compress-assets.mjs` | 迁移：**先备份**、幂等、`--dry-run`/`--limit`/`--rollback` |
+
+备份落在 `DATA_DIR/asset-originals-backup`（**媒体目录外**，Seek 与资产索引看不到）。
+
+### NAS 执行结果
+```
+压缩 123 个、跳过 5（已是 WebP）、未收益 39、失败 0，用时 1058s
+体积：1.01 GB -> 0.49 GB  省 51.5%
+```
+- **全库独立校验：167/167 像素完全一致，0 不一致**（1072MB → 502MB，省 53.2%）
+- 创作资产目录：1.5G → **902M**；原图备份 1.1G（可 `--rollback` 还原）
+- 39 个"未收益"是守卫正常工作（WebP 对这些文件不省空间，就不动它）
+
+### 上线验证
+画廊 47/47、资产页 38/38 缩略图，**0 破图**，无 JS 错误；原图服务 `.png` 路径返回 `Content-Type: image/webp` 且浏览器正常解码（2480×3312）。
+
+### 回滚点
+`rollback-20261002-133931`；文件级回滚 `docker exec -w /app heliosgen node scripts/compress-assets.mjs --rollback`
+
+### 待办
+- 第 2 项 AI 分类：用**小米 MiMo-VL**（OpenAI 兼容 `https://api.xiaomimimo.com/v1`），**需要用户提供 API Key**
+- 第 3 项 资产↔创作打通
+
 ## 2026-10-02（更正：Shadowrocket 无需改动，局域网本就可用）
 
 用户要求「帮我添加 Shadowrocket」。查证后发现**无需添加任何东西**，而且**我前两轮的归因都是错的**。
