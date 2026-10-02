@@ -33,6 +33,15 @@ COPY --from=build --chown=node:node /app/package.json ./package.json
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/.next ./.next
 COPY --from=build --chown=node:node /app/public ./public
+# Maintenance tooling. scripts/backfill-thumbs.mjs walks the media directory and
+# fills the thumbnail cache for files that predate write-time prewarming; it
+# imports the app's own modules, so lib/ ships alongside it. Run it with:
+#   docker exec -w /app heliosgen node scripts/backfill-thumbs.mjs
+# Nothing here is served — it needs shell access, which is already privileged,
+# and adds no network surface.
+COPY --from=build --chown=node:node /app/lib ./lib
+COPY --from=build --chown=node:node /app/scripts/backfill-thumbs.mjs ./scripts/backfill-thumbs.mjs
+COPY --from=build --chown=node:node /app/scripts/_ts-alias-hooks.mjs ./scripts/_ts-alias-hooks.mjs
 # The build stage removes .next/cache, but compose bind-mounts the thumbnail
 # cache at /app/.next/cache/images. Docker then creates the parent as root, so
 # the node user can't write siblings (Next's fetch-cache) and logs EACCES.
