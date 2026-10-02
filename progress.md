@@ -1,3 +1,31 @@
+## 2026-10-02（更正：Shadowrocket 无需改动，局域网本就可用）
+
+用户要求「帮我添加 Shadowrocket」。查证后发现**无需添加任何东西**，而且**我前两轮的归因都是错的**。
+
+### 查证结果
+| 检查项 | 结果 |
+|---|---|
+| `rule: IP-CIDR \| 192.168.0.0/16 \| DIRECT` | ✅ **早已存在** |
+| `general.skip-proxy` 含 `192.168.0.0/16` | ✅ 已排除 |
+| `general.tun-excluded-routes` 含 `192.168.0.0/16` | ✅ 已排除 |
+| **真实浏览器**（`open` 后用 Comet 打开） | ✅ **建立 6 条到 NAS 的活动连接** |
+| **Orca 内嵌 Chromium** | ✅ 稳定持有 5 条连接 |
+
+配置位置：`~/Library/Containers/com.liguangming.Shadowrocket/Data/Documents/Databases/default.db` 的 `config` 表（`section='rule'` / `'general'`）。用户自己已有 `~/.shadowrocket/import-ai-rules-to-shadowrocket.py` 作为导入范例。
+
+### 我错在哪
+1. 第一轮：说「系统代理例外列表不生效」——机制说错了
+2. 第二轮：说「TUN 按进程分流」——**规则其实早就放行了局域网**
+3. **根本错误：我的测量对象是我自己的工具链，不是用户的机器**
+
+从 `devin` CLI 进程树里拉起的 `python` / `node` / Playwright 的 Chromium 连不上局域网，而 `curl` / `nc` / **真实浏览器** 都通——这是 **macOS 的「本地网络」隐私权限**（macOS 15+，本机 27.0.1）**按进程授权**，与网络、NAS、Shadowrocket 都无关。
+
+### 教训（写给以后的自己）
+**验证"用户的浏览器能否访问"时，不能用我自己从 CLI 拉起的无头浏览器当替身**——它和用户的浏览器不在同一权限上下文里。正确做法：用 `open <url>` 交给用户的真实浏览器，再从 `lsof -iTCP:<port>` 看是否有该浏览器进程的活动连接。这一招在本轮一次就给出了定论。
+
+### 已更正
+- `README.nas.md` 排障章节重写：改为「先分辨是哪种进程」，并明确记录 Shadowrocket 无需改动 + 配置位置（`d9a0669`）
+
 ## 2026-10-02（局域网打不开的真因：代理 TUN 按进程分流）
 
 用户追问「怎么局域网在这台 Mac 上仍然走不通？」——**我上一轮的归因不够准确，这轮查实了**。
