@@ -150,7 +150,11 @@ export async function classifyAssetImage(opts: {
           },
         ],
         temperature: 0.2,
-        max_tokens: 400,
+        // Generous on purpose. mimo-v2.6-flash emits reasoning_content before the
+        // answer, and that is billed against the same budget — at 400 the model
+        // spent the lot thinking and returned empty content, which surfaced as
+        // "did not return a usable classification" on a handful of images.
+        max_tokens: 2000,
       }),
       signal: controller.signal,
     });
