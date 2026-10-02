@@ -211,35 +211,32 @@ HTTP 兼容回归：`node --test scripts/test-http-hash.mjs scripts/test-browser
 
 CLI 生成验证记录：`deployment/agent-e2e.json`。
 
-## 排障：局域网地址在浏览器里打不开（代理 TUN 按进程分流）
+## 排障：命令行工具连不上局域网（别误判成 NAS 问题）
 
-**症状**：`curl http://<NAS IP>:17860/` 能通，但**浏览器**报 `ERR_ADDRESS_UNREACHABLE`。**这不是 NAS 的问题。**
+**先确认一件事**：局域网地址在**正常浏览器**里是可用的。2026-10-02 实测——用 `open http://<NAS IP>:17860/` 打开后，浏览器（Comet）建立了 6 条到 NAS 的活动连接；Orca 的内嵌 Chromium 同样稳定连着。**Shadowrocket 的配置也已经放行局域网**（见下）。
 
-**判定特征**（2026-10-02 在 macOS 27.0.1 + Shadowrocket 上实测）：**同一台机器、同一时刻、同一个地址，按程序分流**——
+所以遇到"连不上"，**先分辨是哪种进程**：
 
-| 目标 | python / node / openssl / 浏览器 | curl / nc / bash |
-|---|---|---|
-| NAS 局域网 `<NAS IP>` | ❌ `No route to host` | ✅ 307 |
-| 路由器 `192.168.1.1` | ❌ `No route to host` | ✅ 200 |
-| NAS Tailscale `100.112.104.77` | ✅ 通 | ✅ 307 |
-| 公网 `1.1.1.1` | ✅ 通 | ✅ 400 |
+| 发起方 | 结果 |
+|---|---|
+| 浏览器（Comet / Chrome / Orca 内嵌） | ✅ 通 |
+| `curl` / `nc` / `bash /dev/tcp` | ✅ 通（`curl --noproxy '*'` 直连返回 307） |
+| 从 **CLI 会话里**启动的 `python` / `node` / Playwright 的 Chromium | ❌ `No route to host` / `ERR_ADDRESS_UNREACHABLE` |
 
-即 **`192.168.1.0/24` 整个网段对部分程序被拒**，而 Tailscale 网段与公网对所有程序都通。
+同一台机器、同一时刻、同一地址，**按发起进程不同结果不同** —— 这是 **macOS 的「本地网络」隐私权限**（macOS 15+，本机为 27.0.1）在按进程授权，**不是网络或 NAS 的问题**。浏览器是正常 App，已有权限；从某些 CLI 上下文里拉起的解释器/无头浏览器没有。
 
-**根因**：Shadowrocket / Clash / Surge 的 **TUN（增强）模式**。它接管默认路由（`utun7` 抢走 `default` 与 `128.0/1`），在 **IP 层**工作，因此能**按进程**决定放行还是丢弃——这是"同机同址、按程序不同结果"的唯一解释。它**绕过** macOS 系统代理的例外列表，所以改系统设置无效。
+**判断方法**：如果**浏览器能打开**、只是脚本连不上，就是权限问题，去「系统设置 → 隐私与安全性 → 本地网络」给对应程序（或终端）授权即可。
 
-**已排除**：路由错误（`route get <NAS IP>` 正确指向 `en0`）、NAS 侧防火墙、代理环境变量（`curl --noproxy '*'` 直连仍成功）、二进制签名（Apple 签名的 `/usr/bin/python3` 也失败，同为 Apple 签名的 `/usr/bin/curl` 成功）、源地址选择（显式 `bind` 到局域网地址仍失败）、端口（连路由器 `:80` 同样失败）。
+### Shadowrocket 侧（已确认无需改动）
 
-**修法**（TUN 模式必须在工具内部加规则）：
+Shadowrocket 里与局域网相关的三项**都已配置正确**，无需再添加：
 
 ```
-IP-CIDR,192.168.0.0/16,DIRECT
+rule:                IP-CIDR, 192.168.0.0/16, DIRECT
+general.skip-proxy:        …, 192.168.0.0/16, …
+general.tun-excluded-routes: …, 192.168.0.0/16, …
 ```
 
-或打开工具里的「绕过局域网」开关；或临时关闭 TUN / 增强模式。**Tailscale 地址不受影响**，可作临时替代。
+配置存放在 `~/Library/Containers/com.liguangming.Shadowrocket/Data/Documents/Databases/default.db` 的 `config` 表（`section='rule'` 为规则，`section='general'` 为全局项）。同目录 `~/.shadowrocket/` 下有既有的导入脚本与备份可参考。
 
-**验证**（改完这条应打印"局域网通了"，改之前报 `No route to host`）：
 
-```sh
-python3 -c "import socket;s=socket.socket();s.settimeout(5);s.connect(('<NAS IP>',17860));print('局域网通了')"
-```
