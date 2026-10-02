@@ -58,7 +58,7 @@ export type AssetClassification = {
 };
 
 const SYSTEM_PROMPT = `You organise an AI-generated image library. For each image, reply with JSON only — no prose, no code fences:
-{"category": "<one of: ${ASSET_CATEGORIES.join(" | ")}>", "description": "<one sentence, in the same language as the user's note, describing what the image shows>", "tags": ["<3-6 short keywords>"]}
+{"category": "<one of: ${ASSET_CATEGORIES.join(" | ")}>", "description": "<one sentence under 40 words, in the same language as the user's note, describing what the image shows>", "tags": ["<3-6 short keywords>"]}
 
 Category meanings:
 - Characters: a person, character, avatar or creature is the subject
@@ -66,6 +66,36 @@ Category meanings:
 - Environments: a place, landscape, interior or backdrop
 - Styles: primarily a visual style, palette, texture or abstract artwork
 - Scenes: a composition with several subjects or an action taking place`;
+
+/**
+ * Best-effort read of a truncated answer.
+ *
+ * The model sometimes stops mid-sentence with finish_reason "stop" and a
+ * description cut off inside the string — the JSON never closes, so a strict
+ * parse throws the whole answer away. Category and description both appear
+ * before the point where it tends to run out, so they are recovered field by
+ * field instead.
+ */
+function salvageClassification(text: string): AssetClassification | null {
+  const categoryMatch = text.match(/"category"\s*:\s*"([^"]+)"/);
+  if (!categoryMatch) return null;
+  const category = ASSET_CATEGORIES.find(
+    (c) => c.toLowerCase() === categoryMatch[1].trim().toLowerCase(),
+  );
+  if (!category) return null;
+
+  const descMatch = text.match(/"description"\s*:\s*"([^"]*)/);
+  const tagsBlock = text.match(/"tags"\s*:\s*\[([^\]]*)/);
+  const tags = tagsBlock
+    ? [...tagsBlock[1].matchAll(/"([^"]+)"/g)].map((m) => m[1].trim()).filter(Boolean).slice(0, 8)
+    : [];
+
+  return {
+    category,
+    description: (descMatch?.[1] ?? "").trim(),
+    tags,
+  };
+}
 
 function parseClassification(text: string): AssetClassification | null {
   // The model is asked for bare JSON, but tolerate fences or leading prose.
@@ -197,7 +227,7 @@ async function classifyOnce(opts: {
           ? content.map((p) => (typeof p === "string" ? p : (p as { text?: string })?.text ?? "")).join("")
           : "";
 
-    const parsed = parseClassification(text);
+    const parsed = parseClassification(text) ?? salvageClassification(text);
     if (!parsed) {
       // Carry the raw answer: "did not return a usable classification" on its own
       // is unactionable, and the model is stochastic enough that the reason
