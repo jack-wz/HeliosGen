@@ -2,11 +2,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GalleryItem, galleryCache, getToken, thumbSrc } from "@/lib/galleryUtils";
+import { ASSET_CATEGORIES } from "@/lib/assetCategories";
 import { videoPosterUrl } from "@/lib/mediaPreview";
 import { useTranslations } from "next-intl";
 import { useApiError } from "@/lib/useApiError";
 
-type TabId = "uploads" | "image-gen" | "video-gen";
+type TabId = "assets" | "uploads" | "image-gen" | "video-gen";
 
 const SHIMMER_CSS = `
 @keyframes picker-shimmer {
@@ -359,11 +360,55 @@ export function MediaPickerModal({
     return () => el.removeEventListener("scroll", checkAndLoad);
   }, [open, mediaKind, loadMore, loadingMore]);
 
+  // ── Asset library tab ──────────────────────────────────────────────────────
+  // Backed by /api/assets rather than /api/gallery: these are the curated,
+  // categorised assets (Seek-synced), which is what "reuse something I already
+  // have" usually means. Category and query filter server-side.
+  const [assetItems, setAssetItems] = useState<{ id: string; url: string; mediaType: "image" | "video"; category: string | null; name: string; tags: string[] }[]>([]);
+  const [assetCategory, setAssetCategory] = useState<string>("");
+  const [assetQuery, setAssetQuery] = useState("");
+  // Derived rather than stored: a synchronous setLoading(true) inside the
+  // effect is both what the lint rule objects to and less accurate than simply
+  // comparing the key we have results for against the key being asked for.
+  const [loadedAssetKey, setLoadedAssetKey] = useState<string | null>(null);
+  const assetRequestKey = `${assetCategory}|${assetQuery.trim()}`;
+  const assetsLoading = activeTab === "assets" && loadedAssetKey !== assetRequestKey;
+
+  useEffect(() => {
+    if (!open || activeTab !== "assets") return;
+    let cancelled = false;
+    const params = new URLSearchParams();
+    if (assetCategory) params.set("category", assetCategory);
+    if (assetQuery.trim()) params.set("q", assetQuery.trim());
+    fetch(`/api/assets?${params.toString()}`)
+      .then((r) => r.json())
+      .then((d: { assets?: Array<{ id: string; url: string; mime_type?: string; category?: string | null; name: string; asset_tags?: string[] }> }) => {
+        if (cancelled) return;
+        setAssetItems((d.assets ?? []).map((a) => ({
+          id: a.id,
+          url: a.url,
+          mediaType: (a.mime_type ?? "").startsWith("video/") ? "video" as const : "image" as const,
+          category: a.category ?? null,
+          name: a.name,
+          tags: a.asset_tags ?? [],
+        })));
+      })
+      .catch(() => { if (!cancelled) setAssetItems([]); })
+      .finally(() => { if (!cancelled) setLoadedAssetKey(assetRequestKey); });
+    return () => { cancelled = true; };
+  }, [open, activeTab, assetCategory, assetQuery, assetRequestKey]);
+
   const displayItems = useMemo(() => {
+    if (activeTab === "assets") {
+      return assetItems.map((a) => ({
+        id: a.id, url: a.url, mediaType: a.mediaType,
+        source: "upload" as const, created_at: "", name: a.name,
+      })) as unknown as typeof sourceItems;
+    }
     if (activeTab === "uploads")   return sourceItems.filter((i) => i.source === "upload");
     if (activeTab === "image-gen") return sourceItems.filter((i) => i.source === "generation" && i.mediaType === "image");
     return sourceItems.filter((i) => i.source === "generation" && i.mediaType === "video");
-  }, [activeTab, sourceItems]);
+  }, [activeTab, sourceItems, assetItems]);
 
   useEffect(() => {
     if (!previewItem) return;
@@ -398,16 +443,19 @@ export function MediaPickerModal({
   const tabs: { id: TabId; label: string }[] =
     mediaKind === "any"
       ? [
+          { id: "assets",    label: t("assetLibrary") },
           { id: "uploads",   label: t("uploads") },
           { id: "image-gen", label: t("imageGenerations") },
           { id: "video-gen", label: t("videoGenerations") },
         ]
       : mediaKind === "image"
       ? [
+          { id: "assets",    label: t("assetLibrary") },
           { id: "image-gen", label: t("imageGenerations") },
           { id: "uploads",   label: t("uploads") },
         ]
       : [
+          { id: "assets",    label: t("assetLibrary") },
           { id: "video-gen", label: t("videoGenerations") },
           { id: "uploads",   label: t("uploads") },
         ];
@@ -539,6 +587,40 @@ export function MediaPickerModal({
             <p style={{ margin: "6px 0 0", fontSize: "11px", color: "var(--danger-soft)" }}>{urlError}</p>
           )}
         </div>
+
+        {/* Asset-library filters — only meaningful on that tab */}
+        {activeTab === "assets" && (
+          <div style={{ padding: "10px 18px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, display: "flex", gap: "8px", alignItems: "center" }}>
+            <select
+              value={assetCategory}
+              onChange={(e) => setAssetCategory(e.target.value)}
+              aria-label={t("allCategories")}
+              style={{
+                height: "30px", padding: "0 8px", borderRadius: "8px", fontSize: "12px", outline: "none",
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                color: "rgba(255,255,255,0.85)",
+              }}
+            >
+              <option value="">{t("allCategories")}</option>
+              {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <input
+              type="search"
+              value={assetQuery}
+              onChange={(e) => setAssetQuery(e.target.value)}
+              placeholder={t("assetSearch")}
+              aria-label={t("assetSearch")}
+              style={{
+                flex: 1, height: "30px", padding: "0 12px", borderRadius: "8px", fontSize: "12px", outline: "none",
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                color: "rgba(255,255,255,0.85)",
+              }}
+            />
+            {assetsLoading && (
+              <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap" }}>…</span>
+            )}
+          </div>
+        )}
 
         {/* Scrollable grid */}
         <div ref={scrollContainerRef} className="picker-scroll" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "14px 18px 18px" }}>

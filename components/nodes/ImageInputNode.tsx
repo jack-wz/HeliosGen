@@ -2,6 +2,7 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import NextImage from "next/image";
+import { previewImageUrl } from "@/lib/mediaPreview";
 import { Handle, Position, NodeProps, Node, useUpdateNodeInternals } from "@xyflow/react";
 import CornerResizer from "./CornerResizer";
 import { useWorkflowStore, NodeData } from "@/lib/store";
@@ -280,10 +281,13 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
         >
           {/* Layer 1 — base image */}
           {baseSrc && (
-            // Use <NextImage> only for confirmed R2 CDN URLs — third-party URLs skip
-            // next/image optimization because /_next/image fetches server-side and fails
-            // for URLs that have auth, IP allowlists, or expiry (e.g. Replicate links).
-            baseSrc === (data.r2Url as string | undefined) ? (
+            // Only remote URLs go through <NextImage>: /_next/image fetches
+            // server-side and fails for links with auth, IP allowlists or
+            // expiry (e.g. Replicate). Locally stored files are the opposite
+            // case — they have a pre-generated thumbnail, and sending a 6MB
+            // original through the optimizer to fill a ~200px node is pure
+            // waste, so they render from previewImageUrl instead.
+            /^https?:\/\//i.test(baseSrc) ? (
               <NextImage
                 ref={nodeImgRef}
                 src={baseSrc}
@@ -300,7 +304,7 @@ export default function ImageInputNode({ id, data, selected }: NodeProps<ImageIn
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 ref={nodeImgRef}
-                src={baseSrc}
+                src={previewImageUrl(baseSrc, 300)}
                 alt={t("inputLabel")}
                 style={{
                   position: "absolute", inset: 0, width: "100%", height: "100%",
