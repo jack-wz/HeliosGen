@@ -212,7 +212,7 @@ export default function AssetsPage() {
                 : asset.mime_type.startsWith("audio/")
                   ? <div className="flex h-full items-center justify-center"><audio src={asset.url} controls preload="none" /></div>
                   // eslint-disable-next-line @next/next/no-img-element
-                  : <img src={previewImageUrl(asset.url, 360)} alt={asset.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />}
+                  : <img src={previewImageUrl(asset.url, 320)} alt={asset.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />}
             </div>
             <div className="space-y-3 p-3">
               <div className="flex items-start gap-2"><div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{asset.name}</div><div className="mt-0.5 truncate text-xs text-white/35">{asset.model || asset.source} · {asset.relative_path}</div></div><button title="Copy reference URL" onClick={() => { void copyText(asset.url).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error")); }} className="rounded-lg p-1.5 text-white/35 hover:bg-white/10 hover:text-white"><Copy size={15} /></button></div>

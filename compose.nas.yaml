@@ -9,8 +9,13 @@ services:
     restart: unless-stopped
     init: true
     ports:
-      - "127.0.0.1:17860:3000"
-      - "192.168.1.185:17860:3000"
+      # Bind every interface rather than the LAN IP. The address used to be
+      # hard-coded as 192.168.1.185:17860, but the NAS takes its address by
+      # DHCP — so a lease change would have made Docker fail to bind and the
+      # container refuse to start, taking the LAN down for everyone. Binding
+      # all interfaces survives that, and covers the loopback entry the
+      # Tailscale serve proxy uses as a side effect.
+      - "17860:3000"
     environment:
       TZ: Asia/Shanghai
       HELIOS_WEB: "1"
