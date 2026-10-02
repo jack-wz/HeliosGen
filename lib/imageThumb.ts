@@ -19,7 +19,7 @@ import { mkdir, readFile, rename, stat, writeFile, unlink } from "fs/promises";
 import { join } from "path";
 import { createHash } from "crypto";
 import sharp from "sharp";
-import { DATA_DIR } from "@/lib/guest/paths";
+import { DATA_DIR, MEDIA_DIR as MEDIA_ROOT_FOR_KEYS } from "@/lib/guest/paths";
 import { resolveMediaPath } from "@/lib/guest/creativeAssets";
 import { THUMB_WIDTHS, snapThumbWidth } from "@/lib/thumbWidths";
 
@@ -187,6 +187,34 @@ export async function cacheThumbFromBuffer(url: string, width: number, buffer: B
   const tmp = `${target}.${process.pid}.${Date.now()}.tmp.webp`;
   await writeFile(tmp, buffer);
   await rename(tmp, target);
+}
+
+/**
+ * Every cache filename that is currently valid — one per (file, width) pair for
+ * the files as they are on disk right now.
+ *
+ * Used by the backfill's --prune: after a pass that rewrites source bytes (the
+ * lossless WebP migration), the cache holds entries keyed to the old size and
+ * mtime that can never be requested again. Deleting by age alone would also drop
+ * entries for files that did *not* change, so the valid set is enumerated rather
+ * than guessed.
+ */
+export async function validThumbCacheKeys(
+  relativePaths: string[],
+  widths: readonly number[] = THUMB_WIDTHS,
+): Promise<Set<string>> {
+  const valid = new Set<string>();
+  for (const rel of relativePaths) {
+    const actual = join(MEDIA_ROOT_FOR_KEYS, rel);
+    let size: number, mtimeMs: number;
+    try {
+      ({ size, mtimeMs } = await stat(actual));
+    } catch {
+      continue;
+    }
+    for (const width of widths) valid.add(`${cacheKey(rel, size, mtimeMs, snapThumbWidth(width))}.webp`);
+  }
+  return valid;
 }
 
 export const THUMB_CACHE_DIR = CACHE_DIR;
