@@ -42,7 +42,16 @@ async function extract(actualPath: string, width: number, target: string): Promi
     ], { timeout: 20_000 });
   // Seek a little way in first: frame 0 of a generated clip is often a fade-in
   // from black, which tells a vision model nothing.
-  try { await run("0.5"); } catch { await run("0"); }
+  //
+  // The output file is checked rather than the exit code, because ffmpeg exits 0
+  // having written nothing when the seek lands past the end — which is what
+  // happens on a clip shorter than the seek, and it made the rename throw.
+  const wrote = async () => {
+    try { return (await stat(tmp)).size > 0; } catch { return false; }
+  };
+  try { await run("0.5"); } catch { /* fall through to the retry below */ }
+  if (!(await wrote())) await run("0");
+  if (!(await wrote())) throw new Error("ffmpeg produced no frame");
   await rename(tmp, target);
   return readFile(target);
 }
