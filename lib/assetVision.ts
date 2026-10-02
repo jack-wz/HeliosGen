@@ -16,8 +16,31 @@ import { getMimoApiKey } from "@/lib/guest/db";
 import { getImageThumb } from "@/lib/imageThumb";
 import { ASSET_CATEGORIES, type AssetCategory } from "@/lib/assetCategories";
 
-const BASE_URL = process.env.MIMO_BASE_URL || "https://api.xiaomimimo.com/v1";
-const MODEL = process.env.MIMO_VISION_MODEL || "mimo-vl";
+/**
+ * Xiaomi runs **two independent auth systems** whose keys and endpoints do not
+ * cross: pay-as-you-go keys start `sk-` and only work on `api.xiaomimimo.com`,
+ * token-plan keys start `tp-` and only work on a regional token-plan host. A
+ * `tp-` key against the `api.` host answers `401 Invalid API Key`, which reads
+ * like a bad key rather than a wrong endpoint — measured, not guessed.
+ *
+ * So the endpoint is chosen from the key itself, and MIMO_BASE_URL overrides
+ * both when someone wants to point this somewhere else entirely.
+ */
+const PAYG_BASE_URL = "https://api.xiaomimimo.com/v1";
+const TOKEN_PLAN_BASE_URL = "https://token-plan-cn.xiaomimimo.com/v1";
+
+function resolveBaseUrl(apiKey: string): string {
+  if (process.env.MIMO_BASE_URL) return process.env.MIMO_BASE_URL;
+  return apiKey.startsWith("tp-") ? TOKEN_PLAN_BASE_URL : PAYG_BASE_URL;
+}
+
+/**
+ * `mimo-v2.6-flash` is the one that accepts image input on the token-plan host
+ * (verified against the live API: it read a solid-colour test image correctly).
+ * `mimo-v2.5-pro` answers "No endpoints found that support image input", so it
+ * is not a drop-in substitute.
+ */
+const MODEL = process.env.MIMO_VISION_MODEL || "mimo-v2.6-flash";
 const TIMEOUT_MS = 60_000;
 
 /** Thrown when no key is configured, so callers can say so instead of guessing. */
@@ -105,7 +128,7 @@ export async function classifyAssetImage(opts: {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(`${BASE_URL}/chat/completions`, {
+    const res = await fetch(`${resolveBaseUrl(apiKey)}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
