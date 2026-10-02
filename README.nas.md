@@ -1,6 +1,6 @@
 # HeliosGen 飞牛 NAS 部署
 
-局域网访问：<http://192.168.1.185:17860/>（设备与 NAS 在同一局域网）。
+局域网访问：`http://<NAS 的 IP>:17860/`（设备与 NAS 在同一局域网；NAS 地址由 DHCP 分配，可在路由器上查看或用 DHCP 保留固定）。
 
 HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接同一 Tailscale 网络）。
 
@@ -20,7 +20,10 @@ HTTPS 访问：<https://fn-evo4-8cad.tail071480.ts.net:9443/>（设备需连接�
 - 上传、生成及创作资产：`/vol1/@team/AIGC 创作/创作资产`（HeliosGen 与 Seek 共用同一批文件）
 - 同步桥接状态：`/vol1/1000/HeliosGen/data/bridge`
 - Docker 镜像：`heliosgen:nas-http-20260915`，Linux amd64
-- 后端同时监听 NAS 回环地址 `127.0.0.1:17860` 与局域网地址 `192.168.1.185:17860`；Tailscale Serve 在私有 HTTPS 端口 `9443` 代理回环入口。浏览器里的 `127.0.0.1` 指当前设备，其他局域网设备应使用 NAS 地址。NAS 局域网 IP 变更时需同步更新 Compose 的端口绑定。
+- 后端**绑定全部网卡**（`0.0.0.0:17860`）。此前写死为 `127.0.0.1:17860` + `192.168.1.185:17860`，但 NAS 的地址是 **DHCP 动态分配**（`scope global dynamic`，租约约 70 小时）——租约一变 Docker 就会绑定失败、容器起不来，**局域网所有人都会打不开**。改为绑定全部网卡后不再受 IP 变化影响，同时顺带覆盖了 Tailscale Serve 代理所用的回环入口。
+  - **访问方式**（按速度排序）：局域网 `http://<NAS 的 IP>:17860/` → Tailscale 直连 `http://100.112.104.77:17860/` → Tailscale HTTPS `https://fn-evo4-8cad.tail071480.ts.net:9443/` → 公网中继
+  - **权衡（已确认接受）**：`0.0.0.0` 意味着 17860 也暴露在 Tailscale 与隧道网卡上，不再只限局域网
+  - 若需要收窄，可在 NAS 上用 ufw/iptables 只放行 `192.168.1.0/24`
 - HeliosGen 主容器以非 root 用户运行；`asset-bridge` 仅以只读方式挂载媒体，监听 inotify 事件并同步两个索引。两者均自动重启并滚动保存日志。
 
 ## 首次使用
@@ -207,3 +210,15 @@ HTTP 兼容回归：`node --test scripts/test-http-hash.mjs scripts/test-browser
 并修复了 `/api/download` 在反代后自取回源失败（HTTP 502）的问题：本地 `/generated/...` 文件改为直接从媒体目录流式返回，网页 UI 的下载按钮同样受益。
 
 CLI 生成验证记录：`deployment/agent-e2e.json`。
+
+## 排障：局域网地址在浏览器里打不开
+
+若 `curl http://<NAS IP>:17860/` 能通、但**浏览器**报 `ERR_ADDRESS_UNREACHABLE`，是**本机代理**拦的，不是 NAS 问题。常见于 Shadowrocket / Clash / Surge 的 **TUN（增强）模式**——它在 IP 层截流量，会**绕过** macOS 系统代理的例外列表。
+
+修法（TUN 模式必须在工具内部加规则）：
+
+```
+IP-CIDR,192.168.0.0/16,DIRECT
+```
+
+或临时关闭 TUN 模式。Tailscale 地址不受影响。
