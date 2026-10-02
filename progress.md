@@ -1,3 +1,36 @@
+## 2026-10-02（资产功能完善 · 第 2、3 项 ✅）
+
+### 第 2 项：AI 分类与自动识别（`271074f`）
+分类此前**只看文件夹路径**（`assets/Characters/…`），只有人手动归过档才准确。现在按**内容**分类。
+
+- **模型**：小米 **MiMo-VL**，走 OpenAI 兼容接口 `https://api.xiaomimimo.com/v1`。选它是因为模型 MIT 开源、接口是标准 chat/completions。模型名与 base URL 是常量，改成 app 已有的 Kie 通道（同样提供多模态 Gemini）只需一行。
+- **输入用 640px 预生成缩略图，不是原图**：原图 6–18MB，传它要几秒上传 + 大量图像 token，而 640px 足以回答分类问题。**用桩服务器验证过**：请求里是 90KB 的 WebP data URL，不是 14MB 源文件。
+- **三个入口**：设置页密钥字段（自包含组件，避免 props 穿透）、资产卡片按钮、批量栏按钮（顺序执行以避开限流并显示进度）、`scripts/classify-assets.mjs`（`--limit`/`--dry-run`/`--overwrite`，复用同一模块，批量与单击不会走偏）
+- **无密钥是一等状态**：接口返回 **409 + `vision_not_configured`**，UI 转成指向设置的提示；脚本打印明确说明后退出
+- **顺带重构**：分类词表移到 `lib/assetCategories.ts`——它原在 `lib/guest/creativeAssets.ts`，而后者 import `node:fs`，**客户端组件无法引用**；picker 的筛选需要同一份五个分类名。`creativeAssets` 改为再导出，既有 import 不受影响
+
+### 第 3 项：资产 ↔ 创作打通（`bf1cabd`）
+picker 原本只有「上传 / 图像生成 / 视频生成」，**没有资产库**——想复用已有素材得先记住它落在哪个页签。现在**默认打开「资产库」页签**：分类筛选 + 搜索，走 `/api/assets`（分类过的、Seek 同步的资产）。
+**端到端验证**：在图像节点打开 picker → 切到资产库 → 点击资产 → 弹窗关闭且节点渲染出该图。
+
+**顺带修掉一个遗留慢路径**：`ImageInputNode` 把本地文件也送进 `<NextImage>`，即让优化器解码 6MB 原图去填一个 ~200px 的节点。远程 URL 仍需要优化器（它服务端取图，对带鉴权/过期的链接会失败），所以分支改为**仅远程**，本地走 `previewImageUrl`。
+**未回归**：分辨率徽标读的是存储的 `imageNaturalRatio`（设图时记录的原图尺寸），所以节点仍正确显示 `2480 × 3312`，而实际加载的是 640×855 缩略图——**查证过，不是假设**。
+
+### 部署中发现的遗漏（已修，`5ec77e3`）
+`classify-assets.mjs` **没加进 Dockerfile** —— 镜像里有 `lib/assetVision.ts` 却没有批量入口。**是检查部署后的容器发现的**，不是假设 Dockerfile 完整。
+
+### 线上验证
+- `/api/settings/mimo-key` → `{"hasKey":false}` ✅
+- 分类接口（无密钥）→ **409 + `vision_not_configured`** ✅
+- 脚本在镜像内、无密钥时打印明确提示 ✅
+- 页面加载无 JS 错误 ✅
+
+### ⚠️ 诚实边界：分类质量未验证
+用户尚未提供 MiMo API Key。**链路用桩验证通过**（请求形状、响应解析、写库、降级），但**没有真实模型看过真实图片**。拿到密钥后应先 `docker exec -w /app heliosgen node scripts/classify-assets.mjs --limit 10` 看质量再全量。
+
+### 回滚点
+`rollback-20261002-162243`（A2+A3）、`rollback-20261002-162448`（Dockerfile 补漏）
+
 ## 2026-10-02（资产功能完善 · 第 1 项：空间压缩 ✅）
 
 用户需求：**占用空间的压缩，且不损害原来的质量**。
