@@ -211,14 +211,35 @@ HTTP 兼容回归：`node --test scripts/test-http-hash.mjs scripts/test-browser
 
 CLI 生成验证记录：`deployment/agent-e2e.json`。
 
-## 排障：局域网地址在浏览器里打不开
+## 排障：局域网地址在浏览器里打不开（代理 TUN 按进程分流）
 
-若 `curl http://<NAS IP>:17860/` 能通、但**浏览器**报 `ERR_ADDRESS_UNREACHABLE`，是**本机代理**拦的，不是 NAS 问题。常见于 Shadowrocket / Clash / Surge 的 **TUN（增强）模式**——它在 IP 层截流量，会**绕过** macOS 系统代理的例外列表。
+**症状**：`curl http://<NAS IP>:17860/` 能通，但**浏览器**报 `ERR_ADDRESS_UNREACHABLE`。**这不是 NAS 的问题。**
 
-修法（TUN 模式必须在工具内部加规则）：
+**判定特征**（2026-10-02 在 macOS 27.0.1 + Shadowrocket 上实测）：**同一台机器、同一时刻、同一个地址，按程序分流**——
+
+| 目标 | python / node / openssl / 浏览器 | curl / nc / bash |
+|---|---|---|
+| NAS 局域网 `<NAS IP>` | ❌ `No route to host` | ✅ 307 |
+| 路由器 `192.168.1.1` | ❌ `No route to host` | ✅ 200 |
+| NAS Tailscale `100.112.104.77` | ✅ 通 | ✅ 307 |
+| 公网 `1.1.1.1` | ✅ 通 | ✅ 400 |
+
+即 **`192.168.1.0/24` 整个网段对部分程序被拒**，而 Tailscale 网段与公网对所有程序都通。
+
+**根因**：Shadowrocket / Clash / Surge 的 **TUN（增强）模式**。它接管默认路由（`utun7` 抢走 `default` 与 `128.0/1`），在 **IP 层**工作，因此能**按进程**决定放行还是丢弃——这是"同机同址、按程序不同结果"的唯一解释。它**绕过** macOS 系统代理的例外列表，所以改系统设置无效。
+
+**已排除**：路由错误（`route get <NAS IP>` 正确指向 `en0`）、NAS 侧防火墙、代理环境变量（`curl --noproxy '*'` 直连仍成功）、二进制签名（Apple 签名的 `/usr/bin/python3` 也失败，同为 Apple 签名的 `/usr/bin/curl` 成功）、源地址选择（显式 `bind` 到局域网地址仍失败）、端口（连路由器 `:80` 同样失败）。
+
+**修法**（TUN 模式必须在工具内部加规则）：
 
 ```
 IP-CIDR,192.168.0.0/16,DIRECT
 ```
 
-或临时关闭 TUN 模式。Tailscale 地址不受影响。
+或打开工具里的「绕过局域网」开关；或临时关闭 TUN / 增强模式。**Tailscale 地址不受影响**，可作临时替代。
+
+**验证**（改完这条应打印"局域网通了"，改之前报 `No route to host`）：
+
+```sh
+python3 -c "import socket;s=socket.socket();s.settimeout(5);s.connect(('<NAS IP>',17860));print('局域网通了')"
+```
