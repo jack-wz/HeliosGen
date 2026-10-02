@@ -460,6 +460,24 @@ export function deleteKieApiToken(): void {
   deleteSetting("kie_api_token");
 }
 
+/** Xiaomi MiMo key, used for the vision model that classifies assets.
+ *  Env fallback mirrors the Kie token so a deployment can inject it instead. */
+export function getMimoApiKey(): string | null {
+  const dbKey = getSetting("mimo_api_key");
+  if (dbKey) return dbKey;
+  const envKey = process.env.MIMO_API_KEY ?? "";
+  if (!envKey || envKey === "your_mimo_api_key_here") return null;
+  return envKey;
+}
+
+export function setMimoApiKey(key: string): void {
+  setSetting("mimo_api_key", key);
+}
+
+export function deleteMimoApiKey(): void {
+  deleteSetting("mimo_api_key");
+}
+
 export function getAzureApiKey(): string | null {
   const dbKey = getSetting("azure_api_key");
   if (dbKey) return dbKey;

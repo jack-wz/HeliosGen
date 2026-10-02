@@ -28,7 +28,13 @@
       "environments": "环境",
       "styles": "风格",
       "scenes": "场景"
-    }
+    },
+    "aiClassify": "AI 识别",
+    "aiClassifySelected": "AI 识别所选",
+    "aiClassifying": "识别中…",
+    "aiNotConfigured": "未配置 MiMo 密钥，请到「设置 → API 密钥」填写",
+    "aiFailed": "识别失败",
+    "aiDone": "识别完成"
   },
   "gallery": {
     "loading": "加载中…",
@@ -75,7 +81,12 @@
     "save": "保存",
     "saving": "保存中…",
     "copy": "复制",
-    "copied": "已复制"
+    "copied": "已复制",
+    "mimoHint": "视觉识别密钥 —— 用于资产的 AI 分类",
+    "mimoPlaceholder": "粘贴 MiMo API Key",
+    "mimoGetKey": "在以下地址创建 Key：",
+    "configured": "已配置",
+    "remove": "移除"
   },
   "dashboard": {
     "heroTitle1": "构建 AI 工作流",
@@ -264,7 +275,10 @@
       "videoGenerations": "视频生成",
       "failedFetchUrl": "获取该 URL 失败",
       "pasteImageUrl": "粘贴图片 URL…",
-      "attach": "附加"
+      "attach": "附加",
+      "assetLibrary": "资产库",
+      "assetSearch": "搜索资产…",
+      "allCategories": "全部分类"
     },
     "canvas": {
       "running": "运行中…",

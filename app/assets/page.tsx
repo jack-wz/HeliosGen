@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { copyText } from "@/lib/clipboard";
 import { previewImageUrl, videoPosterUrl } from "@/lib/mediaPreview";
 import { useWorkflowStore } from "@/lib/store";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useApiError } from "@/lib/useApiError";
 import {
   Box, Clapperboard, Copy, FolderPlus, Image as ImageIcon, Library,
@@ -44,6 +44,7 @@ const CATEGORY_KEY_BY_LABEL: Record<Category, string> = {
 export default function AssetsPage() {
   const apiError = useApiError();
   const t = useTranslations("assets");
+  const locale = useLocale();
   const tCat = useTranslations("assets.categories");
   const [data, setData] = useState<Payload>({ assets: [], total: 0, allTotal: 0, counts: { Characters: 0, Props: 0, Environments: 0, Styles: 0, Scenes: 0 }, collections: [] });
   const [category, setCategory] = useState<Category | null>(null);
@@ -52,6 +53,8 @@ export default function AssetsPage() {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [classifying, setClassifying] = useState<Set<string>>(new Set());
+  const [bulkClassifying, setBulkClassifying] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -119,6 +122,65 @@ export default function AssetsPage() {
     ));
     setSelectedIds(new Set());
     await load();
+  }
+
+  /** Ask the vision model about one asset. `apply` writes the answer back. */
+  async function classifyAsset(asset: Asset, apply = true) {
+    const res = await fetch(`/api/assets/${asset.id}/classify`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apply, language: locale.startsWith("zh") ? "zh" : "en" }),
+    });
+    if (!res.ok) {
+      const data = (await res.json().catch(() => ({}))) as { error?: string; code?: string };
+      const err = new Error(data.error ?? t("aiFailed")) as Error & { code?: string };
+      err.code = data.code;
+      throw err;
+    }
+    return (await res.json()) as { suggestion: { category: string; description: string; tags: string[] } };
+  }
+
+  async function classifyOne(asset: Asset) {
+    if (classifying.has(asset.id)) return;
+    setClassifying(prev => new Set(prev).add(asset.id));
+    try {
+      await classifyAsset(asset);
+      await load();
+    } catch (e) {
+      const err = e as Error & { code?: string };
+      useWorkflowStore.getState().addToast(
+        err.code === "vision_not_configured" ? t("aiNotConfigured") : (err.message || t("aiFailed")),
+        "error",
+      );
+    } finally {
+      setClassifying(prev => { const n = new Set(prev); n.delete(asset.id); return n; });
+    }
+  }
+
+  async function classifySelected() {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    setBulkClassifying(true);
+    let done = 0, failed = 0, unconfigured = false;
+    // Sequential: one request at a time keeps us inside the provider's rate
+    // limit and lets the user see progress rather than a frozen button.
+    for (const id of ids) {
+      const asset = data.assets.find(a => a.id === id);
+      if (!asset) continue;
+      setClassifying(prev => new Set(prev).add(id));
+      try { await classifyAsset(asset); done += 1; }
+      catch (e) {
+        const err = e as Error & { code?: string };
+        if (err.code === "vision_not_configured") { unconfigured = true; break; }
+        failed += 1;
+      } finally {
+        setClassifying(prev => { const n = new Set(prev); n.delete(id); return n; });
+      }
+    }
+    setBulkClassifying(false);
+    setSelectedIds(new Set());
+    await load();
+    if (unconfigured) useWorkflowStore.getState().addToast(t("aiNotConfigured"), "error");
+    else useWorkflowStore.getState().addToast(`${t("aiDone")} ${done}${failed ? ` / ${failed} ${t("aiFailed")}` : ""}`, failed ? "error" : "success");
   }
 
   function toggleSelect(id: string) {
@@ -199,6 +261,7 @@ export default function AssetsPage() {
                   <button key={name} onClick={() => void batchCategory(name)} className="rounded-lg border border-white/15 px-2.5 py-1 text-xs text-white/70 hover:bg-white/10">{tCat(CATEGORY_KEY_BY_LABEL[name])}</button>
                 ))}
                 <button onClick={() => void batchCategory("")} className="rounded-lg border border-white/15 px-2.5 py-1 text-xs text-white/45 hover:bg-white/10">{t("clear")}</button>
+                <button onClick={() => void classifySelected()} disabled={bulkClassifying} className="rounded-lg border border-[var(--primary)]/40 bg-[var(--primary)]/10 px-2.5 py-1 text-xs text-[var(--primary)] hover:bg-[var(--primary)]/20 disabled:opacity-40">{bulkClassifying ? t("aiClassifying") : t("aiClassifySelected")}</button>
               </div>
               <button onClick={() => setSelectedIds(new Set())} className="ml-auto text-xs text-white/35 hover:text-white/70">{t("deselectAll")}</button>
             </div>
@@ -215,7 +278,8 @@ export default function AssetsPage() {
                   : <img src={previewImageUrl(asset.url, 320)} alt={asset.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />}
             </div>
             <div className="space-y-3 p-3">
-              <div className="flex items-start gap-2"><div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{asset.name}</div><div className="mt-0.5 truncate text-xs text-white/35">{asset.model || asset.source} · {asset.relative_path}</div></div><button title="Copy reference URL" onClick={() => { void copyText(asset.url).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error")); }} className="rounded-lg p-1.5 text-white/35 hover:bg-white/10 hover:text-white"><Copy size={15} /></button></div>
+              <div className="flex items-start gap-2"><div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{asset.name}</div><div className="mt-0.5 truncate text-xs text-white/35">{asset.model || asset.source} · {asset.relative_path}</div></div><button title={t("aiClassify")} aria-label={t("aiClassify")} disabled={classifying.has(asset.id)} onClick={() => void classifyOne(asset)} className="rounded-lg p-1.5 text-white/35 hover:bg-white/10 hover:text-white disabled:opacity-40"><Sparkles size={15} /></button>
+                <button title="Copy reference URL" onClick={() => { void copyText(asset.url).catch(() => useWorkflowStore.getState().addToast("Could not copy to clipboard.", "error")); }} className="rounded-lg p-1.5 text-white/35 hover:bg-white/10 hover:text-white"><Copy size={15} /></button></div>
               {asset.prompt && <p className="line-clamp-2 text-xs leading-5 text-white/45">{asset.prompt}</p>}
               <div className="flex gap-2">
                 <select value={asset.category ?? ""} onChange={(e) => updateCategory(asset, e.target.value)} className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#171b22] px-2 py-1.5 text-xs text-white/70 outline-none"><option value="">{t("uncategorized")}</option>{CATEGORIES.map(({ name }) => <option key={name}>{name}</option>)}</select>

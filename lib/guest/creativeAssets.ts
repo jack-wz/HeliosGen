@@ -3,22 +3,12 @@ import { basename, extname, isAbsolute, relative, resolve, sep } from "node:path
 import { GUEST_USER_ID } from "@/lib/guestMode";
 import { MEDIA_DIR } from "./paths";
 import * as guestDb from "./db";
+import { ASSET_CATEGORIES, normalizeCategory, type AssetCategory } from "@/lib/assetCategories";
 
-export const ASSET_CATEGORIES = ["Characters", "Props", "Environments", "Styles", "Scenes"] as const;
-export type AssetCategory = typeof ASSET_CATEGORIES[number];
-
-/** Stable IDs decoupled from display labels and disk paths. */
-export const CATEGORY_IDS = ["character", "prop", "environment", "visual_style", "scene"] as const;
-export type CategoryId = typeof CATEGORY_IDS[number];
-
-/** Map legacy English display names to stable IDs. */
-export const CATEGORY_LABEL_TO_ID: Record<string, CategoryId> = {
-  "characters": "character",
-  "props": "prop",
-  "environments": "environment",
-  "styles": "visual_style",
-  "scenes": "scene",
-};
+// The category vocabulary lives in lib/assetCategories.ts so client components
+// can reach it; re-exported here so existing imports keep working.
+export { ASSET_CATEGORIES, CATEGORY_IDS, CATEGORY_LABEL_TO_ID, normalizeCategory } from "@/lib/assetCategories";
+export type { AssetCategory, CategoryId } from "@/lib/assetCategories";
 
 /** Map stable IDs to legacy English labels for disk path compatibility. */
 export const CATEGORY_ID_TO_LABEL: Record<string, AssetCategory> = {
@@ -46,11 +36,6 @@ const SYSTEM_DIRS = new Set(["posters", "bgremoval"]);
 
 export function isSystemMediaPath(relativePath: string): boolean {
   return SYSTEM_DIRS.has(relativePath.split("/")[0]);
-}
-
-export function normalizeCategory(value?: string | null): AssetCategory | null {
-  if (!value) return null;
-  return ASSET_CATEGORIES.find((category) => category.toLowerCase() === value.toLowerCase()) ?? null;
 }
 
 function categoryFromPath(path: string): AssetCategory | null {

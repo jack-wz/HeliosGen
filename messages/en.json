@@ -28,7 +28,13 @@
       "environments": "Environments",
       "styles": "Styles",
       "scenes": "Scenes"
-    }
+    },
+    "aiClassify": "AI classify",
+    "aiClassifySelected": "Classify selected",
+    "aiClassifying": "Classifying…",
+    "aiNotConfigured": "No MiMo key configured. Add one in Settings → API Keys.",
+    "aiFailed": "Classification failed",
+    "aiDone": "Classification complete"
   },
   "gallery": {
     "loading": "Loading…",
@@ -75,7 +81,12 @@
     "save": "Save",
     "saving": "Saving…",
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "mimoHint": "Vision key — powers AI classification of assets",
+    "mimoPlaceholder": "Paste your MiMo API key",
+    "mimoGetKey": "Create a key at",
+    "configured": "Configured",
+    "remove": "Remove"
   },
   "dashboard": {
     "heroTitle1": "Build AI workflows",
@@ -264,7 +275,10 @@
       "videoGenerations": "Video Generations",
       "failedFetchUrl": "Failed to fetch URL",
       "pasteImageUrl": "Paste an image URL…",
-      "attach": "Attach"
+      "attach": "Attach",
+      "assetLibrary": "Asset library",
+      "assetSearch": "Search assets…",
+      "allCategories": "All categories"
     },
     "canvas": {
       "running": "Running…",

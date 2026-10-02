@@ -6,6 +6,7 @@ import { useWorkflowStore } from "@/lib/store";
 import { copyText } from "@/lib/clipboard";
 import { useTranslations } from "next-intl";
 import { useApiError } from "@/lib/useApiError";
+import { MimoKeyField } from "@/components/MimoKeyField";
 import { PROVIDERS, ProviderId, loadModelProviders, saveModelProviders, getModelProvider } from "@/lib/providers";
 
 /* ─── Provider options (re-exported for backwards compat) ───────────────────── */
@@ -665,6 +666,9 @@ function ApiKeysPanel({
           </div>
         )}
       </div>
+
+      {/* ──── Xiaomi MiMo (asset vision) ─────────────────────────────── */}
+      <MimoKeyField />
 
       {/* ──── Azure Foundry API key + endpoint ────────────────────────── */}
       <div
