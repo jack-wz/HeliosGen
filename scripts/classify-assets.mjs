@@ -44,9 +44,16 @@ if (!getMimoApiKey()) {
 }
 
 const all = db.getCreativeAssets(GUEST_USER_ID);
-const pending = overwrite ? all : all.filter((a) => !a.category);
 
-console.log(`资产总数:   ${all.length}`);
+// The vision model takes an image. Videos are skipped rather than counted as
+// failures — the poster frame would work but that is a separate piece of work,
+// and reporting 13 phantom errors would hide real ones.
+const isImage = (a) => (a.mime_type ?? "").startsWith("image/");
+const images = all.filter(isImage);
+const nonImages = all.length - images.length;
+const pending = overwrite ? images : images.filter((a) => !a.category);
+
+console.log(`资产总数:   ${all.length}（图片 ${images.length}、非图片 ${nonImages} 跳过）`);
 console.log(`待分类:     ${pending.length}${overwrite ? "（--overwrite：包含已有分类的）" : "（已有分类的会跳过）"}`);
 console.log(`描述语言:   ${language === "zh" ? "中文" : "English"}`);
 
