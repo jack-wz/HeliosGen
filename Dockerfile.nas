@@ -44,6 +44,9 @@ COPY --from=build --chown=node:node /app/scripts/backfill-thumbs.mjs ./scripts/b
 # Re-encodes stored images to lossless WebP in place (lib/assetCompress.ts), with
 # a backup dir and --rollback. Same deal as the thumb backfill: shell-only.
 COPY --from=build --chown=node:node /app/scripts/compress-assets.mjs ./scripts/compress-assets.mjs
+# Vision classification over the whole library (lib/assetVision.ts). Needs a MiMo
+# key; without one it prints what to do and exits rather than half-running.
+COPY --from=build --chown=node:node /app/scripts/classify-assets.mjs ./scripts/classify-assets.mjs
 COPY --from=build --chown=node:node /app/scripts/_ts-alias-hooks.mjs ./scripts/_ts-alias-hooks.mjs
 # The build stage removes .next/cache, but compose bind-mounts the thumbnail
 # cache at /app/.next/cache/images. Docker then creates the parent as root, so
