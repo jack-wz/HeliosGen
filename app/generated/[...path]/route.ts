@@ -11,6 +11,7 @@ import { createReadStream, existsSync, statSync } from "fs";
 import { join, normalize, extname } from "path";
 import { Readable } from "stream";
 import { MEDIA_DIR } from "@/lib/guest/paths";
+import { resolveMediaType } from "@/lib/fileSignature";
 
 export const runtime = "nodejs";
 
@@ -42,7 +43,13 @@ export async function GET(
   }
 
   const { size } = statSync(filePath);
-  const type = CONTENT_TYPES[extname(filePath).toLowerCase()] ?? "application/octet-stream";
+  // Trust the bytes over the extension. Originals may have been re-encoded in
+  // place to a smaller format (see lib/assetCompress.ts), which keeps every
+  // existing /generated/... reference working but makes the extension a lie.
+  const type = resolveMediaType(
+    filePath,
+    CONTENT_TYPES[extname(filePath).toLowerCase()] ?? "application/octet-stream",
+  );
 
   // HTTP Range support: allow video/image clients to request a byte slice
   // instead of the full file. Without this, preload="metadata" on a video
