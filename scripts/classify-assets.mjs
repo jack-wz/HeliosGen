@@ -45,15 +45,16 @@ if (!getMimoApiKey()) {
 
 const all = db.getCreativeAssets(GUEST_USER_ID);
 
-// The vision model takes an image. Videos are skipped rather than counted as
-// failures — the poster frame would work but that is a separate piece of work,
-// and reporting 13 phantom errors would hide real ones.
-const isImage = (a) => (a.mime_type ?? "").startsWith("image/");
-const images = all.filter(isImage);
-const nonImages = all.length - images.length;
-const pending = overwrite ? images : images.filter((a) => !a.category);
+// Images and videos are both classifiable — a video goes through its poster
+// frame, which lib/assetVision.ts extracts on demand. Audio and anything else
+// is skipped rather than counted as a failure, so phantom errors cannot hide
+// real ones.
+const isClassifiable = (a) => /^(image|video)\//.test(a.mime_type ?? "");
+const usable = all.filter(isClassifiable);
+const skipped = all.length - usable.length;
+const pending = overwrite ? usable : usable.filter((a) => !a.category);
 
-console.log(`资产总数:   ${all.length}（图片 ${images.length}、非图片 ${nonImages} 跳过）`);
+console.log(`资产总数:   ${all.length}（可分类 ${usable.length}、其他 ${skipped} 跳过）`);
 console.log(`待分类:     ${pending.length}${overwrite ? "（--overwrite：包含已有分类的）" : "（已有分类的会跳过）"}`);
 console.log(`描述语言:   ${language === "zh" ? "中文" : "English"}`);
 

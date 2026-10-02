@@ -14,6 +14,7 @@
  */
 import { getMimoApiKey } from "@/lib/guest/db";
 import { getImageThumb } from "@/lib/imageThumb";
+import { getVideoPoster } from "@/lib/videoFrame";
 import { ASSET_CATEGORIES, type AssetCategory } from "@/lib/assetCategories";
 
 /**
@@ -165,8 +166,12 @@ async function classifyOnce(opts: {
   const apiKey = getMimoApiKey();
   if (!apiKey) throw new VisionNotConfiguredError();
 
-  const thumb = await getImageThumb(opts.imageUrl, 640);
-  if (!thumb) throw new Error("Thumbnail unavailable for this asset");
+  // Images use their pre-generated thumbnail; videos fall back to a poster
+  // frame. Both are small, and both are already cached by the time a library
+  // gets classified — the alternative is sending a 6MB original or not
+  // classifying video at all, which would leave 13 of 170 assets unlabelled.
+  const frame = (await getImageThumb(opts.imageUrl, 640)) ?? (await getVideoPoster(opts.imageUrl, 720));
+  if (!frame) throw new Error("No thumbnail or poster frame available for this asset");
 
   const hint: string[] = [];
   if (opts.name) hint.push(`Filename: ${opts.name}`);
@@ -196,7 +201,7 @@ async function classifyOnce(opts: {
               { type: "text", text: hint.join("\n") },
               {
                 type: "image_url",
-                image_url: { url: `data:${thumb.contentType};base64,${thumb.buffer.toString("base64")}` },
+                image_url: { url: `data:${frame.contentType};base64,${frame.buffer.toString("base64")}` },
               },
             ],
           },
