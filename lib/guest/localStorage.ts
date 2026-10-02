@@ -7,6 +7,7 @@ import { lookupAssetHash, storeAssetHash } from "./db";
 import { stripMetadata } from "../mediaMetadata";
 import { getImageAspectRatio } from "../mediaMetadata";
 import { MEDIA_DIR as GENERATED_DIR } from "./paths";
+import { prewarmImageThumb } from "@/lib/imageThumb";
 
 function hashBuffer(buf: Buffer): string {
   return createHash("sha256").update(buf).digest("hex");
@@ -39,6 +40,14 @@ export async function uploadBuffer(buffer: Buffer, contentType: string, folder: 
   const url = `/generated/${folder}/${filename}`;
 
   storeAssetHash(hash, url, contentType, buffer.byteLength);
+
+  // Prewarm thumbnails for images. Deliberately not awaited: decoding a 9MB
+  // PNG into nine widths takes seconds, and the upload response must not wait
+  // for it. This runs on the server process, which outlives the request.
+  if (contentType.startsWith("image/")) {
+    void prewarmImageThumb(url).catch(() => {});
+  }
+
   return url;
 }
 

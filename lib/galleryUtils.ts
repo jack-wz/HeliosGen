@@ -1,3 +1,5 @@
+import { snapThumbWidth } from "@/lib/thumbWidths";
+
 export interface GalleryItem {
   id: string;
   url: string;
@@ -14,16 +16,15 @@ export interface GalleryItem {
   referenceImageUrls?: string[];
 }
 
-// Matches Next.js's default image `deviceSizes`/`imageSizes` buckets, so the
-// generated /_next/image URL always lands on a size Next has already cached.
-const NEXT_IMG_WIDTHS = [16, 32, 48, 64, 96, 128, 256, 384, 640, 750, 828, 1080, 1920, 3840];
-
-/** Downsized CDN thumbnail URL for displaying `url` at roughly `w` px (2x for retina). */
+/** Downsized thumbnail URL for displaying `url` at roughly `w` px (2x for retina).
+ *
+ * Served by /api/image-thumb from thumbnails pre-generated at write time, rather
+ * than by /_next/image decoding the original on every cold request. Originals
+ * here are 7-9MB PNGs on a four-core box, which is what made grids crawl. */
 export function thumbSrc(url: string, w = 96): string {
-  if (!url || url.startsWith("blob:") || url.startsWith("data:")) return url;
-  const target = w * 2;
-  const snapped = NEXT_IMG_WIDTHS.find(s => s >= target) ?? NEXT_IMG_WIDTHS[NEXT_IMG_WIDTHS.length - 1];
-  return `/_next/image?url=${encodeURIComponent(url)}&w=${snapped}&q=75`;
+  if (!url || url.startsWith("blob:") || url.startsWith("data:") || url.startsWith("/_next/")) return url;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `/api/image-thumb?url=${encodeURIComponent(url)}&w=${snapThumbWidth(w * 2)}`;
 }
 
 /** Local-only app has no real auth; call sites still gate on a truthy token. */

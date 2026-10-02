@@ -11,6 +11,7 @@ import { Maximize2, Minimize2, ShieldAlert, X } from "lucide-react";
 import { GalleryItem, getToken, galleryCache } from "@/lib/galleryUtils";
 import { useTranslations } from "next-intl";
 import { useApiError } from "@/lib/useApiError";
+import { snapThumbWidth } from "@/lib/thumbWidths";
 import { useFolderStore } from "@/lib/folderStore";
 import { MediaPickerModal } from "@/components/MediaPickerModal";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -34,16 +35,19 @@ function randomUUID(): string {
   });
 }
 
-const NEXT_IMG_WIDTHS = [16, 32, 48, 64, 96, 128, 256, 384, 640, 750, 828, 1080, 1200, 1920, 2048, 3840];
-
+/** Snap a display width to 2x for retina, then up to a rung of the shared
+ *  ladder (lib/thumbWidths.ts). Both ends must agree or one image ends up with
+ *  two URLs — and two browser cache entries — for the same pixels. */
 function snapWidth(w: number): number {
-  const target = w * 2;
-  return NEXT_IMG_WIDTHS.find(s => s >= target) ?? NEXT_IMG_WIDTHS[NEXT_IMG_WIDTHS.length - 1];
+  return snapThumbWidth(w * 2);
 }
 
 function thumbSrc(url: string, snapped: number): string {
   if (!url || url.startsWith("blob:") || url.startsWith("data:") || url.startsWith("/_next/")) return url;
-  return `/_next/image?url=${encodeURIComponent(url)}&w=${snapped}&q=75`;
+  // Served from the pre-generated cache when it is warm. Originals are 7-9MB
+  // PNGs and this box has four low-power cores, so letting /_next/image decode
+  // them per request is what made a cold gallery take tens of seconds.
+  return `/api/image-thumb?url=${encodeURIComponent(url)}&w=${snapped}`;
 }
 
 function resolveGalleryMentions(
