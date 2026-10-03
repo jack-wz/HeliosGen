@@ -27,7 +27,8 @@
       "props": "Props",
       "environments": "Environments",
       "styles": "Styles",
-      "scenes": "Scenes"
+      "scenes": "Scenes",
+      "covers": "Covers"
     },
     "aiClassify": "AI classify",
     "aiClassifySelected": "Classify selected",

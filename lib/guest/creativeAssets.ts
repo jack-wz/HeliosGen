@@ -17,6 +17,7 @@ export const CATEGORY_ID_TO_LABEL: Record<string, AssetCategory> = {
   "environment": "Environments",
   "visual_style": "Styles",
   "scene": "Scenes",
+  "cover": "Covers",
 };
 
 const MIME_BY_EXT: Record<string, string> = {

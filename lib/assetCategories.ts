@@ -8,11 +8,11 @@
  */
 
 /** Canonical display names — these are also the folder names under assets/. */
-export const ASSET_CATEGORIES = ["Characters", "Props", "Environments", "Styles", "Scenes"] as const;
+export const ASSET_CATEGORIES = ["Characters", "Props", "Environments", "Styles", "Scenes", "Covers"] as const;
 export type AssetCategory = (typeof ASSET_CATEGORIES)[number];
 
 /** Stable IDs decoupled from display labels and disk paths. */
-export const CATEGORY_IDS = ["character", "prop", "environment", "visual_style", "scene"] as const;
+export const CATEGORY_IDS = ["character", "prop", "environment", "visual_style", "scene", "cover"] as const;
 export type CategoryId = (typeof CATEGORY_IDS)[number];
 
 /** Map legacy English display names to stable IDs. */
@@ -22,6 +22,7 @@ export const CATEGORY_LABEL_TO_ID: Record<string, CategoryId> = {
   environments: "environment",
   styles: "visual_style",
   scenes: "scene",
+  covers: "cover",
 };
 
 /** Case-insensitive lookup used when accepting a category from a caller. */

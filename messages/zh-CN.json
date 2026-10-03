@@ -27,7 +27,8 @@
       "props": "道具",
       "environments": "环境",
       "styles": "风格",
-      "scenes": "场景"
+      "scenes": "场景",
+      "covers": "封面"
     },
     "aiClassify": "AI 识别",
     "aiClassifySelected": "AI 识别所选",

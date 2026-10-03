@@ -62,11 +62,18 @@ const SYSTEM_PROMPT = `You organise an AI-generated image library. For each imag
 {"category": "<one of: ${ASSET_CATEGORIES.join(" | ")}>", "description": "<one sentence under 40 words, in the same language as the user's note, describing what the image shows>", "tags": ["<3-6 short keywords>"]}
 
 Category meanings:
+- Covers: a designed cover, thumbnail or poster — prominent title text plus a focal
+  subject and a graphic layout, built to be read at a glance in a feed
 - Characters: a person, character, avatar or creature is the subject
 - Props: a single object, item or product is the subject
 - Environments: a place, landscape, interior or backdrop
 - Styles: primarily a visual style, palette, texture or abstract artwork
-- Scenes: a composition with several subjects or an action taking place`;
+- Scenes: a composition with several subjects or an action taking place
+
+Covers wins over the others. Covers usually contain a character or a scene as well,
+so if the image carries a title or headline and reads as a thumbnail for something,
+answer Covers — otherwise the subject wins and the cover ends up filed as a
+Character or a Scene.`;
 
 /**
  * Best-effort read of a truncated answer.

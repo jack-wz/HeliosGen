@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Box, Clapperboard, Copy, FolderPlus, ImageIcon, Library, Mountain, Palette, Plus,
-  Search, Sparkles, UserRound, X, Check, AlertCircle, ChevronDown, Trash2,
+  Search, Sparkles, UserRound, X, Check, AlertCircle, ChevronDown, Trash2, MonitorPlay,
 } from "lucide-react";
 import { previewImageUrl, videoPosterUrl } from "@/lib/mediaPreview";
 import { useWorkflowStore } from "@/lib/store";
@@ -31,17 +31,17 @@ const SORTS: SortKey[] = ["recent", "name", "category", "size"];
 const PAGE_SIZE = 48;
 
 const CATEGORY_ICONS: Record<Category, typeof UserRound> = {
-  Characters: UserRound, Props: Box, Environments: Mountain, Styles: Palette, Scenes: Clapperboard,
+  Characters: UserRound, Props: Box, Environments: Mountain, Styles: Palette, Scenes: Clapperboard, Covers: MonitorPlay,
 };
 const CATEGORY_KEYS: Record<Category, string> = {
-  Characters: "characters", Props: "props", Environments: "environments", Styles: "styles", Scenes: "scenes",
+  Characters: "characters", Props: "props", Environments: "environments", Styles: "styles", Scenes: "scenes", Covers: "covers",
 };
 const CATEGORY_ID: Record<string, Category> = {
-  character: "Characters", prop: "Props", environment: "Environments", visual_style: "Styles", scene: "Scenes",
+  character: "Characters", prop: "Props", environment: "Environments", visual_style: "Styles", scene: "Scenes", cover: "Covers",
 };
 
 const EMPTY: Payload = {
-  assets: [], total: 0, allTotal: 0, counts: { Characters: 0, Props: 0, Environments: 0, Styles: 0, Scenes: 0 }, collections: [],
+  assets: [], total: 0, allTotal: 0, counts: { Characters: 0, Props: 0, Environments: 0, Styles: 0, Scenes: 0, Covers: 0 }, collections: [],
 };
 
 /** Filter state lives in the URL so a filtered view survives a refresh and can be shared. */
