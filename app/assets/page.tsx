@@ -171,8 +171,10 @@ function AssetsInner() {
   const title = useMemo(() => {
     if (collection) return data.collections.find((c) => c.id === collection)?.name ?? t("collections");
     if (uncategorized) return t("uncategorizedFilter");
-    return category ?? t("title");
-  }, [category, collection, uncategorized, data.collections, t]);
+    // The category's display name, not its stored value — the raw name is
+    // English and the rest of the page is not.
+    return category ? tCat(CATEGORY_KEYS[category]) : t("title");
+  }, [category, collection, uncategorized, data.collections, t, tCat]);
 
   async function updateCategory(asset: Asset, next: string) {
     const catId = next ? Object.entries(CATEGORY_ID).find(([, label]) => label === next)?.[0] ?? null : null;
