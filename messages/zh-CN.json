@@ -60,7 +60,15 @@
     "undo": "撤销",
     "filteredBy": "筛选",
     "model": "模型",
-    "path": "路径"
+    "path": "路径",
+    "sortSize": "体积",
+    "deleteAsset": "删除资产",
+    "deleteTitle": "删除这个资产？",
+    "deleteBody": "会同时删除共享目录里的源文件，Seek 那边也会消失。此操作无法撤销。",
+    "deleteConfirm": "删除",
+    "deleted": "已删除",
+    "deleteFailed": "删除失败",
+    "undone": "已撤销"
   },
   "gallery": {
     "loading": "加载中…",

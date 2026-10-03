@@ -177,12 +177,18 @@ export interface Toast {
   href?:    string;
   title?:   string;
   preview?: string;
+  /**
+   * Optional inline action, e.g. undo. A toast carrying one stays up longer so
+   * there is actually time to use it — the point of an undo window is that the
+   * user can notice and reach it.
+   */
+  action?:  { label: string; run: () => void };
 }
 
 interface WorkflowStore {
   // ── Toasts
   toasts:      Toast[];
-  addToast:    (message: string, type?: Toast["type"], href?: string, title?: string, preview?: string) => void;
+  addToast:    (message: string, type?: Toast["type"], href?: string, title?: string, preview?: string, action?: Toast["action"]) => void;
   removeToast: (id: string) => void;
 
   // ── Kie key status (null = unknown, true = set, false = not set)
@@ -719,10 +725,10 @@ export const useWorkflowStore = create<WorkflowStore>()(
         },
 
         toasts: [],
-        addToast: (message, type = "error", href, title, preview) =>
+        addToast: (message, type = "error", href, title, preview, action) =>
           set((s) => {
             const id = Math.random().toString(36).slice(2);
-            return { toasts: [...s.toasts, { id, message, type, href, title, preview }] };
+            return { toasts: [...s.toasts, { id, message, type, href, title, preview, action }] };
           }),
         removeToast: (id) =>
           set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),

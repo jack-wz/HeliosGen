@@ -49,11 +49,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ ok: true, applied: false, suggestion: result });
   }
 
+  // Hand back what the fields were so the UI can offer an undo. The model can be
+  // wrong, and overwriting a hand-made category with no way back is the kind of
+  // thing that makes people stop using a feature.
+  const previous = {
+    category: asset.category,
+    description: asset.description,
+    tags: asset.asset_tags ?? [],
+  };
+
   const updated = guestDb.updateCreativeAsset(id, GUEST_USER_ID, {
     category: result.category,
     description: result.description || asset.description,
     asset_tags: result.tags,
   });
 
-  return NextResponse.json({ ok: true, applied: true, suggestion: result, asset: updated });
+  return NextResponse.json({ ok: true, applied: true, suggestion: result, previous, asset: updated });
 }

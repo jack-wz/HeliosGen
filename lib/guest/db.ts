@@ -73,6 +73,8 @@ export interface CreativeAsset {
   prompt: string | null;
   model: string | null;
   seek_guid: string | null;
+  /** Bytes on disk. Null for rows that predate the column. */
+  size_bytes: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -262,6 +264,7 @@ function rowToCreativeAsset(r: Record<string, unknown>): CreativeAsset {
     prompt: (r.prompt as string) ?? null,
     model: (r.model as string) ?? null,
     seek_guid: (r.seek_guid as string) ?? null,
+    size_bytes: typeof r.size_bytes === "number" ? r.size_bytes : null,
     created_at: r.created_at as string,
     updated_at: r.updated_at as string,
   };
@@ -277,8 +280,8 @@ export function upsertCreativeAsset(data: Omit<CreativeAsset, "id" | "created_at
   db().prepare(`
     INSERT INTO creative_assets
       (id, user_id, relative_path, url, name, category, manual_category_id, asset_tags, mime_type, source,
-       description, prompt, model, seek_guid, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       description, prompt, model, seek_guid, size_bytes, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(relative_path) DO UPDATE SET
       url = excluded.url, name = excluded.name, category = COALESCE(excluded.category, creative_assets.category),
       manual_category_id = COALESCE(excluded.manual_category_id, creative_assets.manual_category_id),
@@ -288,11 +291,12 @@ export function upsertCreativeAsset(data: Omit<CreativeAsset, "id" | "created_at
       prompt = COALESCE(excluded.prompt, creative_assets.prompt),
       model = COALESCE(excluded.model, creative_assets.model),
       seek_guid = COALESCE(excluded.seek_guid, creative_assets.seek_guid),
+      size_bytes = COALESCE(excluded.size_bytes, creative_assets.size_bytes),
       updated_at = excluded.updated_at
   `).run(
     id, data.user_id, data.relative_path, data.url, data.name, data.category, manualCat, tags,
     data.mime_type, data.source, data.description, data.prompt, data.model,
-    data.seek_guid, current?.created_at ?? ts, ts,
+    data.seek_guid, data.size_bytes ?? null, current?.created_at ?? ts, ts,
   );
   return rowToCreativeAsset(db().prepare("SELECT * FROM creative_assets WHERE id = ?").get(id) as Record<string, unknown>);
 }
@@ -300,6 +304,11 @@ export function upsertCreativeAsset(data: Omit<CreativeAsset, "id" | "created_at
 export function getCreativeAssets(userId: string): CreativeAsset[] {
   return (db().prepare("SELECT * FROM creative_assets WHERE user_id = ? ORDER BY updated_at DESC")
     .all(userId) as Record<string, unknown>[]).map(rowToCreativeAsset);
+}
+
+/** Remove one asset row. The caller is responsible for the file on disk. */
+export function deleteCreativeAsset(id: string, userId: string): void {
+  db().prepare("DELETE FROM creative_assets WHERE id = ? AND user_id = ?").run(id, userId);
 }
 
 export function deleteCreativeAssetsMissingFromDisk(userId: string, existingPaths: Set<string>): number {

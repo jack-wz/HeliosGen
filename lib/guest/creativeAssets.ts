@@ -56,6 +56,7 @@ export async function resolveMediaPath(input: { relativePath?: string; url?: str
   actualPath: string;
   url: string;
   mimeType: string;
+  sizeBytes: number;
 }> {
   let rel = input.relativePath?.trim();
   if (!rel && input.url?.startsWith("/generated/")) {
@@ -75,7 +76,7 @@ export async function resolveMediaPath(input: { relativePath?: string; url?: str
   const relativePath = relative(root, actualPath).split(sep).join("/");
   const mimeType = MIME_BY_EXT[extname(actualPath).toLowerCase()];
   if (!mimeType) throw new Error(`Unsupported asset type: ${extname(actualPath) || "no extension"}`);
-  return { relativePath, actualPath, url: encodeMediaUrl(relativePath), mimeType };
+  return { relativePath, actualPath, url: encodeMediaUrl(relativePath), mimeType, sizeBytes: fileStat.size };
 }
 
 export async function importCreativeAsset(input: {
@@ -110,6 +111,7 @@ export async function importCreativeAsset(input: {
     prompt: input.prompt ?? generation?.prompt ?? null,
     model: input.model ?? generation?.model ?? null,
     seek_guid: input.seekGuid ?? null,
+    size_bytes: media.sizeBytes,
   });
   guestDb.ensureUploadForAsset(asset.url, asset.mime_type, source === "seek" ? "seek_import" : "asset_import");
   return asset;

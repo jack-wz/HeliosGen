@@ -60,7 +60,15 @@
     "undo": "Undo",
     "filteredBy": "Filtered",
     "model": "Model",
-    "path": "Path"
+    "path": "Path",
+    "sortSize": "Size",
+    "deleteAsset": "Delete asset",
+    "deleteTitle": "Delete this asset?",
+    "deleteBody": "This also removes the source file from the shared folder, so it disappears from Seek too. This cannot be undone.",
+    "deleteConfirm": "Delete",
+    "deleted": "Deleted",
+    "deleteFailed": "Could not delete",
+    "undone": "Undone"
   },
   "gallery": {
     "loading": "Loading…",

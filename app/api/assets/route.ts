@@ -29,6 +29,10 @@ export async function GET(req: NextRequest) {
   // Sorting happens after filtering so the ordering is stable across pages.
   const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
   if (sort === "name") assets = [...assets].sort((a, b) => collator.compare(a.name, b.name));
+  else if (sort === "size") {
+    // Largest first: this ordering exists to answer "what is taking up room".
+    assets = [...assets].sort((a, b) => (b.size_bytes ?? -1) - (a.size_bytes ?? -1));
+  }
   else if (sort === "category") {
     assets = [...assets].sort((a, b) => {
       // Uncategorised last: they are the ones needing attention, not the top of

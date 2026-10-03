@@ -105,7 +105,7 @@ function RichToastItem({ toast, onDismiss, onClick }: { toast: Toast; onDismiss:
 }
 
 // Simple toast — errors, info, generic success
-function SimpleToastItem({ toast, onDismiss, onClick }: { toast: Toast; onDismiss: (e: React.MouseEvent) => void; onClick: () => void }) {
+function SimpleToastItem({ toast, onDismiss, onClick, onAction }: { toast: Toast; onDismiss: (e: React.MouseEvent) => void; onClick: () => void; onAction: (e: React.MouseEvent) => void }) {
   const c = COLORS[toast.type];
   return (
     <div
@@ -140,6 +140,19 @@ function SimpleToastItem({ toast, onDismiss, onClick }: { toast: Toast; onDismis
       <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.45, flex: 1 }}>
         {toast.message}
       </span>
+      {toast.action && (
+        <button
+          type="button"
+          onClick={onAction}
+          style={{
+            flexShrink: 0, alignSelf: "center", padding: "4px 10px", borderRadius: "7px",
+            border: `1px solid ${c.border}`, background: "transparent",
+            color: "#fff", fontSize: "12px", fontWeight: 600, cursor: "pointer",
+          }}
+        >
+          {toast.action.label}
+        </button>
+      )}
       <DismissButton onDismiss={onDismiss} />
     </div>
   );
@@ -149,7 +162,8 @@ function ToastItem({ toast }: { toast: Toast }) {
   const removeToast = useWorkflowStore((s) => s.removeToast);
   const router = useRouter();
   const isRich = !!(toast.title && toast.preview);
-  const dismissDuration = isRich ? null : toast.href ? 8000 : 4000;
+  // An undo window is useless if it disappears before it can be reached.
+  const dismissDuration = isRich ? null : toast.action ? 12000 : toast.href ? 8000 : 4000;
 
   useEffect(() => {
     if (dismissDuration === null) return;
@@ -169,11 +183,17 @@ function ToastItem({ toast }: { toast: Toast }) {
     removeToast(toast.id);
   }
 
+  function handleAction(e: React.MouseEvent) {
+    e.stopPropagation();
+    removeToast(toast.id);
+    toast.action?.run();
+  }
+
   if (toast.title && toast.preview) {
     return <RichToastItem toast={toast} onDismiss={handleDismiss} onClick={handleClick} />;
   }
 
-  return <SimpleToastItem toast={toast} onDismiss={handleDismiss} onClick={handleClick} />;
+  return <SimpleToastItem toast={toast} onDismiss={handleDismiss} onClick={handleClick} onAction={handleAction} />;
 }
 
 export default function Toaster() {

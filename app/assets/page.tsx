@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Box, Clapperboard, Copy, FolderPlus, ImageIcon, Library, Mountain, Palette, Plus,
-  Search, Sparkles, UserRound, X, Check, AlertCircle, ChevronDown,
+  Search, Sparkles, UserRound, X, Check, AlertCircle, ChevronDown, Trash2,
 } from "lucide-react";
 import { previewImageUrl, videoPosterUrl } from "@/lib/mediaPreview";
 import { useWorkflowStore } from "@/lib/store";
@@ -18,7 +18,7 @@ type Category = AssetCategory;
 type Asset = {
   id: string; name: string; url: string; mime_type: string; category: Category | null;
   description?: string | null; prompt?: string | null; model?: string | null; source: string;
-  relative_path: string; asset_tags?: string[]; poster_url?: string | null;
+  relative_path: string; asset_tags?: string[]; poster_url?: string | null; size_bytes?: number | null;
 };
 type Collection = { id: string; name: string; kind: "manual" | "smart"; asset_count: number };
 type Payload = {
@@ -26,8 +26,8 @@ type Payload = {
   counts: Record<Category, number>; collections: Collection[];
 };
 
-type SortKey = "recent" | "name" | "category";
-const SORTS: SortKey[] = ["recent", "name", "category"];
+type SortKey = "recent" | "name" | "category" | "size";
+const SORTS: SortKey[] = ["recent", "name", "category", "size"];
 const PAGE_SIZE = 48;
 
 const CATEGORY_ICONS: Record<Category, typeof UserRound> = {
@@ -206,7 +206,33 @@ function AssetsInner() {
       err.code = body.code;
       throw err;
     }
-    return (await res.json()) as { suggestion: { category: string; description: string; tags: string[] } };
+    return (await res.json()) as {
+      suggestion: { category: string; description: string; tags: string[] };
+      previous?: { category: string | null; description: string | null; tags: string[] };
+    };
+  }
+
+  /** Put an asset's classification fields back the way they were. */
+  async function restoreClassification(asset: Asset, previous: { category: string | null; description: string | null; tags: string[] }) {
+    await fetch(`/api/assets/${asset.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        category: previous.category,
+        manualCategoryId: previous.category ? Object.entries(CATEGORY_ID).find(([, label]) => label === previous.category)?.[0] ?? null : null,
+        description: previous.description,
+        tags: previous.tags,
+      }),
+    });
+    await load();
+  }
+
+  /** Offer an undo window after a classification overwrote existing values. */
+  function offerUndo(asset: Asset, previous: { category: string | null; description: string | null; tags: string[] }) {
+    if (!previous.category && !previous.description && previous.tags.length === 0) return;
+    useWorkflowStore.getState().addToast(t("aiDone"), "success", undefined, undefined, undefined, {
+      label: t("undo"),
+      run: () => { void restoreClassification(asset, previous).then(() => useWorkflowStore.getState().addToast(t("undone"), "info")); },
+    });
   }
 
   function reportClassifyError(e: unknown) {
@@ -221,8 +247,9 @@ function AssetsInner() {
     if (classifying.has(asset.id)) return;
     setClassifying((prev) => new Set(prev).add(asset.id));
     try {
-      await classifyAsset(asset);
+      const res = await classifyAsset(asset);
       await load();
+      if (res.previous) offerUndo(asset, res.previous);
     } catch (e) { reportClassifyError(e); }
     finally { setClassifying((prev) => { const n = new Set(prev); n.delete(asset.id); return n; }); }
   }
@@ -265,6 +292,19 @@ function AssetsInner() {
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  }
+
+  const [pendingDelete, setPendingDelete] = useState<Asset | null>(null);
+
+  async function deleteAsset(asset: Asset) {
+    setPendingDelete(null);
+    const res = await fetch(`/api/assets/${asset.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      useWorkflowStore.getState().addToast(apiError(await res.json().catch(() => ({})), t("deleteFailed")), "error");
+      return;
+    }
+    useWorkflowStore.getState().addToast(t("deleted"), "success");
+    await load();
   }
 
   async function createCollection(kind: "manual" | "smart", name: string) {
@@ -373,7 +413,7 @@ function AssetsInner() {
               <span className="sr-only">{t("sortLabel")}</span>
               <select value={sort} onChange={(e) => update({ sort: e.target.value === "recent" ? null : e.target.value })}
                 className="bg-transparent text-xs text-white/70 outline-none [color-scheme:dark]">
-                {SORTS.map((s) => <option key={s} value={s}>{t(s === "recent" ? "sortRecent" : s === "name" ? "sortName" : "sortCategory")}</option>)}
+                {SORTS.map((s) => <option key={s} value={s}>{t(s === "recent" ? "sortRecent" : s === "name" ? "sortName" : s === "size" ? "sortSize" : "sortCategory")}</option>)}
               </select>
             </label>
 
@@ -430,7 +470,8 @@ function AssetsInner() {
                     onOpen={() => setOpenId(asset.id)} onToggleSelect={() => toggleSelect(asset.id)}
                     onClassify={() => void classifyOne(asset)}
                     onRemove={() => void toggleMembership(asset.id, false)}
-                    onCopy={() => { void copyText(asset.url).catch(() => useWorkflowStore.getState().addToast(t("copyUrl"), "error")); }} />
+                    onCopy={() => { void copyText(asset.url).catch(() => useWorkflowStore.getState().addToast(t("copyUrl"), "error")); }}
+                    onDelete={() => setPendingDelete(asset)} />
                 ))}
               </ul>
               {data.hasMore && (
@@ -453,7 +494,13 @@ function AssetsInner() {
           onCategory={(next) => void updateCategory(data.assets[openIndex], next)}
           onClassify={() => void classifyOne(data.assets[openIndex])}
           onRemove={() => void toggleMembership(data.assets[openIndex].id, false)}
+          onDelete={() => setPendingDelete(data.assets[openIndex])}
           onCopy={() => { void copyText(data.assets[openIndex].url).catch(() => useWorkflowStore.getState().addToast(t("copyUrl"), "error")); }} />
+      )}
+
+      {pendingDelete && (
+        <ConfirmDeleteDialog asset={pendingDelete}
+          onCancel={() => setPendingDelete(null)} onConfirm={() => void deleteAsset(pendingDelete)} />
       )}
 
       {newCollection && (
@@ -488,9 +535,10 @@ function NavItem({ icon: Icon, label, count, active, tone, onClick }: {
  * in the lightbox. The previous version put eleven controls on every card, which
  * made a wall of 170 of them unreadable.
  */
-function AssetCard({ asset, selected, classifying, inCollection, onOpen, onToggleSelect, onClassify, onRemove, onCopy }: {
+function AssetCard({ asset, selected, classifying, inCollection, onOpen, onToggleSelect, onClassify, onRemove, onCopy, onDelete }: {
   asset: Asset; index: number; selected: boolean; classifying: boolean; inCollection: boolean;
-  onOpen: () => void; onToggleSelect: () => void; onClassify: () => void; onRemove: () => void; onCopy: () => void;
+  onOpen: () => void; onToggleSelect: () => void; onClassify: () => void; onRemove: () => void;
+  onCopy: () => void; onDelete: () => void;
 }) {
   const t = useTranslations("assets");
   const isVideo = asset.mime_type.startsWith("video/");
@@ -498,9 +546,13 @@ function AssetCard({ asset, selected, classifying, inCollection, onOpen, onToggl
   const [moreOpen, setMoreOpen] = useState(false);
 
   return (
+    // content-visibility lets the browser skip layout and paint for cards that
+    // are off-screen. With 170 assets and no library in place this is the cheap
+    // way to keep a long grid responsive; the intrinsic size stops the scrollbar
+    // from jumping as cards come into view.
     <li className={`group relative overflow-hidden rounded-xl border bg-white/[0.03] transition-colors ${
       selected ? "border-[var(--primary)]" : "border-white/10 hover:border-white/25"
-    }`}>
+    }`} style={{ contentVisibility: "auto", containIntrinsicSize: "auto 260px" }}>
       <button type="button" onClick={onOpen} aria-label={`${t("preview")}: ${asset.name}`}
         className="relative block aspect-square w-full overflow-hidden bg-black/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--primary)]">
         {isVideo ? (
@@ -543,10 +595,14 @@ function AssetCard({ asset, selected, classifying, inCollection, onOpen, onToggl
               </button>
               {inCollection && (
                 <button type="button" role="menuitem" onClick={() => { onRemove(); setMoreOpen(false); }}
-                  className="flex w-full items-center gap-2 rounded px-2.5 py-1.5 text-xs text-red-300/80 hover:bg-white/8">
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-1.5 text-xs text-white/70 hover:bg-white/8">
                   <X size={13} aria-hidden />{t("removeFromCollection")}
                 </button>
               )}
+              <button type="button" role="menuitem" onClick={() => { onDelete(); setMoreOpen(false); }}
+                className="flex w-full items-center gap-2 rounded px-2.5 py-1.5 text-xs text-red-300/80 hover:bg-white/8">
+                <Trash2 size={13} aria-hidden />{t("deleteAsset")}
+              </button>
             </div>
           )}
         </div>
@@ -563,10 +619,10 @@ function AssetCard({ asset, selected, classifying, inCollection, onOpen, onToggl
 }
 
 /** Full-size view. Browse-state detail lives here instead of on every card. */
-function AssetLightbox({ assets, index, inCollection, tCat, onIndex, onClose, onCategory, onClassify, onRemove, onCopy }: {
+function AssetLightbox({ assets, index, inCollection, tCat, onIndex, onClose, onCategory, onClassify, onRemove, onCopy, onDelete }: {
   assets: Asset[]; index: number; inCollection: boolean; tCat: (k: string) => string;
   onIndex: (i: number) => void; onClose: () => void; onCategory: (next: string) => void;
-  onClassify: () => void; onRemove: () => void; onCopy: () => void;
+  onClassify: () => void; onRemove: () => void; onCopy: () => void; onDelete: () => void;
 }) {
   const t = useTranslations("assets");
   const asset = assets[index];
@@ -662,6 +718,10 @@ function AssetLightbox({ assets, index, inCollection, tCat, onIndex, onClose, on
                   {t("remove")}
                 </button>
               )}
+              <button type="button" onClick={onDelete} aria-label={t("deleteAsset")}
+                className="rounded-lg border border-white/10 px-2 py-1.5 text-red-300/70 transition-colors hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+                <Trash2 size={13} aria-hidden />
+              </button>
             </div>
             <p className="text-center text-[10px] tabular-nums text-white/25">{index + 1} / {assets.length}</p>
           </div>
@@ -722,6 +782,46 @@ function NewCollectionDialog({ kind, onCancel, onCreate }: {
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+/**
+ * Deleting an asset removes the file, and the media folder is shared with Seek —
+ * so this is not a reversible library edit and the dialog says so rather than
+ * asking a vague "are you sure".
+ */
+function ConfirmDeleteDialog({ asset, onCancel, onConfirm }: {
+  asset: Asset; onCancel: () => void; onConfirm: () => void;
+}) {
+  const t = useTranslations("assets");
+  const confirmRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    confirmRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onCancel(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onCancel]);
+
+  return (
+    <div role="alertdialog" aria-modal="true" aria-label={t("deleteTitle")}
+      className="fixed inset-0 z-[100002] flex items-center justify-center bg-black/70 p-4">
+      <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#11151b] p-5">
+        <h2 className="text-sm font-medium">{t("deleteTitle")}</h2>
+        <p className="mt-1 truncate text-xs text-white/40">{asset.name}</p>
+        <p className="mt-3 text-xs leading-5 text-white/55">{t("deleteBody")}</p>
+        <div className="mt-5 flex justify-end gap-2">
+          <button type="button" onClick={onCancel}
+            className="rounded-lg px-3 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+            {t("cancel")}
+          </button>
+          <button ref={confirmRef} type="button" onClick={onConfirm}
+            className="rounded-lg bg-red-500/90 px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+            {t("deleteConfirm")}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

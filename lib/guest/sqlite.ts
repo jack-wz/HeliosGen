@@ -27,6 +27,9 @@ export function db(): DatabaseSync {
   try { database.exec("ALTER TABLE generations ADD COLUMN poster_url TEXT"); } catch { /* exists */ }
   try { database.exec("ALTER TABLE creative_assets ADD COLUMN manual_category_id TEXT"); } catch { /* exists */ }
   try { database.exec("ALTER TABLE creative_assets ADD COLUMN asset_tags TEXT"); } catch { /* exists */ }
+  // File size, so the library can be sorted by what is taking up room. Filled
+  // during reconcile/import, where the file is already being stat'd.
+  try { database.exec("ALTER TABLE creative_assets ADD COLUMN size_bytes INTEGER"); } catch { /* exists */ }
   _db = database;
   migrateFromJson(database);
   return _db;
